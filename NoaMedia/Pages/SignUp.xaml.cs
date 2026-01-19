@@ -1,18 +1,11 @@
-﻿using NoamediaLogin;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace NoaMedia.Pages
 {
@@ -26,7 +19,7 @@ namespace NoaMedia.Pages
             InitializeComponent();
         }
 
-        // כפתור הרשמה
+        // כפתור הרשמה - אחרי הצלחה עובר לדף הבית
         private void RegisterBtn_Click(object sender, RoutedEventArgs e)
         {
             if (string.IsNullOrEmpty(NewUserTextBox.Text) || string.IsNullOrEmpty(NewPasswordBox.Password))
@@ -35,15 +28,22 @@ namespace NoaMedia.Pages
                 return;
             }
 
-            // שמירת משתמש
+            // הודעת הצלחה
             MessageBox.Show("Account created successfully!");
+
+            // --- המעבר לדף הבית ---
+            Home homePage = new Home();
+            if (this.NavigationService != null)
+            {
+                this.NavigationService.Navigate(homePage);
+            }
         }
 
-        // כפתור חזרה
+        // כפתור חזרה למסך הכניסה
         private void BackToLogin_Click(object sender, RoutedEventArgs e)
         {
-            LogIn LogIn = new LogIn();
-            this.NavigationService.Navigate(LogIn);
+            LogIn loginPage = new LogIn();
+            this.NavigationService.Navigate(loginPage);
         }
     }
 }

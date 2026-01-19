@@ -1,7 +1,39 @@
 ﻿<Page x:Class="NoaMedia.Pages.Home"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:local="clr-namespace:NoaMedia" 
       Title="Home" Background="#141414">
+
+    <Page.Resources>
+        <DataTemplate x:Key="MovieTemplate">
+            <Grid Margin="0,0,15,20">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <Border Width="220" Height="125" CornerRadius="8" ClipToBounds="True" Background="#222">
+                    <Image Source="{Binding MovieImageSource}" Stretch="UniformToFill"/>
+                </Border>
+
+                <Button Grid.Row="1" 
+                        Content="Watch Now" 
+                        Margin="0,8,0,0" 
+                        Height="35" 
+                        Background="#E50914" 
+                        Foreground="White" 
+                        FontWeight="Bold"
+                        BorderThickness="0" 
+                        Cursor="Hand">
+                    <Button.Resources>
+                        <Style TargetType="Border">
+                            <Setter Property="CornerRadius" Value="5"/>
+                        </Style>
+                    </Button.Resources>
+                </Button>
+            </Grid>
+        </DataTemplate>
+    </Page.Resources>
 
     <Grid>
         <Grid.RowDefinitions>
@@ -10,13 +42,19 @@
         </Grid.RowDefinitions>
 
         <Grid Grid.Row="0" Margin="30,20">
-            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
                 <TextBlock Text="Hi " Foreground="White" FontSize="30" FontWeight="SemiBold"/>
                 <TextBlock x:Name="UserNameText" Text="User" Foreground="#E50914" FontSize="30" FontWeight="Bold"/>
                 <TextBlock Text="!" Foreground="White" FontSize="30" FontWeight="SemiBold"/>
             </StackPanel>
 
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+            <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
                 <Button Content="+ Add Movie" Click="AddMovie_Click" Width="110" Height="35" Background="#333" Foreground="White" BorderThickness="0" Margin="0,0,15,0" Cursor="Hand"/>
                 <Button Click="Profile_Click" Background="Transparent" BorderThickness="0" Cursor="Hand">
                     <Border Width="40" Height="40" Background="#E50914" CornerRadius="5">
@@ -30,318 +68,50 @@
             <StackPanel Margin="30,0,30,20">
 
                 <TextBlock Text="Action" Foreground="White" FontSize="22" FontWeight="Bold" Margin="0,20,0,10"/>
-                <ScrollViewer HorizontalScrollBarVisibility="Auto" PreviewMouseWheel="ScrollViewer_PreviewMouseWheel">
-                    <StackPanel Orientation="Horizontal">
-                        <StackPanel Margin="0,0,15,10">
-                            <Border Width="220" Height="125" CornerRadius="8" ClipToBounds="True">
-                                <Image Source="/pictures/action1.png" Stretch="UniformToFill"/>
-                            </Border>
-                            <Button Content="Watch Now" Margin="0,8,0,0" Height="30" Background="#E50914" Foreground="White" BorderThickness="0"/>
-                        </StackPanel>
-                        <StackPanel Margin="0,0,15,10">
-                            <Border Width="220" Height="125" CornerRadius="8" ClipToBounds="True">
-                                <Image Source="/pictures/action2.png" Stretch="UniformToFill"/>
-                            </Border>
-                            <Button Content="Watch Now" Margin="0,8,0,0" Height="30" Background="#E50914" Foreground="White" BorderThickness="0"/>
-                        </StackPanel>
-                        <StackPanel Margin="0,0,15,10">
-                            <Border Width="220" Height="125" CornerRadius="8" ClipToBounds="True">
-                                <Image Source="/pictures/action3.png" Stretch="UniformToFill"/>
-                            </Border>
-                            <Button Content="Watch Now" Margin="0,8,0,0" Height="30" Background="#E50914" Foreground="White" BorderThickness="0"/>
-                        </StackPanel>
-                    </StackPanel>
-                </ScrollViewer>
-
-                <TextBlock Text="WWE" Foreground="White" FontSize="22" FontWeight="Bold" Margin="0,30,0,10"/>
-                <ScrollViewer HorizontalScrollBarVisibility="Auto" PreviewMouseWheel="ScrollViewer_PreviewMouseWheel">
-                    <StackPanel Orientation="Horizontal">
-                        <StackPanel Margin="0,0,15,10">
-                            <Border Width="220" Height="125" CornerRadius="8" ClipToBounds="True">
-                                <Image Source="/pictures/wwe1.png" Stretch="UniformToFill"/>
-                            </Border>
-                            <Button Content="Watch Now" Margin="0,8,0,0" Height="30" Background="#E50914" Foreground="White" BorderThickness="0"/>
-                        </StackPanel>
-                        <StackPanel Margin="0,0,15,10">
-                            <Border Width="220" Height="125" CornerRadius="8" ClipToBounds="True">
-                                <Image Source="/pictures/wwe2.png" Stretch="UniformToFill"/>
-                            </Border>
-                            <Button Content="Watch Now" Margin="0,8,0,0" Height="30" Background="#E50914" Foreground="White" BorderThickness="0"/>
-                        </StackPanel>
-                        <StackPanel Margin="0,0,15,10">
-                            <Border Width="220" Height="125" CornerRadius="8" ClipToBounds="True">
-                                <Image Source="/pictures/wwe3.png" Stretch="UniformToFill"/>
-                            </Border>
-                            <Button Content="Watch Now" Margin="0,8,0,0" Height="30" Background="#E50914" Foreground="White" BorderThickness="0"/>
-                        </StackPanel>
-                    </StackPanel>
-                </ScrollViewer>
+                <ItemsControl x:Name="ActionMoviesItems" ItemTemplate="{StaticResource MovieTemplate}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel Orientation="Horizontal"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                </ItemsControl>
 
                 <TextBlock Text="Romance" Foreground="White" FontSize="22" FontWeight="Bold" Margin="0,30,0,10"/>
-                <ScrollViewer HorizontalScrollBarVisibility="Auto" PreviewMouseWheel="ScrollViewer_PreviewMouseWheel">
-                    <StackPanel Orientation="Horizontal">
-                        <StackPanel Margin="0,0,15,10">
-                            <Border Width="220" Height="125" CornerRadius="8" ClipToBounds="True">
-                                <Image Source="/pictures/rom1.png" Stretch="UniformToFill"/>
-                            </Border>
-                            <Button Content="Watch Now" Margin="0,8,0,0" Height="30" Background="#E50914" Foreground="White" BorderThickness="0"/>
-                        </StackPanel>
-                        <StackPanel Margin="0,0,15,10">
-                            <Border Width="220" Height="125" CornerRadius="8" ClipToBounds="True">
-                                <Image Source="/pictures/rom2.png" Stretch="UniformToFill"/>
-                            </Border>
-                            <Button Content="Watch Now" Margin="0,8,0,0" Height="30" Background="#E50914" Foreground="White" BorderThickness="0"/>
-                        </StackPanel>
-                        <StackPanel Margin="0,0,15,10">
-                            <Border Width="220" Height="125" CornerRadius="8" ClipToBounds="True">
-                                <Image Source="/pictures/rom3.png" Stretch="UniformToFill"/>
-                            </Border>
-                            <Button Content="Watch Now" Margin="0,8,0,0" Height="30" Background="#E50914" Foreground="White" BorderThickness="0"/>
-                        </StackPanel>
-                    </StackPanel>
-                </ScrollViewer>
-
-                <TextBlock Text="Fiction" Foreground="White" FontSize="22" FontWeight="Bold" Margin="0,30,0,10"/>
-                <ScrollViewer HorizontalScrollBarVisibility="Auto" PreviewMouseWheel="ScrollViewer_PreviewMouseWheel">
-                    <StackPanel Orientation="Horizontal">
-                        <StackPanel Margin="0,0,15,10">
-                            <Border Width="220" Height="125" CornerRadius="8" ClipToBounds="True">
-                                <Image Source="/pictures/fic1.png" Stretch="UniformToFill"/>
-                            </Border>
-                            <Button Content="Watch Now" Margin="0,8,0,0" Height="30" Background="#E50914" Foreground="White" BorderThickness="0"/>
-                        </StackPanel>
-                        <StackPanel Margin="0,0,15,10">
-                            <Border Width="220" Height="125" CornerRadius="8" ClipToBounds="True">
-                                <Image Source="/pictures/fic2.png" Stretch="UniformToFill"/>
-                            </Border>
-                            <Button Content="Watch Now" Margin="0,8,0,0" Height="30" Background="#E50914" Foreground="White" BorderThickness="0"/>
-                        </StackPanel>
-                        <StackPanel Margin="0,0,15,10">
-                            <Border Width="220" Height="125" CornerRadius="8" ClipToBounds="True">
-                                <Image Source="/pictures/fic3.png" Stretch="UniformToFill"/>
-                            </Border>
-                            <Button Content="Watch Now" Margin="0,8,0,0" Height="30" Background="#E50914" Foreground="White" BorderThickness="0"/>
-                        </StackPanel>
-                    </StackPanel>
-                </ScrollViewer>
+                <ItemsControl x:Name="RomanceMoviesItems" ItemTemplate="{StaticResource MovieTemplate}" />
 
                 <TextBlock Text="Horror" Foreground="White" FontSize="22" FontWeight="Bold" Margin="0,30,0,10"/>
-                <ScrollViewer HorizontalScrollBarVisibility="Auto" PreviewMouseWheel="ScrollViewer_PreviewMouseWheel">
-                    <StackPanel Orientation="Horizontal">
-                        <StackPanel Margin="0,0,15,10">
-                            <Border Width="220" Height="125" CornerRadius="8" ClipToBounds="True">
-                                <Image Source="/pictures/hor1.png" Stretch="UniformToFill"/>
-                            </Border>
-                            <Button Content="Watch Now" Margin="0,8,0,0" Height="30" Background="#E50914" Foreground="White" BorderThickness="0"/>
-                        </StackPanel>
-                        <StackPanel Margin="0,0,15,10">
-                            <Border Width="220" Height="125" CornerRadius="8" ClipToBounds="True">
-                                <Image Source="/pictures/hor2.png" Stretch="UniformToFill"/>
-                            </Border>
-                            <Button Content="Watch Now" Margin="0,8,0,0" Height="30" Background="#E50914" Foreground="White" BorderThickness="0"/>
-                        </StackPanel>
-                        <StackPanel Margin="0,0,15,10">
-                            <Border Width="220" Height="125" CornerRadius="8" ClipToBounds="True">
-                                <Image Source="/pictures/hor3.png" Stretch="UniformToFill"/>
-                            </Border>
-                            <Button Content="Watch Now" Margin="0,8,0,0" Height="30" Background="#E50914" Foreground="White" BorderThickness="0"/>
-                        </StackPanel>
-                    </StackPanel>
-                </ScrollViewer>
+                <ItemsControl x:Name="HorrorMoviesItems" ItemTemplate="{StaticResource MovieTemplate}" />
 
                 <TextBlock Text="Comedy" Foreground="White" FontSize="22" FontWeight="Bold" Margin="0,30,0,10"/>
-                <ScrollViewer HorizontalScrollBarVisibility="Auto" PreviewMouseWheel="ScrollViewer_PreviewMouseWheel">
-                    <StackPanel Orientation="Horizontal">
-                        <StackPanel Margin="0,0,15,10">
-                            <Border Width="220" Height="125" CornerRadius="8" ClipToBounds="True">
-                                <Image Source="/pictures/com1.png" Stretch="UniformToFill"/>
-                            </Border>
-                            <Button Content="Watch Now" Margin="0,8,0,0" Height="30" Background="#E50914" Foreground="White" BorderThickness="0"/>
-                        </StackPanel>
-                        <StackPanel Margin="0,0,15,10">
-                            <Border Width="220" Height="125" CornerRadius="8" ClipToBounds="True">
-                                <Image Source="/pictures/com2.png" Stretch="UniformToFill"/>
-                            </Border>
-                            <Button Content="Watch Now" Margin="0,8,0,0" Height="30" Background="#E50914" Foreground="White" BorderThickness="0"/>
-                        </StackPanel>
-                        <StackPanel Margin="0,0,15,10">
-                            <Border Width="220" Height="125" CornerRadius="8" ClipToBounds="True">
-                                <Image Source="/pictures/com3.png" Stretch="UniformToFill"/>
-                            </Border>
-                            <Button Content="Watch Now" Margin="0,8,0,0" Height="30" Background="#E50914" Foreground="White" BorderThickness="0"/>
-                        </StackPanel>
-                    </StackPanel>
-                </ScrollViewer>
-
-                <TextBlock Text="Documentary" Foreground="White" FontSize="22" FontWeight="Bold" Margin="0,30,0,10"/>
-                <ScrollViewer HorizontalScrollBarVisibility="Auto" PreviewMouseWheel="ScrollViewer_PreviewMouseWheel">
-                    <StackPanel Orientation="Horizontal">
-                        <StackPanel Margin="0,0,15,10">
-                            <Border Width="220" Height="125" CornerRadius="8" ClipToBounds="True">
-                                <Image Source="/pictures/doc1.png" Stretch="UniformToFill"/>
-                            </Border>
-                            <Button Content="Watch Now" Margin="0,8,0,0" Height="30" Background="#E50914" Foreground="White" BorderThickness="0"/>
-                        </StackPanel>
-                        <StackPanel Margin="0,0,15,10">
-                            <Border Width="220" Height="125" CornerRadius="8" ClipToBounds="True">
-                                <Image Source="/pictures/doc2.png" Stretch="UniformToFill"/>
-                            </Border>
-                            <Button Content="Watch Now" Margin="0,8,0,0" Height="30" Background="#E50914" Foreground="White" BorderThickness="0"/>
-                        </StackPanel>
-                        <StackPanel Margin="0,0,15,10">
-                            <Border Width="220" Height="125" CornerRadius="8" ClipToBounds="True">
-                                <Image Source="/pictures/doc3.png" Stretch="UniformToFill"/>
-                            </Border>
-                            <Button Content="Watch Now" Margin="0,8,0,0" Height="30" Background="#E50914" Foreground="White" BorderThickness="0"/>
-                        </StackPanel>
-                    </StackPanel>
-                </ScrollViewer>
+                <ItemsControl x:Name="ComedyMoviesItems" ItemTemplate="{StaticResource MovieTemplate}" />
 
                 <TextBlock Text="Drama" Foreground="White" FontSize="22" FontWeight="Bold" Margin="0,30,0,10"/>
-                <ScrollViewer HorizontalScrollBarVisibility="Auto" PreviewMouseWheel="ScrollViewer_PreviewMouseWheel">
-                    <StackPanel Orientation="Horizontal">
-                        <StackPanel Margin="0,0,15,10">
-                            <Border Width="220" Height="125" CornerRadius="8" ClipToBounds="True">
-                                <Image Source="/pictures/dra1.png" Stretch="UniformToFill"/>
-                            </Border>
-                            <Button Content="Watch Now" Margin="0,8,0,0" Height="30" Background="#E50914" Foreground="White" BorderThickness="0"/>
-                        </StackPanel>
-                        <StackPanel Margin="0,0,15,10">
-                            <Border Width="220" Height="125" CornerRadius="8" ClipToBounds="True">
-                                <Image Source="/pictures/dra2.png" Stretch="UniformToFill"/>
-                            </Border>
-                            <Button Content="Watch Now" Margin="0,8,0,0" Height="30" Background="#E50914" Foreground="White" BorderThickness="0"/>
-                        </StackPanel>
-                        <StackPanel Margin="0,0,15,10">
-                            <Border Width="220" Height="125" CornerRadius="8" ClipToBounds="True">
-                                <Image Source="/pictures/dra3.png" Stretch="UniformToFill"/>
-                            </Border>
-                            <Button Content="Watch Now" Margin="0,8,0,0" Height="30" Background="#E50914" Foreground="White" BorderThickness="0"/>
-                        </StackPanel>
-                    </StackPanel>
-                </ScrollViewer>
+                <ItemsControl x:Name="DramaMoviesItems" ItemTemplate="{StaticResource MovieTemplate}" />
+
+                <TextBlock Text="Sci-Fi" Foreground="White" FontSize="22" FontWeight="Bold" Margin="0,30,0,10"/>
+                <ItemsControl x:Name="SciFiMoviesItems" ItemTemplate="{StaticResource MovieTemplate}" />
 
                 <TextBlock Text="Fantasy" Foreground="White" FontSize="22" FontWeight="Bold" Margin="0,30,0,10"/>
-                <ScrollViewer HorizontalScrollBarVisibility="Auto" PreviewMouseWheel="ScrollViewer_PreviewMouseWheel">
-                    <StackPanel Orientation="Horizontal">
-                        <StackPanel Margin="0,0,15,10">
-                            <Border Width="220" Height="125" CornerRadius="8" ClipToBounds="True">
-                                <Image Source="/pictures/fan1.png" Stretch="UniformToFill"/>
-                            </Border>
-                            <Button Content="Watch Now" Margin="0,8,0,0" Height="30" Background="#E50914" Foreground="White" BorderThickness="0"/>
-                        </StackPanel>
-                        <StackPanel Margin="0,0,15,10">
-                            <Border Width="220" Height="125" CornerRadius="8" ClipToBounds="True">
-                                <Image Source="/pictures/fan2.png" Stretch="UniformToFill"/>
-                            </Border>
-                            <Button Content="Watch Now" Margin="0,8,0,0" Height="30" Background="#E50914" Foreground="White" BorderThickness="0"/>
-                        </StackPanel>
-                        <StackPanel Margin="0,0,15,10">
-                            <Border Width="220" Height="125" CornerRadius="8" ClipToBounds="True">
-                                <Image Source="/pictures/fan3.png" Stretch="UniformToFill"/>
-                            </Border>
-                            <Button Content="Watch Now" Margin="0,8,0,0" Height="30" Background="#E50914" Foreground="White" BorderThickness="0"/>
-                        </StackPanel>
-                    </StackPanel>
-                </ScrollViewer>
-
-                <TextBlock Text="Musical" Foreground="White" FontSize="22" FontWeight="Bold" Margin="0,30,0,10"/>
-                <ScrollViewer HorizontalScrollBarVisibility="Auto" PreviewMouseWheel="ScrollViewer_PreviewMouseWheel">
-                    <StackPanel Orientation="Horizontal">
-                        <StackPanel Margin="0,0,15,10">
-                            <Border Width="220" Height="125" CornerRadius="8" ClipToBounds="True">
-                                <Image Source="/pictures/mus1.png" Stretch="UniformToFill"/>
-                            </Border>
-                            <Button Content="Watch Now" Margin="0,8,0,0" Height="30" Background="#E50914" Foreground="White" BorderThickness="0"/>
-                        </StackPanel>
-                        <StackPanel Margin="0,0,15,10">
-                            <Border Width="220" Height="125" CornerRadius="8" ClipToBounds="True">
-                                <Image Source="/pictures/mus2.png" Stretch="UniformToFill"/>
-                            </Border>
-                            <Button Content="Watch Now" Margin="0,8,0,0" Height="30" Background="#E50914" Foreground="White" BorderThickness="0"/>
-                        </StackPanel>
-                        <StackPanel Margin="0,0,15,10">
-                            <Border Width="220" Height="125" CornerRadius="8" ClipToBounds="True">
-                                <Image Source="/pictures/mus3.png" Stretch="UniformToFill"/>
-                            </Border>
-                            <Button Content="Watch Now" Margin="0,8,0,0" Height="30" Background="#E50914" Foreground="White" BorderThickness="0"/>
-                        </StackPanel>
-                    </StackPanel>
-                </ScrollViewer>
+                <ItemsControl x:Name="FantasyMoviesItems" ItemTemplate="{StaticResource MovieTemplate}" />
 
                 <TextBlock Text="Thriller" Foreground="White" FontSize="22" FontWeight="Bold" Margin="0,30,0,10"/>
-                <ScrollViewer HorizontalScrollBarVisibility="Auto" PreviewMouseWheel="ScrollViewer_PreviewMouseWheel">
-                    <StackPanel Orientation="Horizontal">
-                        <StackPanel Margin="0,0,15,10">
-                            <Border Width="220" Height="125" CornerRadius="8" ClipToBounds="True">
-                                <Image Source="/pictures/thr1.png" Stretch="UniformToFill"/>
-                            </Border>
-                            <Button Content="Watch Now" Margin="0,8,0,0" Height="30" Background="#E50914" Foreground="White" BorderThickness="0"/>
-                        </StackPanel>
-                        <StackPanel Margin="0,0,15,10">
-                            <Border Width="220" Height="125" CornerRadius="8" ClipToBounds="True">
-                                <Image Source="/pictures/thr2.png" Stretch="UniformToFill"/>
-                            </Border>
-                            <Button Content="Watch Now" Margin="0,8,0,0" Height="30" Background="#E50914" Foreground="White" BorderThickness="0"/>
-                        </StackPanel>
-                        <StackPanel Margin="0,0,15,10">
-                            <Border Width="220" Height="125" CornerRadius="8" ClipToBounds="True">
-                                <Image Source="/pictures/thr3.png" Stretch="UniformToFill"/>
-                            </Border>
-                            <Button Content="Watch Now" Margin="0,8,0,0" Height="30" Background="#E50914" Foreground="White" BorderThickness="0"/>
-                        </StackPanel>
-                    </StackPanel>
-                </ScrollViewer>
+                <ItemsControl x:Name="ThrillerMoviesItems" ItemTemplate="{StaticResource MovieTemplate}" />
+
+                <TextBlock Text="Animation" Foreground="White" FontSize="22" FontWeight="Bold" Margin="0,30,0,10"/>
+                <ItemsControl x:Name="AnimationMoviesItems" ItemTemplate="{StaticResource MovieTemplate}" />
+
+                <TextBlock Text="Documentary" Foreground="White" FontSize="22" FontWeight="Bold" Margin="0,30,0,10"/>
+                <ItemsControl x:Name="DocumentaryMoviesItems" ItemTemplate="{StaticResource MovieTemplate}" />
 
                 <TextBlock Text="Crime" Foreground="White" FontSize="22" FontWeight="Bold" Margin="0,30,0,10"/>
-                <ScrollViewer HorizontalScrollBarVisibility="Auto" PreviewMouseWheel="ScrollViewer_PreviewMouseWheel">
-                    <StackPanel Orientation="Horizontal">
-                        <StackPanel Margin="0,0,15,10">
-                            <Border Width="220" Height="125" CornerRadius="8" ClipToBounds="True">
-                                <Image Source="/pictures/cri1.png" Stretch="UniformToFill"/>
-                            </Border>
-                            <Button Content="Watch Now" Margin="0,8,0,0" Height="30" Background="#E50914" Foreground="White" BorderThickness="0"/>
-                        </StackPanel>
-                        <StackPanel Margin="0,0,15,10">
-                            <Border Width="220" Height="125" CornerRadius="8" ClipToBounds="True">
-                                <Image Source="/pictures/cri2.png" Stretch="UniformToFill"/>
-                            </Border>
-                            <Button Content="Watch Now" Margin="0,8,0,0" Height="30" Background="#E50914" Foreground="White" BorderThickness="0"/>
-                        </StackPanel>
-                        <StackPanel Margin="0,0,15,10">
-                            <Border Width="220" Height="125" CornerRadius="8" ClipToBounds="True">
-                                <Image Source="/pictures/cri3.png" Stretch="UniformToFill"/>
-                            </Border>
-                            <Button Content="Watch Now" Margin="0,8,0,0" Height="30" Background="#E50914" Foreground="White" BorderThickness="0"/>
-                        </StackPanel>
-                    </StackPanel>
-                </ScrollViewer>
+                <ItemsControl x:Name="CrimeMoviesItems" ItemTemplate="{StaticResource MovieTemplate}" />
 
                 <TextBlock Text="Mystery" Foreground="White" FontSize="22" FontWeight="Bold" Margin="0,30,0,10"/>
-                <ScrollViewer HorizontalScrollBarVisibility="Auto" PreviewMouseWheel="ScrollViewer_PreviewMouseWheel">
-                    <StackPanel Orientation="Horizontal">
-                        <StackPanel Margin="0,0,15,10">
-                            <Border Width="220" Height="125" CornerRadius="8" ClipToBounds="True">
-                                <Image Source="/pictures/mys1.png" Stretch="UniformToFill"/>
-                            </Border>
-                            <Button Content="Watch Now" Margin="0,8,0,0" Height="30" Background="#E50914" Foreground="White" BorderThickness="0"/>
-                        </StackPanel>
-                        <StackPanel Margin="0,0,15,10">
-                            <Border Width="220" Height="125" CornerRadius="8" ClipToBounds="True">
-                                <Image Source="/pictures/mys2.png" Stretch="UniformToFill"/>
-                            </Border>
-                            <Button Content="Watch Now" Margin="0,8,0,0" Height="30" Background="#E50914" Foreground="White" BorderThickness="0"/>
-                        </StackPanel>
-                        <StackPanel Margin="0,0,15,10">
-                            <Border Width="220" Height="125" CornerRadius="8" ClipToBounds="True">
-                                <Image Source="/pictures/mys3.png" Stretch="UniformToFill"/>
-                            </Border>
-                            <Button Content="Watch Now" Margin="0,8,0,0" Height="30" Background="#E50914" Foreground="White" BorderThickness="0"/>
-                        </StackPanel>
-                    </StackPanel>
-                </ScrollViewer>
+                <ItemsControl x:Name="MysteryMoviesItems" ItemTemplate="{StaticResource MovieTemplate}" />
 
-                <Border Height="80"/>
+                <TextBlock Text="Adventure" Foreground="White" FontSize="22" FontWeight="Bold" Margin="0,30,0,10"/>
+                <ItemsControl x:Name="AdventureMoviesItems" ItemTemplate="{StaticResource MovieTemplate}" />
+
             </StackPanel>
         </ScrollViewer>
     </Grid>

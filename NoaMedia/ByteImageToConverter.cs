@@ -2,7 +2,7 @@
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
-namespace NoaMedia // וודא שזה ה-Namespace של פרויקט ה-WPF שלך
+namespace NoaMedia 
 {
     public class ByteImageConverter
     {

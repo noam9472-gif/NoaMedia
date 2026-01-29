@@ -12,7 +12,10 @@
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
-                <Border Width="220" Height="125" CornerRadius="8" ClipToBounds="True" Background="#222">
+
+
+               
+                    <Border Width="220" Height="125" CornerRadius="8" ClipToBounds="True" Background="#222">
                     <Image Source="{Binding MovieImageSource}" Stretch="UniformToFill"/>
                 </Border>
 
@@ -49,6 +52,7 @@
             </Grid.ColumnDefinitions>
 
             <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+
                 <TextBlock Text="Hi " Foreground="White" FontSize="30" FontWeight="SemiBold"/>
                 <TextBlock x:Name="UserNameText" Text="User" Foreground="#E50914" FontSize="30" FontWeight="Bold"/>
                 <TextBlock Text="!" Foreground="White" FontSize="30" FontWeight="SemiBold"/>
@@ -68,20 +72,16 @@
             <StackPanel Margin="30,0,30,20">
 
                 <TextBlock Text="Action" Foreground="White" FontSize="22" FontWeight="Bold" Margin="0,20,0,10"/>
-                <ItemsControl x:Name="ActionMoviesItems" ItemTemplate="{StaticResource MovieTemplate}">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <WrapPanel Orientation="Horizontal"/>
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                </ItemsControl>
+
+                <Image x:Name="imgAction"/>
+
 
                 <TextBlock Text="Romance" Foreground="White" FontSize="22" FontWeight="Bold" Margin="0,30,0,10"/>
                 <ItemsControl x:Name="RomanceMoviesItems" ItemTemplate="{StaticResource MovieTemplate}" />
 
                 <TextBlock Text="Horror" Foreground="White" FontSize="22" FontWeight="Bold" Margin="0,30,0,10"/>
-                <ItemsControl x:Name="HorrorMoviesItems" ItemTemplate="{StaticResource MovieTemplate}" />
-
+                <StackPanel x:Name ="baseSPhorror" Orientation="Vertical"/>
+                
                 <TextBlock Text="Comedy" Foreground="White" FontSize="22" FontWeight="Bold" Margin="0,30,0,10"/>
                 <ItemsControl x:Name="ComedyMoviesItems" ItemTemplate="{StaticResource MovieTemplate}" />
 
@@ -111,6 +111,10 @@
 
                 <TextBlock Text="Adventure" Foreground="White" FontSize="22" FontWeight="Bold" Margin="0,30,0,10"/>
                 <ItemsControl x:Name="AdventureMoviesItems" ItemTemplate="{StaticResource MovieTemplate}" />
+
+
+
+                
 
             </StackPanel>
         </ScrollViewer>

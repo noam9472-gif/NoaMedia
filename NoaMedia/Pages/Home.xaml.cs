@@ -13,11 +13,7 @@ namespace NoaMedia.Pages
         // שימוש בשם המחלקה המדויק שלך
         InterfaceAPI api = new InterfaceAPI();
 
-        public Home()
-        {
-            InitializeComponent();
-            LoadAllGenres();
-        }
+        public Home() { InitializeComponent(); LoadAllGenres2(); }
 
         private async void LoadAllGenres()
         {
@@ -26,70 +22,114 @@ namespace NoaMedia.Pages
                 // הרצה של כל 13 הז'אנרים במקביל כדי שהדף ייטען מהר
                 // המספרים (1-13) חייבים להתאים ל-ID של הז'אנרים במסד הנתונים שלך
                 await Task.WhenAll(
-                    FillGenre(ActionMoviesItems, 1),
-                    FillGenre(RomanceMoviesItems, 2),
-                    FillGenre(HorrorMoviesItems, 3),
-                    FillGenre(ComedyMoviesItems, 4),
-                    FillGenre(DramaMoviesItems, 5),
-                    FillGenre(SciFiMoviesItems, 6),
-                    FillGenre(FantasyMoviesItems, 7),
-                    FillGenre(ThrillerMoviesItems, 8),
-                    FillGenre(AnimationMoviesItems, 9),
-                    FillGenre(DocumentaryMoviesItems, 10),
-                    FillGenre(CrimeMoviesItems, 11),
-                    FillGenre(MysteryMoviesItems, 12),
-                    FillGenre(AdventureMoviesItems, 13)
+                    FillGenre2(),
+                    FillGenre2(),
+                    FillGenre2(),
+                    FillGenre2(),
+                    FillGenre2(),
+                    FillGenre2( ),
+                    FillGenre2(),
+                    FillGenre2( ),
+                    FillGenre2(),
+                    FillGenre2(),
+                    FillGenre2(),
+                    FillGenre2(),
+                    FillGenre2()
                 );
             }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"General Error: {ex.Message}");
-            }
+            catch (Exception ex) {  System.Diagnostics.Debug.WriteLine($"General Error: {ex.Message}");  }
         }
+        private async void LoadAllGenres2() { FillGenre2(); }
 
-        private async Task FillGenre(ItemsControl control, int genreId)
+
+        private async Task FillGenre2()
         {
+            StackPanel panel = new StackPanel();
+            panel.Orientation = Orientation.Horizontal;
+            VideoList displayList;
             try
             {
-                // 1. שימוש בשם הנכון: GetVideosByGenre (וודא שהוספת אותו ל-InterfaceAPI כפי ששלחתי קודם)
-                var videos = await api.GetVideosByGenre(genreId);
+                GenreList gList=await api.GetAllGenres();
+                foreach (Genre g in gList)
 
-                if (videos != null)
                 {
-                    List<VideoDisplay> displayList = new List<VideoDisplay>();
+                    TextBlock tb = new TextBlock();
+                    tb.Text = g.GenreDescription;
+                    panel.Children.Add(tb);
 
-                    foreach (var v in videos)
+                    displayList = ((VideoList)await api.GetAllVideos());
+                    var allVideosByGenre = displayList.FindAll(x => x.Genre.Id == g.Id);
+                    foreach (var v in allVideosByGenre)
                     {
-                        VideoDisplay vd = new VideoDisplay
-                        {
-                            Id = v.Id,
-                            VideoName = v.VideoName
-                        };
-
-                        // 2. תיקון השם: GetVideoPicByte64 (בלי המילה Movie - בדיוק כמו ב-InterfaceAPI שלך)
+                        string videoName = v.VideoName;
+                        TextBlock tbVideo = new TextBlock();
+                        tbVideo.Text = videoName;
+                        panel.Children.Add(tbVideo);
                         string base64 = await api.GetVideoPicByte64(v.Id);
-
+                        Image image = new Image();
                         if (!string.IsNullOrEmpty(base64))
                         {
                             byte[] imageBytes = Convert.FromBase64String(base64);
-                            vd.MovieImageSource = ByteImageConverter.ByteToImage(imageBytes);
+                            var img = ByteImageConverter.ByteToImage(imageBytes);
+                            image.Source = img;
+                            panel.Children.Add(image);
                         }
-
-                        displayList.Add(vd);
+                        baseSPhorror.Children.Add(panel);
                     }
-                    control.ItemsSource = displayList;
                 }
             }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"Error: {ex.Message}");
-            }
+            
+            catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"Error: {ex.Message}"); }
         }
+
+        //private async Task FillGenre(ItemsControl control, int genreId)
+        //{
+        //    try
+        //    {
+        //       // 1.שימוש בשם הנכון: GetVideosByGenre(וודא שהוספת אותו ל - InterfaceAPI כפי ששלחתי קודם)
+        //        var videos = await api.GetVideosByGenre(genreId);
+
+        //        if (videos != null)
+        //        {
+        //            List<VideoDisplay> displayList = new List<VideoDisplay>();
+
+        //            foreach (var v in videos)
+        //            {
+        //                VideoDisplay vd = new VideoDisplay
+        //                {
+        //                    Id = v.Id,
+        //                    VideoName = v.VideoName
+        //                };
+
+        //              //  2.תיקון השם: GetVideoPicByte64(בלי המילה Movie - בדיוק כמו ב - InterfaceAPI שלך)
+        //                string base64 = await api.GetVideoPicByte64(v.Id);
+
+        //                if (!string.IsNullOrEmpty(base64))
+        //                {
+        //                    byte[] imageBytes = Convert.FromBase64String(base64);
+        //                    vd.MovieImageSource = ByteImageConverter.ByteToImage(imageBytes);
+        //                }
+
+        //                displayList.Add(vd);
+        //            }
+        //            control.ItemsSource = displayList;
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        System.Diagnostics.Debug.WriteLine($"Error: {ex.Message}");
+        //    }
+        //}
 
         // אירועי הכפתורים הנוספים
         private void AddMovie_Click(object sender, RoutedEventArgs e)
         {
-            // כאן תכניס ניווט לדף הוספת סרט
+            // ניווט לעמוד הוספת סרט
+            //AddMovie addMoviePage = new AddMovie();
+            //if (this.NavigationService != null)
+            //{
+            //    this.NavigationService.Navigate(addMoviePage);
+            //}
         }
 
         private void Profile_Click(object sender, RoutedEventArgs e)

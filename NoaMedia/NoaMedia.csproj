@@ -9,6 +9,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="MainPicture.jpeg" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Reference Include="ApiInterface">
       <HintPath>..\..\..\basis\Noamedia--Show-Media-By-Noam-Levi-master\Noamedia--Show-Media-By-Noam-Levi-master\ApiInterface\bin\Debug\net8.0\ApiInterface.dll</HintPath>
     </Reference>
@@ -18,7 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="pictures\Main Picture.png">
+    <Resource Include="MainPicture.jpeg">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Resource>
   </ItemGroup>

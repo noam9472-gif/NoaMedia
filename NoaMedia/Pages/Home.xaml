@@ -12,10 +12,7 @@
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
-
-
-               
-                    <Border Width="220" Height="125" CornerRadius="8" ClipToBounds="True" Background="#222">
+                <Border Width="220" Height="125" CornerRadius="8" ClipToBounds="True" Background="#222">
                     <Image Source="{Binding MovieImageSource}" Stretch="UniformToFill"/>
                 </Border>
 
@@ -52,7 +49,6 @@
             </Grid.ColumnDefinitions>
 
             <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-
                 <TextBlock Text="Hi " Foreground="White" FontSize="30" FontWeight="SemiBold"/>
                 <TextBlock x:Name="UserNameText" Text="User" Foreground="#E50914" FontSize="30" FontWeight="Bold"/>
                 <TextBlock Text="!" Foreground="White" FontSize="30" FontWeight="SemiBold"/>
@@ -69,52 +65,7 @@
         </Grid>
 
         <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
-            <StackPanel Margin="30,0,30,20">
-
-                <TextBlock Text="Action" Foreground="White" FontSize="22" FontWeight="Bold" Margin="0,20,0,10"/>
-
-                <Image x:Name="imgAction"/>
-
-
-                <TextBlock Text="Romance" Foreground="White" FontSize="22" FontWeight="Bold" Margin="0,30,0,10"/>
-                <ItemsControl x:Name="RomanceMoviesItems" ItemTemplate="{StaticResource MovieTemplate}" />
-
-                <TextBlock Text="Horror" Foreground="White" FontSize="22" FontWeight="Bold" Margin="0,30,0,10"/>
-                <StackPanel x:Name ="baseSPhorror" Orientation="Vertical"/>
-                
-                <TextBlock Text="Comedy" Foreground="White" FontSize="22" FontWeight="Bold" Margin="0,30,0,10"/>
-                <ItemsControl x:Name="ComedyMoviesItems" ItemTemplate="{StaticResource MovieTemplate}" />
-
-                <TextBlock Text="Drama" Foreground="White" FontSize="22" FontWeight="Bold" Margin="0,30,0,10"/>
-                <ItemsControl x:Name="DramaMoviesItems" ItemTemplate="{StaticResource MovieTemplate}" />
-
-                <TextBlock Text="Fiction" Foreground="White" FontSize="22" FontWeight="Bold" Margin="0,30,0,10"/>
-                <ItemsControl x:Name="SciFiMoviesItems" ItemTemplate="{StaticResource MovieTemplate}" />
-
-                <TextBlock Text="Fantasy" Foreground="White" FontSize="22" FontWeight="Bold" Margin="0,30,0,10"/>
-                <ItemsControl x:Name="FantasyMoviesItems" ItemTemplate="{StaticResource MovieTemplate}" />
-
-                <TextBlock Text="Thriller" Foreground="White" FontSize="22" FontWeight="Bold" Margin="0,30,0,10"/>
-                <ItemsControl x:Name="ThrillerMoviesItems" ItemTemplate="{StaticResource MovieTemplate}" />
-
-                <TextBlock Text="Animation" Foreground="White" FontSize="22" FontWeight="Bold" Margin="0,30,0,10"/>
-                <ItemsControl x:Name="AnimationMoviesItems" ItemTemplate="{StaticResource MovieTemplate}" />
-
-                <TextBlock Text="Documentary" Foreground="White" FontSize="22" FontWeight="Bold" Margin="0,30,0,10"/>
-                <ItemsControl x:Name="DocumentaryMoviesItems" ItemTemplate="{StaticResource MovieTemplate}" />
-
-                <TextBlock Text="Crime" Foreground="White" FontSize="22" FontWeight="Bold" Margin="0,30,0,10"/>
-                <ItemsControl x:Name="CrimeMoviesItems" ItemTemplate="{StaticResource MovieTemplate}" />
-
-                <TextBlock Text="Mystery" Foreground="White" FontSize="22" FontWeight="Bold" Margin="0,30,0,10"/>
-                <ItemsControl x:Name="MysteryMoviesItems" ItemTemplate="{StaticResource MovieTemplate}" />
-
-                <TextBlock Text="Adventure" Foreground="White" FontSize="22" FontWeight="Bold" Margin="0,30,0,10"/>
-                <ItemsControl x:Name="AdventureMoviesItems" ItemTemplate="{StaticResource MovieTemplate}" />
-
-
-
-                
+            <StackPanel x:Name="MainGenresContainer" Margin="30,0,30,20" Orientation="Vertical">
 
             </StackPanel>
         </ScrollViewer>

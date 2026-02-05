@@ -10,7 +10,7 @@
 
     <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
 
-        <Image Source="/pictures/Main Picture.png" Width="230" Margin="0,0,0,20"/>
+        <Image Source="/MainPicture.jpeg" Width="260"/>
 
         <Border Background="#1A1A1A" BorderBrush="White" Padding="10" BorderThickness="2" Width="350" Margin="0,5">
             <StackPanel>

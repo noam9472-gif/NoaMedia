@@ -1,26 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Model;
+using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Navigation;
+using ApiInterface; 
 
 namespace NoaMedia.Pages
 {
-    /// <summary>
-    /// Interaction logic for SignUp.xaml
-    /// </summary>
     public partial class SignUp : Page
     {
+        
+        InterfaceAPI api = new InterfaceAPI();
+
         public SignUp()
         {
             InitializeComponent();
         }
 
-        // כפתור הרשמה - אחרי הצלחה עובר לדף הבית
-        private void RegisterBtn_Click(object sender, RoutedEventArgs e)
+        private async void RegisterBtn_Click(object sender, RoutedEventArgs e)
         {
             if (string.IsNullOrEmpty(NewUserTextBox.Text) || string.IsNullOrEmpty(NewPasswordBox.Password))
             {
@@ -28,22 +25,31 @@ namespace NoaMedia.Pages
                 return;
             }
 
-            // הודעת הצלחה
-            MessageBox.Show("Account created successfully!");
-
-            // --- המעבר לדף הבית ---
-            Home homePage = new Home();
-            if (this.NavigationService != null)
+            try
             {
-                this.NavigationService.Navigate(homePage);
+                User newUser = new User
+                {
+                    UserName = NewUserTextBox.Text,
+                    Pass = NewPasswordBox.Password // אישרת שזה Pass, אז זה מעולה
+                };
+
+                // בדיקה: אם ב-InterfaceAPI הפעולה מוגדרת כ-Task (בלי bool)
+                // אנחנו פשוט נריץ אותה ונניח שהיא הצליחה אם לא קפצה שגיאה
+                await api.InsertUser(newUser);
+
+                MessageBox.Show("Account created successfully! You can now log in.");
+                this.NavigationService.Navigate(new LogIn());
+            }
+            catch (Exception ex)
+            {
+                // אם יש בעיה (למשל משתמש כבר קיים), היא תיתפס כאן
+                MessageBox.Show("Registration failed: " + ex.Message);
             }
         }
 
-        // כפתור חזרה למסך הכניסה
         private void BackToLogin_Click(object sender, RoutedEventArgs e)
         {
-            LogIn loginPage = new LogIn();
-            this.NavigationService.Navigate(loginPage);
+            this.NavigationService.GoBack();
         }
     }
 }

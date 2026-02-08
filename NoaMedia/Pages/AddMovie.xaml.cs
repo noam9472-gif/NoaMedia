@@ -1,16 +1,15 @@
 ﻿using ApiInterface;
 using Model;
-using NoaMedia.Pages; // וודא שה-Namespace נכון
-using NoamediaLogin; // היכן שנמצא ה-InterfaceAPI שלך
 using System;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Threading.Tasks; // נוסף בשביל ה-Task
 
 namespace NoaMedia.Pages
 {
     public partial class AddMovie : Page
     {
-        // יצירת מופע של ה-API כדי שנוכל לתקשר עם השרת
         InterfaceAPI api = new InterfaceAPI();
 
         public AddMovie()
@@ -18,55 +17,58 @@ namespace NoaMedia.Pages
             InitializeComponent();
         }
 
-        private async void SaveMovie_Click(object sender, RoutedEventArgs e, AgeOfVideos ageLimit, AgeOfVideos ageLimit)
+        private async void SaveMovie_Click(object sender, RoutedEventArgs e)
         {
             try
             {
-                // 1. איסוף הנתונים מהשדות ב-XAML
+                // 1. איסוף נתונים
                 string name = MovieNameTextBox.Text;
                 string genreName = GenreTextBox.Text;
-                string posterUrl = PosterUrlTextBox.Text;
 
-                // המרת אורך סרט וגיל למספרים (בדיקה שהקלט תקין)
-                if (!int.TryParse(DurationTextBox.Text, out int duration) ||
-                    !int.TryParse(AgeRatingTextBox.Text, out int ageLimit))
+                if (!int.TryParse(DurationTextBox.Text, out int duration))
                 {
-                    MessageBox.Show("Please enter valid numbers for Duration and Age Rating.");
+                    MessageBox.Show("Please enter a valid number for Duration.");
+                    return;
+                }
+
+                if (!int.TryParse(AgeRatingTextBox.Text, out int ageValue))
+                {
+                    MessageBox.Show("Please enter a valid number for Age Rating.");
                     return;
                 }
 
                 if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(genreName))
                 {
-                    MessageBox.Show("Please fill in all required fields.");
+                    MessageBox.Show("Movie Name and Genre are required.");
                     return;
                 }
 
-                // 2. יצירת אובייקט וידאו חדש (בהתאם למחלקה Video אצלך)
-                // הערה: נצטרך למצוא את ה-ID של הז'אנר או ליצור אובייקט ז'אנר
-                Video newVideo = new Video
+                // 2. מציאת ה-Genre
+                GenreList allGenres = await api.GetAllGenres();
+                Genre selectedGenre = allGenres.FirstOrDefault(g => g.GenreDescription.Equals(genreName, StringComparison.OrdinalIgnoreCase));
+
+                if (selectedGenre == null)
                 {
-                    VideoName = name,
-                    LengthInMinutes = duration,
-                    AgeOfVideo = ageLimit,
-                    // כאן בדרך כלל ה-API מצפה לז'אנר מלא או ל-ID
-                    Genre = new Genre { GenreDescription = genreName }
-                };
-
-                // 3. שליחה לשרת דרך ה-API
-                // הערה: וודא ששם הפעולה ב-API שלך הוא אכן InsertVideo
-              bool success = await api.InsertVideo(newVideo);
-
-                if (success)
-                {
-                    MessageBox.Show("Movie saved successfully to the database!");
-
-                    // 4. חזרה לדף הבית כדי לראות את הסרט החדש
-                    this.NavigationService.Navigate(new Home());
+                    MessageBox.Show("Genre not found in database.");
+                    return;
                 }
-                else
-                {
-                    MessageBox.Show("Failed to save movie. Please try again.");
-                }
+
+                // 3. יצירת אובייקט הסרט עם המרה בטוחה ל-Enum
+                Video newVideo = new Video();
+                newVideo.VideoName = name;
+                newVideo.LengthInMinutes = duration;
+                newVideo.Genre = selectedGenre;
+
+                // תיקון שגיאת ה-AgeOfVideo: המרה מפורשת לטיפוס ה-Enum
+                newVideo.AgeOfVideo = (AgeOfVideos)Enum.ToObject(typeof(AgeOfVideos), ageValue);
+
+                // 4. שליחה לשרת - תיקון שגיאת ה-success
+                // אם InsertVideo מחזיר Task ללא ערך, נשתמש בזה ככה:
+                await api.InsertVideo(newVideo);
+
+                // אם הגעת לכאן בלי שקפצה שגיאה - סימן שזה הצליח
+                MessageBox.Show("Movie saved successfully to the database!");
+                this.NavigationService.Navigate(new Home());
             }
             catch (Exception ex)
             {
@@ -77,6 +79,10 @@ namespace NoaMedia.Pages
         private void Back_Click(object sender, RoutedEventArgs e)
         {
             this.NavigationService.GoBack();
+        }
+        private void MovieNameTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            // אפשר להשאיר ריק כרגע או להוסיף לוגיקה
         }
     }
 }

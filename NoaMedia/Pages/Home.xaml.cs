@@ -14,7 +14,7 @@ namespace NoaMedia.Pages
     {
         InterfaceAPI api = new InterfaceAPI();
 
-        public Home() { InitializeComponent(); LoadAllGenres2(); }
+        public Home() { InitializeComponent(); LoadAllGenres2();}
 
        
         private async void LoadAllGenres2() { FillGenre2(); }

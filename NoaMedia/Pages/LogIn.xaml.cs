@@ -1,44 +1,59 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Navigation;
+using ApiInterface;
+using Model;
 
 namespace NoaMedia.Pages
 {
-    /// <summary>
-    /// Interaction logic for LogIn.xaml
-    /// </summary>
     public partial class LogIn : Page
     {
+        public static User currentUser=null; // משתנה סטטי שיכיל את המשתמש הנוכחי אחרי התחברות מוצלחת
+        InterfaceAPI api = new InterfaceAPI();
+
         public LogIn()
         {
             InitializeComponent();
         }
 
-        // לחיצה על כפתור התחברות
-        private void LoginButton_Click(object sender, RoutedEventArgs e)
+        private async void LoginButton_Click(object sender, RoutedEventArgs e)
         {
             string username = UsernameTextBox.Text;
             string password = PasswordBox.Password;
 
-            // בדיקת תקינות
-            if (username == "admin" && password == "1234")
+            if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
             {
-                // יצירת דף הבית ומעבר אליו
-                Home homePage = new Home();
-                this.NavigationService.Navigate(homePage);
+                MessageBox.Show("Please enter both username and password.");
+                return;
             }
-            else
+
+            try
             {
-                MessageBox.Show("Invalid username or password.");
+                // תיקון קריטי: משתמשים ב-await במקום ב-.Result
+                // זה ימנע מהמסך לקפוא בזמן שהנתונים נטענים
+                UserList uList = await api.GetAllUsers();
+
+                // מציאת המשתמש ברשימה
+                currentUser = uList.Find(u => u.UserName == username && u.Pass == password);
+
+                if (currentUser == null)
+                {
+                    MessageBox.Show("Invalid username or password.");
+                    return;
+                }
+                else
+                {
+                    // מעבר לדף הבית
+                    NavigationService.Navigate(new Home());
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error: " + ex.Message);
             }
         }
 
-        // לחיצה על כפתור מעבר להרשמה
         private void SignupButton_Click(object sender, RoutedEventArgs e)
         {
             SignUp registerPage = new SignUp();

@@ -9,6 +9,8 @@ namespace NoaMedia
     /// </summary>
     public partial class App : Application
     {
+        // המשתנה שיחזיק את המשתמש המחובר מכל מקום בפרויקט
+        public Model.User LoggedInUser { get; set; }
     }
 
 }

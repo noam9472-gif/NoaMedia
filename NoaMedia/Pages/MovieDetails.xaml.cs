@@ -1,15 +1,16 @@
-﻿using System;
+﻿using ApiInterface;
+using Model;
+using System;
 using System.Windows;
 using System.Windows.Controls;
-using Model;
-using ApiInterface;
+using System.Windows.Media.Animation;
 
 namespace NoaMedia.Pages
 {
     public partial class MovieDetails : Page
     {
         private InterfaceAPI api = new InterfaceAPI();
-        private Video currentVideo; // משתנה גלובלי לדף
+        private Video currentVideo; 
 
         public MovieDetails(Video selectedVideo)
         {
@@ -21,9 +22,29 @@ namespace NoaMedia.Pages
         private async void LoadMovieDetails(Video v)
         {
             MovieTitle.Text = v.VideoName;
-            MovieGenre.Text = v.Genre.GenreDescription;
+            MovieGenre.Text = v.Genre?.GenreDescription;
             MovieDuration.Text = v.LengthInMinutes + " min";
-            // MovieDesc.Text = v.Description; // אם קיים במודל
+
+            // תקציר קצר- שם הסרט
+            MovieDesc.Text = v.VideoName;
+
+            // תקציר מלא
+            FullDescriptionText.Text = string.IsNullOrEmpty(v.VideoDescription) ? "No description available." : v.VideoDescription;
+
+            
+            if (WhoUploadedName != null)
+            {
+                WhoUploadedName.Text = v.WhoUploadedTheVideo?.UserName ?? "Unknown User";
+            }
+
+            if (v.VideoUploadedDate != DateTime.MinValue)
+            {
+                ReleaseYear.Text = v.VideoUploadedDate.ToString("dd/MM/yyyy");
+            }
+            else
+            {
+                ReleaseYear.Text = "Unknown Date";
+            }
 
             try
             {
@@ -33,17 +54,14 @@ namespace NoaMedia.Pages
                     BackgroundImage.Source = ByteImageConverter.ByteToImage(Convert.FromBase64String(base64));
                 }
             }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine("Image error: " + ex.Message);
-            }
+            catch { }
         }
 
         private void PlayButton_Click(object sender, RoutedEventArgs e)
         {
             try
             {
-                // 1. בדיקה אם האובייקט או הכתובת קיימים
+                //בדיקה אם  קיים
                 if (currentVideo == null || string.IsNullOrWhiteSpace(currentVideo.VideoAddress))
                 {
                     MessageBox.Show("Error: Video address is missing in the database.", "Missing Data");
@@ -52,14 +70,11 @@ namespace NoaMedia.Pages
 
                 string address = currentVideo.VideoAddress;
 
-                // 2. בדיקה אם הכתובת היא נתיב מקומי (למשל C:\Movies\vid.mp4) או כתובת אינטרנט
-                // אם זו כתובת אינטרנט וחסר הפרוטוקול, נוסיף אותו
                 if (!address.Contains("://") && !System.IO.Path.IsPathRooted(address))
                 {
                     address = "http://" + address;
                 }
 
-                // 3. ניסיון יצירת ה-Uri בבטחה
                 Uri videoUri;
                 if (Uri.TryCreate(address, UriKind.RelativeOrAbsolute, out videoUri))
                 {
@@ -87,5 +102,34 @@ namespace NoaMedia.Pages
         {
             this.NavigationService.GoBack();
         }
+
+private void MoreInfoButton_Click(object sender, RoutedEventArgs e)
+    {
+        
+        double scrollTo = MainScrollViewer.ScrollableHeight;
+
+        // יצירת האנימציה - נמשכת 0.8 שניות עם אפקט האטה בסוף (EaseOut)
+        DoubleAnimation scrollAnimation = new DoubleAnimation
+        {
+            From = MainScrollViewer.VerticalOffset,
+            To = scrollTo,
+            Duration = new Duration(TimeSpan.FromSeconds(0.8)),
+            EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut }
+        };
+
+        // הפעלת האנימציה 
+        this.BeginAnimation(ScrollOffsetProperty, scrollAnimation);
     }
+
+    // ---  שמאפשרת לאנימציה לעבוד ScrollViewer ---
+    public static readonly DependencyProperty ScrollOffsetProperty =
+        DependencyProperty.Register("ScrollOffset", typeof(double), typeof(MovieDetails),
+        new PropertyMetadata(0.0, OnScrollOffsetChanged));
+
+    private static void OnScrollOffsetChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    {
+        var page = d as MovieDetails;
+        page?.MainScrollViewer.ScrollToVerticalOffset((double)e.NewValue);
+    }
+}
 }

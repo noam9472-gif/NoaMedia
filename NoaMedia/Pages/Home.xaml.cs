@@ -140,7 +140,8 @@ namespace NoaMedia.Pages
 
         private void Profile_Click(object sender, RoutedEventArgs e)
         {
-            // ניווט לדף פרופיל (אם קיים)
+            string currentName = UserNameText.Text;
+            this.NavigationService.Navigate(new ProfilePage(currentName));
         }
     }
 }

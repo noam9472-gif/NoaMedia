@@ -30,7 +30,7 @@ namespace NoaMedia.Pages
 
             try
             {
-                // תיקון קריטי: משתמשים ב-await במקום ב-.Result
+
                 // זה ימנע מהמסך לקפוא בזמן שהנתונים נטענים
                 UserList uList = await api.GetAllUsers();
 
@@ -42,11 +42,18 @@ namespace NoaMedia.Pages
                     MessageBox.Show("Invalid username or password.");
                     return;
                 }
-                else
-                {
-                    // מעבר לדף הבית
-                    NavigationService.Navigate(new Home());
-                }
+                    else
+                    {
+                        //שמירת המשתמש כדי שיופיע במסך הפרופיל
+                        var myApp = Application.Current as App;
+                        if (myApp != null)
+                        {
+                            myApp.LoggedInUser = currentUser;
+                        }
+
+                        // מעבר לדף הבית
+                        NavigationService.Navigate(new Home());
+                    }
             }
             catch (Exception ex)
             {

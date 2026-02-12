@@ -4,60 +4,82 @@
       Title="Movie Details" Background="Black">
 
     <Grid>
-        <Image x:Name="BackgroundImage" Stretch="UniformToFill" Opacity="0.6"/>
+        <ScrollViewer x:Name="MainScrollViewer" VerticalScrollBarVisibility="Hidden">
+            <StackPanel>
 
-        <Border>
-            <Border.Background>
-                <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
-                    <GradientStop Color="Transparent" Offset="0.0"/>
-                    <GradientStop Color="#CC000000" Offset="0.6"/>
-                    <GradientStop Color="Black" Offset="1.0"/>
-                </LinearGradientBrush>
-            </Border.Background>
-        </Border>
+                <Grid Height="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=ActualHeight}">
+                    <Image x:Name="BackgroundImage" Stretch="UniformToFill" Opacity="0.6"/>
+                    <Border>
+                        <Border.Background>
+                            <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+                                <GradientStop Color="Transparent" Offset="0.0"/>
+                                <GradientStop Color="#CC000000" Offset="0.6"/>
+                                <GradientStop Color="Black" Offset="1.0"/>
+                            </LinearGradientBrush>
+                        </Border.Background>
+                    </Border>
 
-        <StackPanel VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="0,0,60,80" Width="600">
+                    <StackPanel VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="0,0,60,80" Width="600">
+                        <TextBlock x:Name="MovieTitle" Foreground="White" FontSize="72" FontWeight="Bold" TextAlignment="Right" TextWrapping="Wrap">
+                            <TextBlock.Effect>
+                                <DropShadowEffect BlurRadius="15" ShadowDepth="2" Opacity="0.9"/>
+                            </TextBlock.Effect>
+                        </TextBlock>
 
-            <TextBlock x:Name="MovieTitle" Text="Movie Title" Foreground="White" FontSize="72" FontWeight="Bold" 
-                       TextAlignment="Right" TextWrapping="Wrap" Margin="0,0,0,10">
-                <TextBlock.Effect>
-                    <DropShadowEffect BlurRadius="15" ShadowDepth="2" Opacity="0.9"/>
-                </TextBlock.Effect>
-            </TextBlock>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,20">
+                            <TextBlock x:Name="MovieDuration" Foreground="#CCC" FontSize="18"/>
+                            <TextBlock Text=" | " Foreground="#555" FontSize="18" Margin="10,0"/>
+                            <Border Background="#E50914" CornerRadius="3" Padding="8,2">
+                                <TextBlock x:Name="MovieGenre" Foreground="White" FontSize="16" FontWeight="Bold"/>
+                            </Border>
+                        </StackPanel>
 
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,20">
-                <TextBlock x:Name="MovieDuration" Text="120 min" Foreground="#CCC" FontSize="18"/>
-                <TextBlock Text=" | " Foreground="#555" FontSize="18" Margin="10,0"/>
-                <Border Background="#E50914" CornerRadius="3" Padding="8,2">
-                    <TextBlock x:Name="MovieGenre" Text="Genre" Foreground="White" FontSize="16" FontWeight="Bold"/>
-                </Border>
+                        <TextBlock x:Name="MovieDesc" Foreground="White" FontSize="20" TextAlignment="Right" TextWrapping="Wrap" LineHeight="28" Margin="0,0,0,40"/>
+
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                            <Button x:Name="MoreInfoButton" Content="ⓘ More Info" Click="MoreInfoButton_Click" 
+                                    Width="160" Height="50" Background="#44FFFFFF" Foreground="White" 
+                                    FontSize="18" FontWeight="Bold" BorderThickness="0" Margin="15,0,0,0" Cursor="Hand"/>
+
+                            <Button x:Name="PlayButton" Content="▶ Play" Click="PlayButton_Click" 
+                                    Width="160" Height="50" Background="White" Foreground="Black" 
+                                    FontSize="18" FontWeight="Bold" BorderThickness="0" Cursor="Hand"/>
+                        </StackPanel>
+
+                        <Button Content="Back to Home" Click="Back_Click" Background="Transparent" Foreground="Gray" BorderThickness="0" HorizontalAlignment="Right" Margin="0,30,0,0" Cursor="Hand"/>
+                    </StackPanel>
+                </Grid>
+
+                <StackPanel x:Name="DetailedInfoPanel" Background="#111">
+                    <TextBlock Text="Detailed Information" Foreground="#E50914" FontSize="32" FontWeight="Bold" Margin="0,0,0,30" TextAlignment="Right"/>
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="200"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="1">
+                            <TextBlock Text="Uploaded By" Foreground="Gray" FontSize="16" TextAlignment="Right" Margin="0,0,0,5"/>
+                            <TextBlock x:Name="WhoUploadedName" Text="Unknown" Foreground="White" FontSize="18" FontWeight="SemiBold" TextAlignment="Right" Margin="0,0,0,25"/>
+
+                            <TextBlock Text="Upload Date" Foreground="Gray" FontSize="16" TextAlignment="Right" Margin="0,0,0,5"/>
+                            <TextBlock x:Name="ReleaseYear" Text="01/01/2026" Foreground="White" FontSize="18" FontWeight="SemiBold" TextAlignment="Right"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="0" Margin="0,0,40,0">
+                            <TextBlock Text="Synopsis" Foreground="Gray" FontSize="16" TextAlignment="Right" Margin="0,0,0,10"/>
+                            <TextBlock x:Name="FullDescriptionText" Foreground="White" FontSize="20" TextAlignment="Right" TextWrapping="Wrap" LineHeight="32"/>
+                        </StackPanel>
+                    </Grid>
+                </StackPanel>
+
             </StackPanel>
-
-            <TextBlock x:Name="MovieDesc" Foreground="White" FontSize="20" TextAlignment="Right" 
-                       TextWrapping="Wrap" LineHeight="28" Margin="0,0,0,40">
-                Movie description goes here...
-            </TextBlock>
-
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                <Button Content="ⓘ More Info" Width="160" Height="50" Background="#44FFFFFF" Foreground="White" 
-                        FontSize="18" FontWeight="Bold" BorderThickness="0" Margin="15,0,0,0" Cursor="Hand"/>
-
-                <Button x:Name="PlayButton" Content="▶ Play" Click="PlayButton_Click" 
-                        Width="160" Height="50" Background="White" Foreground="Black" 
-                        FontSize="18" FontWeight="Bold" BorderThickness="0" Cursor="Hand"/>
-            </StackPanel>
-
-            <Button Content="Back to Home" Click="Back_Click" Background="Transparent" Foreground="Gray" 
-                    BorderThickness="0" HorizontalAlignment="Right" Margin="0,30,0,0" Cursor="Hand"/>
-        </StackPanel>
+        </ScrollViewer>
 
         <Grid x:Name="VideoLayer" Visibility="Collapsed" Background="Black">
             <MediaElement x:Name="InlinePlayer" LoadedBehavior="Manual" UnloadedBehavior="Stop" Stretch="Uniform"/>
-
-            <Button Content="✕ Close Player" Click="CloseVideo_Click" 
-                    VerticalAlignment="Top" HorizontalAlignment="Left" 
-                    Margin="30" Padding="15,5" Background="#CC000000" 
-                    Foreground="White" BorderThickness="1" Cursor="Hand"/>
+            <Button Content="✕ Close Player" Click="CloseVideo_Click" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="30" Padding="15,5" Background="#CC000000" Foreground="White" BorderThickness="1" Cursor="Hand"/>
         </Grid>
     </Grid>
 </Page>

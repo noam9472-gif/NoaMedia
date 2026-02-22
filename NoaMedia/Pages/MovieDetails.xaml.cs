@@ -29,7 +29,7 @@ namespace NoaMedia.Pages
             MovieDesc.Text = v.VideoName;
 
             // תקציר מלא
-            FullDescriptionText.Text = string.IsNullOrEmpty(v.VideoDescription) ? "No description available." : v.VideoDescription;
+            FullDescriptionText.Text = string.IsNullOrEmpty(v.VideoName) ? "No description available." : v.VideoName;
 
             
             if (WhoUploadedName != null)

@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Linq; 
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using Model;
@@ -66,12 +66,15 @@ namespace NoaMedia.Pages
                 myApp.LoggedInUser = null;
             }
 
-            this.NavigationService.Navigate(new NoaMedia.Pages.LogIn());
+            this.NavigationService.Navigate(new NoaMedia.Pages.Log_in());
         }
 
         private void Back_Click(object sender, RoutedEventArgs e)
         {
-            this.NavigationService.GoBack();
+            if (this.NavigationService.CanGoBack)
+                this.NavigationService.GoBack();
         }
+
+        
     }
 }

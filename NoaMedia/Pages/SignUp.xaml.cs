@@ -38,7 +38,7 @@ namespace NoaMedia.Pages
                 await api.InsertUser(newUser);
 
                 MessageBox.Show("Account created successfully! You can now log in.");
-                this.NavigationService.Navigate(new LogIn());
+                this.NavigationService.Navigate(new Log_in());
             }
             catch (Exception ex)
             {

@@ -1,147 +1,143 @@
 ﻿using ApiInterface;
 using Model;
+using NoaMedia;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Input;
 using System.Windows.Media;
 
 namespace NoaMedia.Pages
 {
-    public partial class Home : Page
+   public partial class Home : Page
     {
-        InterfaceAPI api = new InterfaceAPI();
+        private readonly InterfaceAPI api = new InterfaceAPI();
 
         public Home()
         {
             InitializeComponent();
-            LoadAllGenres2();
+            this.Loaded += (s, e) => LoadContent();
         }
 
-        private async void LoadAllGenres2()
-        {
-            await FillGenre2();
-        }
-
-        private async Task FillGenre2()
+        private async void LoadContent()
         {
             try
             {
-                // ניקוי המכולה הראשית לפני טעינה מחדש
-                MainGenresContainer.Children.Clear();
-
-                GenreList gList = await api.GetAllGenres();
-                VideoList allVideos = (VideoList)await api.GetAllVideos();
-
-                foreach (Genre g in gList)
-                {
-                    // פאנל ז'אנרים אנכי
-                    StackPanel genreSection = new StackPanel { Margin = new Thickness(0, 0, 0, 30) };
-
-                    // כותרת הז'אנר
-                    TextBlock tbHeader = new TextBlock
-                    {
-                        Text = g.GenreDescription,
-                        Foreground = Brushes.White,
-                        FontSize = 22,
-                        FontWeight = FontWeights.Bold,
-                        Margin = new Thickness(0, 20, 0, 10)
-                    };
-                    genreSection.Children.Add(tbHeader);
-
-                    // פאנל לסרטים אופקי
-                    WrapPanel moviesContainer = new WrapPanel { Orientation = Orientation.Horizontal };
-
-                    var videosInThisGenre = allVideos.FindAll(x => x.Genre.Id == g.Id);
-
-                    foreach (var v in videosInThisGenre)
-                    {
-                        // יצירת סרט יחיד
-                        StackPanel videoItem = new StackPanel { Margin = new Thickness(0, 0, 15, 20) };
-
-                        // עיצוב התמונה
-                        Border imgBorder = new Border
-                        {
-                            Width = 220,
-                            Height = 125,
-                            CornerRadius = new CornerRadius(8),
-                            ClipToBounds = true,
-                            Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#222"))
-                        };
-
-                        Image img = new Image { Stretch = Stretch.UniformToFill };
-                        string base64 = await api.GetVideoPicByte64(v.Id);
-                        if (!string.IsNullOrEmpty(base64))
-                        {
-                            img.Source = ByteImageConverter.ByteToImage(Convert.FromBase64String(base64));
-                        }
-                        imgBorder.Child = img;
-
-                        // כפתור צפייה 
-                        Button btnWatch = new Button
-                        {
-                            Content = "Watch Now",
-                            Height = 35,
-                            Margin = new Thickness(0, 8, 0, 0),
-                            Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#E50914")),
-                            Foreground = Brushes.White,
-                            FontWeight = FontWeights.Bold,
-                            BorderThickness = new Thickness(0),
-                            Cursor = Cursors.Hand,
-
-                            
-                            Tag = v // שומרים את אובייקט הסרט בתוך הכפתור
-                        };
-
-                       
-                        btnWatch.Click += Movie_Click;
-
-                        videoItem.Children.Add(imgBorder);
-                        videoItem.Children.Add(btnWatch);
-
-                        moviesContainer.Children.Add(videoItem);
-                    }
-
-                    genreSection.Children.Add(moviesContainer);
-
-               
-                    MainGenresContainer.Children.Add(genreSection);
-                }
+                await FillGenreData();
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Error: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"General Error: {ex.Message}");
             }
         }
 
-        // פונקציית הניווט החדשה לסרט ספציפי
+        private async Task FillGenreData()
+        {
+            //if (MainGenresContainer == null) return;
+
+            MainGenresContainer.Children.Clear();
+
+            var genres = await api.GetAllGenres();
+            var allVideosRaw = await api.GetAllVideos();
+            List<Video> allVideos = (allVideosRaw as IEnumerable<Video>)?.ToList() ?? new List<Video>();
+
+            if (genres == null) return;
+
+            foreach (var g in genres)
+            {
+                var genreSection = CreateGenreSection(g.GenreDescription);
+                var moviesContainer = new WrapPanel { Orientation = Orientation.Horizontal };
+                var genreVideos = allVideos.Where(v => v != null && v.Genre?.Id == g.Id).ToList();
+
+                foreach (var v in genreVideos)
+                {
+                    var videoUI = await CreateVideoItemUI(v);
+                    moviesContainer.Children.Add(videoUI);
+                }
+
+                genreSection.Children.Add(moviesContainer);
+                MainGenresContainer.Children.Add(genreSection);
+            }
+        }
+        private StackPanel CreateGenreSection(string title)
+        {
+            var section = new StackPanel { Margin = new Thickness(0, 0, 0, 30) };
+            section.Children.Add(new TextBlock
+            {
+                Text = title,
+                Foreground = Brushes.White,
+                FontSize = 22,
+                FontWeight = FontWeights.Bold,
+                Margin = new Thickness(0, 20, 0, 10)
+            });
+            return section;
+        }
+
+        private async Task<StackPanel> CreateVideoItemUI(Video v)
+        {
+            var container = new StackPanel { Margin = new Thickness(0, 0, 15, 20) };
+
+            // עיצוב התמונה
+            var border = new Border
+            {
+                Width = 220,
+                Height = 125,
+                CornerRadius = new CornerRadius(8),
+                ClipToBounds = true,
+                Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#222"))
+            };
+
+            var img = new Image { Stretch = Stretch.UniformToFill };
+            string base64 = await api.GetVideoPicByte64(v.Id);
+            if (!string.IsNullOrEmpty(base64))
+            {
+                try
+                {
+                    img.Source = ByteImageConverter.ByteToImage(Convert.FromBase64String(base64));
+                }
+                catch {  }
+            }
+            border.Child = img;
+
+            // כפתור צפייה
+            var btn = new Button
+            {
+                Content = "Watch Now",
+                Height = 35,
+                Margin = new Thickness(0, 8, 0, 0),
+                Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#E50914")),
+                Foreground = Brushes.White,
+                FontWeight = FontWeights.Bold,
+                BorderThickness = new Thickness(0),
+                Tag = v // שמירת הסרט בתוך הכפתור
+            };
+            btn.Click += Movie_Click;
+
+            container.Children.Add(border);
+            container.Children.Add(btn);
+            return container;
+        }
+
+
         private void Movie_Click(object sender, RoutedEventArgs e)
         {
-            Button btn = (Button)sender;
-            Video selectedVideo = (Video)btn.Tag; // שליפת הסרט מה-Tag
-
-            if (selectedVideo != null)
+            if (sender is Button btn && btn.Tag is Video v)
             {
-                // ניווט לעמוד ה-MovieDetails ושליחת הסרט ב-Constructor
-                this.NavigationService.Navigate(new MovieDetails(selectedVideo));
+                MessageBox.Show($"Starting: {v.VideoName}");
             }
         }
 
         private void AddMovie_Click(object sender, RoutedEventArgs e)
         {
-            AddMovie addMoviePage = new AddMovie();
-            if (this.NavigationService != null)
-            {
-                this.NavigationService.Navigate(addMoviePage);
-            }
+            this.NavigationService.Navigate(new AddMovie());
         }
 
         private void Profile_Click(object sender, RoutedEventArgs e)
         {
-            string currentName = UserNameText.Text;
-            this.NavigationService.Navigate(new ProfilePage(currentName));
+            // העברת המשתמש המחובר לעמוד הפרופיל כדי להציג את פרטיו
+            this.NavigationService.Navigate(new ProfilePage(this.Name));
         }
     }
 }

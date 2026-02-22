@@ -4,6 +4,6 @@
         Title="Noamedia Login" WindowState="Maximized" WindowStyle="SingleBorderWindow"        
         Background="Black" WindowStartupLocation="CenterScreen">
     <Grid>
-        <Frame Source="/Pages/LogIn.xaml" x:Name="MainFrame" NavigationUIVisibility="Hidden"/>
+        <Frame Source="/Pages/Log_in.xaml" x:Name="MainFrame" NavigationUIVisibility="Hidden"/>
     </Grid>
 </Window>     

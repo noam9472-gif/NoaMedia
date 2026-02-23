@@ -13,7 +13,7 @@
                 </Grid.RowDefinitions>
 
                 <Border Width="220" Height="125" CornerRadius="8" ClipToBounds="True" Background="#222">
-                    <Image Source="{Binding MovieImageSource}" Stretch="UniformToFill"/>
+                    <Image x:Name="dbImage" Source="{Binding MovieImageSource}" Stretch="UniformToFill"/>
                 </Border>
 
                 <Button Grid.Row="1" 

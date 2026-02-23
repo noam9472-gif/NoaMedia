@@ -1,4 +1,4 @@
-﻿using Model; // המחלקה המקורית שלך
+﻿using Model; 
 using System.Windows.Media; // כאן זה יעבוד!
 
 namespace NoaMedia // השם של פרויקט ה-WPF

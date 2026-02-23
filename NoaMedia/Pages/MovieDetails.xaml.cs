@@ -4,13 +4,14 @@ using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Animation;
+using System.Windows.Media.Imaging;
 
 namespace NoaMedia.Pages
 {
     public partial class MovieDetails : Page
     {
         private InterfaceAPI api = new InterfaceAPI();
-        private Video currentVideo; 
+        private Video currentVideo;
 
         public MovieDetails(Video selectedVideo)
         {
@@ -31,7 +32,7 @@ namespace NoaMedia.Pages
             // תקציר מלא
             FullDescriptionText.Text = string.IsNullOrEmpty(v.VideoName) ? "No description available." : v.VideoName;
 
-            
+
             if (WhoUploadedName != null)
             {
                 WhoUploadedName.Text = v.WhoUploadedTheVideo?.UserName ?? "Unknown User";
@@ -51,7 +52,7 @@ namespace NoaMedia.Pages
                 string base64 = await api.GetVideoPicByte64(v.Id);
                 if (!string.IsNullOrEmpty(base64))
                 {
-                    BackgroundImage.Source = ByteImageConverter.ByteToImage(Convert.FromBase64String(base64));
+                    BackgroundImage.Source = Base64ToImage(base64);
                 }
             }
             catch { }
@@ -103,33 +104,50 @@ namespace NoaMedia.Pages
             this.NavigationService.GoBack();
         }
 
-private void MoreInfoButton_Click(object sender, RoutedEventArgs e)
-    {
-        
-        double scrollTo = MainScrollViewer.ScrollableHeight;
-
-        // יצירת האנימציה - נמשכת 0.8 שניות עם אפקט האטה בסוף (EaseOut)
-        DoubleAnimation scrollAnimation = new DoubleAnimation
+        private void MoreInfoButton_Click(object sender, RoutedEventArgs e)
         {
-            From = MainScrollViewer.VerticalOffset,
-            To = scrollTo,
-            Duration = new Duration(TimeSpan.FromSeconds(0.8)),
-            EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut }
-        };
 
-        // הפעלת האנימציה 
-        this.BeginAnimation(ScrollOffsetProperty, scrollAnimation);
+            double scrollTo = MainScrollViewer.ScrollableHeight;
+
+            // יצירת האנימציה - נמשכת 0.8 שניות עם אפקט האטה בסוף (EaseOut)
+            DoubleAnimation scrollAnimation = new DoubleAnimation
+            {
+                From = MainScrollViewer.VerticalOffset,
+                To = scrollTo,
+                Duration = new Duration(TimeSpan.FromSeconds(0.8)),
+                EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut }
+            };
+
+            // הפעלת האנימציה 
+            this.BeginAnimation(ScrollOffsetProperty, scrollAnimation);
+        }
+
+        // ---  שמאפשרת לאנימציה לעבוד ScrollViewer ---
+        public static readonly DependencyProperty ScrollOffsetProperty = DependencyProperty.Register("ScrollOffset", typeof(double), typeof(MovieDetails),
+            new PropertyMetadata(0.0, OnScrollOffsetChanged));
+
+        private static void OnScrollOffsetChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var page = d as MovieDetails;
+            page?.MainScrollViewer.ScrollToVerticalOffset((double)e.NewValue);
+        }
+        public BitmapImage Base64ToImage(string base64String)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(base64String)) return null;
+                byte[] imageBytes = Convert.FromBase64String(base64String);
+                using (System.IO.MemoryStream ms = new System.IO.MemoryStream(imageBytes))
+                {
+                    BitmapImage image = new BitmapImage();
+                    image.BeginInit();
+                    image.StreamSource = ms;
+                    image.CacheOption = BitmapCacheOption.OnLoad;
+                    image.EndInit();
+                    return image;
+                }
+            }
+            catch { return null; }
+        }
     }
-
-    // ---  שמאפשרת לאנימציה לעבוד ScrollViewer ---
-    public static readonly DependencyProperty ScrollOffsetProperty =
-        DependencyProperty.Register("ScrollOffset", typeof(double), typeof(MovieDetails),
-        new PropertyMetadata(0.0, OnScrollOffsetChanged));
-
-    private static void OnScrollOffsetChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-    {
-        var page = d as MovieDetails;
-        page?.MainScrollViewer.ScrollToVerticalOffset((double)e.NewValue);
-    }
-}
 }

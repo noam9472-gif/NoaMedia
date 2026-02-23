@@ -8,10 +8,12 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.IO;
+using System.Windows.Media.Imaging;
 
 namespace NoaMedia.Pages
 {
-   public partial class Home : Page
+    public partial class Home : Page
     {
         private readonly InterfaceAPI api = new InterfaceAPI();
 
@@ -35,12 +37,14 @@ namespace NoaMedia.Pages
 
         private async Task FillGenreData()
         {
-            //if (MainGenresContainer == null) return;
+            if (MainGenresContainer == null) return;
 
             MainGenresContainer.Children.Clear();
 
             var genres = await api.GetAllGenres();
             var allVideosRaw = await api.GetAllVideos();
+
+            // המרה בטוחה של רשימת הסרטים
             List<Video> allVideos = (allVideosRaw as IEnumerable<Video>)?.ToList() ?? new List<Video>();
 
             if (genres == null) return;
@@ -49,6 +53,8 @@ namespace NoaMedia.Pages
             {
                 var genreSection = CreateGenreSection(g.GenreDescription);
                 var moviesContainer = new WrapPanel { Orientation = Orientation.Horizontal };
+
+                // סינון סרטים לפי ז'אנר
                 var genreVideos = allVideos.Where(v => v != null && v.Genre?.Id == g.Id).ToList();
 
                 foreach (var v in genreVideos)
@@ -61,6 +67,7 @@ namespace NoaMedia.Pages
                 MainGenresContainer.Children.Add(genreSection);
             }
         }
+
         private StackPanel CreateGenreSection(string title)
         {
             var section = new StackPanel { Margin = new Thickness(0, 0, 0, 30) };
@@ -79,7 +86,6 @@ namespace NoaMedia.Pages
         {
             var container = new StackPanel { Margin = new Thickness(0, 0, 15, 20) };
 
-            // עיצוב התמונה
             var border = new Border
             {
                 Width = 220,
@@ -90,18 +96,17 @@ namespace NoaMedia.Pages
             };
 
             var img = new Image { Stretch = Stretch.UniformToFill };
+
+            // שליפת התמונה מה-API (Base64)
             string base64 = await api.GetVideoPicByte64(v.Id);
+
             if (!string.IsNullOrEmpty(base64))
             {
-                try
-                {
-                    img.Source = ByteImageConverter.ByteToImage(Convert.FromBase64String(base64));
-                }
-                catch {  }
+                img.Source = Base64ToImage(base64); // שימוש בפונקציה החדשה שלנו
             }
+
             border.Child = img;
 
-            // כפתור צפייה
             var btn = new Button
             {
                 Content = "Watch Now",
@@ -111,22 +116,40 @@ namespace NoaMedia.Pages
                 Foreground = Brushes.White,
                 FontWeight = FontWeights.Bold,
                 BorderThickness = new Thickness(0),
-                Tag = v // שמירת הסרט בתוך הכפתור
+                Tag = v
             };
-            btn.Click += Movie_Click;
+            btn.Click += WatchMovie_Click; // שיניתי את השם כדי שיהיה ברור
 
             container.Children.Add(border);
+            container.Children.Add(new TextBlock { Text = v.VideoName, Foreground = Brushes.White, HorizontalAlignment = HorizontalAlignment.Center, Margin = new Thickness(0, 5, 0, 0) });
             container.Children.Add(btn);
             return container;
         }
 
-
-        private void Movie_Click(object sender, RoutedEventArgs e)
+        // פונקציית הקסם שהופכת סטרינג לתמונה ב-WPF
+        public BitmapImage Base64ToImage(string base64String)
         {
-            if (sender is Button btn && btn.Tag is Video v)
+            try
             {
-                MessageBox.Show($"Starting: {v.VideoName}");
+                if (string.IsNullOrEmpty(base64String)) return null;
+                byte[] imageBytes = Convert.FromBase64String(base64String);
+                using (MemoryStream ms = new MemoryStream(imageBytes))
+                {
+                    BitmapImage image = new BitmapImage();
+                    image.BeginInit();
+                    image.StreamSource = ms;
+                    image.CacheOption = BitmapCacheOption.OnLoad;
+                    image.EndInit();
+                    return image;
+                }
             }
+            catch { return null; }
+        }
+
+        private void WatchMovie_Click(object sender, RoutedEventArgs e)
+        {
+            // כאן אפשר להוסיף ניווט לדף צפייה בסרט
+            MessageBox.Show("Enjoy the movie!");
         }
 
         private void AddMovie_Click(object sender, RoutedEventArgs e)
@@ -136,8 +159,7 @@ namespace NoaMedia.Pages
 
         private void Profile_Click(object sender, RoutedEventArgs e)
         {
-            // העברת המשתמש המחובר לעמוד הפרופיל כדי להציג את פרטיו
-            this.NavigationService.Navigate(new ProfilePage(this.Name));
+            this.NavigationService.Navigate(new ProfilePage("User"));
         }
     }
 }

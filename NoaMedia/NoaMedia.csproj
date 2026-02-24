@@ -14,7 +14,7 @@
 
   <ItemGroup>
     <Reference Include="ApiInterface">
-      <HintPath>..\..\..\..\Users\dudil\OneDrive\Desktop\NoaMedia- פרויקט שלי\תיקיית בסיס\Noamedia--Show-Media-By-Noam-Levi-master\Noamedia--Show-Media-By-Noam-Levi-master\Server\bin\Debug\net8.0\ApiInterface.dll</HintPath>
+      <HintPath>..\..\..\basis\Noamedia--Show-Media-By-Noam-Levi\ApiInterface\bin\Debug\net8.0\ApiInterface.dll</HintPath>
     </Reference>
     <Reference Include="Model">
       <HintPath>..\..\..\basis\Noamedia--Show-Media-By-Noam-Levi\Server\bin\Debug\net8.0\Model.dll</HintPath>

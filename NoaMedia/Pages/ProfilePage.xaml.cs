@@ -9,7 +9,7 @@ namespace NoaMedia.Pages
 {
     public partial class ProfilePage : Page
     {
-        private InterfaceAPI api = new InterfaceAPI();
+        private IInterfaceAPI api = new InterfaceAPI();
         private User currentUser;
 
         public ProfilePage(string currentName)

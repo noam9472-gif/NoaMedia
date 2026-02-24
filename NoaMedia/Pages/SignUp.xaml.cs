@@ -30,11 +30,9 @@ namespace NoaMedia.Pages
                 User newUser = new User
                 {
                     UserName = NewUserTextBox.Text,
-                    Pass = NewPasswordBox.Password // אישרת שזה Pass, אז זה מעולה
+                    Pass = NewPasswordBox.Password 
                 };
 
-                // בדיקה: אם ב-InterfaceAPI הפעולה מוגדרת כ-Task (בלי bool)
-                // אנחנו פשוט נריץ אותה ונניח שהיא הצליחה אם לא קפצה שגיאה
                 await api.InsertUser(newUser);
 
                 MessageBox.Show("Account created successfully! You can now log in.");
@@ -42,7 +40,6 @@ namespace NoaMedia.Pages
             }
             catch (Exception ex)
             {
-                // אם יש בעיה (למשל משתמש כבר קיים), היא תיתפס כאן
                 MessageBox.Show("Registration failed: " + ex.Message);
             }
         }

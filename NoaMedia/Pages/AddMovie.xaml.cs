@@ -14,7 +14,6 @@ namespace NoaMedia.Pages
     public partial class AddMovie : Page
     {
         InterfaceAPI api = new InterfaceAPI();
-        // משתנה שישמור את התמונה שהמשתמש בחר
         private string base64Image = "";
 
         public AddMovie()
@@ -43,7 +42,6 @@ namespace NoaMedia.Pages
         {
             try
             {
-                // 1. איסוף נתונים
                 string name = MovieNameTextBox.Text;
                 string genreName = GenreTextBox.Text;
 
@@ -54,7 +52,6 @@ namespace NoaMedia.Pages
                     return;
                 }
 
-                // 2. מציאת ה-Genre
                 GenreList allGenres = await api.GetAllGenres();
                 Genre selectedGenre = allGenres.FirstOrDefault(g => g.GenreDescription.Equals(genreName, StringComparison.OrdinalIgnoreCase));
 
@@ -63,24 +60,19 @@ namespace NoaMedia.Pages
                     MessageBox.Show("Genre not found.");
                     return;
                 }
-
-                // 3. יצירת אובייקט הסרט כולל התמונה!
                 Video newVideo = new Video();
                 newVideo.VideoName = name;
                 newVideo.LengthInMinutes = duration;
                 newVideo.Genre = selectedGenre;
                 newVideo.AgeOfVideo = (AgeOfVideos)Enum.ToObject(typeof(AgeOfVideos), ageValue);
 
-                // כאן אנחנו מכניסים את התמונה ששמרנו קודם
                 newVideo.VideoPic = base64Image;
 
-                // הוספת ערכי ברירת מחדל לשדות חובה במסד הנתונים (אם חסר)
                 newVideo.VideoUploadedDate = DateTime.Now;
                 newVideo.VideoDescription = "No description";
                 newVideo.VideoAddress = "local";
 
                
-                // הוסף את השורה הזו כדי לראות בחלון ה-Output של VS אם הסטרינג אכן קיים
                 System.Diagnostics.Debug.WriteLine("Image length: " + (newVideo.VideoPic?.Length ?? 0));
 
                 await api.InsertVideo(newVideo);

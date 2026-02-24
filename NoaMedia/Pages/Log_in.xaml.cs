@@ -17,10 +17,7 @@ using System.Windows.Shapes;
 using NoaMedia;
 
 namespace NoaMedia.Pages
-{
-    /// <summary>
-    /// Interaction logic for Log_in.xaml
-    /// </summary>
+{ 
     public partial class Log_in : Page
     {
         public static User currentUser = null;

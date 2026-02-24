@@ -43,26 +43,19 @@ namespace NoaMedia.Pages
 
             var genres = await api.GetAllGenres();
             var allVideosRaw = await api.GetAllVideos();
-
-            // המרה בטוחה של רשימת הסרטים
             List<Video> allVideos = (allVideosRaw as IEnumerable<Video>)?.ToList() ?? new List<Video>();
-
             if (genres == null) return;
-
             foreach (var g in genres)
             {
                 var genreSection = CreateGenreSection(g.GenreDescription);
                 var moviesContainer = new WrapPanel { Orientation = Orientation.Horizontal };
-
                 // סינון סרטים לפי ז'אנר
                 var genreVideos = allVideos.Where(v => v != null && v.Genre?.Id == g.Id).ToList();
-
                 foreach (var v in genreVideos)
                 {
                     var videoUI = await CreateVideoItemUI(v);
                     moviesContainer.Children.Add(videoUI);
                 }
-
                 genreSection.Children.Add(moviesContainer);
                 MainGenresContainer.Children.Add(genreSection);
             }
@@ -97,10 +90,8 @@ namespace NoaMedia.Pages
 
             var img = new Image { Stretch = Stretch.UniformToFill };
 
-            // --- שינוי כאן: בדיקה אם התמונה כבר קיימת באובייקט ---
             string base64 = v.VideoPic;
 
-            // אם היא ריקה או מכילה הודעת שגיאה, ננסה בכל זאת למשוך מה-API
             if (string.IsNullOrEmpty(base64) || base64.StartsWith("File"))
             {
                 base64 = await api.GetVideoPicByte64(v.Id);
@@ -122,7 +113,7 @@ namespace NoaMedia.Pages
                 Foreground = Brushes.White,
                 FontWeight = FontWeights.Bold,
                 BorderThickness = new Thickness(0),
-                Tag = v // חשוב מאוד! זה מה שמאפשר ל-WatchMovie_Click לדעת איזה סרט נבחר
+                Tag = v 
             };
             btn.Click += WatchMovie_Click;
 
@@ -131,7 +122,6 @@ namespace NoaMedia.Pages
             container.Children.Add(btn);
             return container;
         }
-        // פונקציית הקסם שהופכת סטרינג לתמונה ב-WPF
         public BitmapImage Base64ToImage(string base64String)
         {
             try
@@ -145,7 +135,7 @@ namespace NoaMedia.Pages
                     image.StreamSource = ms;
                     image.CacheOption = BitmapCacheOption.OnLoad;
                     image.EndInit();
-                    image.Freeze(); // חשוב מאוד!
+                    image.Freeze(); 
                     return image;
                 }
             }
@@ -154,16 +144,13 @@ namespace NoaMedia.Pages
 
         private void WatchMovie_Click(object sender, RoutedEventArgs e)
         {
-            // 1. מחלצים את הכפתור שנלחץ
             Button btn = sender as Button;
             if (btn != null)
             {
-                // 2. מחלצים את אובייקט הסרט שהצמדנו לכפתור בתוך ה-Tag
                 Video selectedVideo = btn.Tag as Video;
 
                 if (selectedVideo != null)
                 {
-                    // 3. ניווט לעמוד הפרטים עם האובייקט של הסרט
                     this.NavigationService.Navigate(new MovieDetails(selectedVideo));
                 }
                 else

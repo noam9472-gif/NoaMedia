@@ -28,9 +28,6 @@ namespace NoaMedia.Pages
             MovieTitle.Text = v.VideoName;
             MovieGenre.Text = v.Genre?.GenreDescription ?? "General";
             MovieDuration.Text = v.LengthInMinutes > 0 ? $"{v.LengthInMinutes} min" : "";
-
-            // שינוי חשוב: הצגת התיאור האמיתי מהמסד (ולא רק את השם)
-            // אם התיאור ריק, נשים טקסט ברירת מחדל
             string description = !string.IsNullOrWhiteSpace(v.VideoDescription) ? v.VideoDescription : "No description available for this movie.";
             MovieDesc.Text = description;
             FullDescriptionText.Text = description;
@@ -48,15 +45,12 @@ namespace NoaMedia.Pages
 
             try
             {
-                // טעינת תמונה: שיפור הביצועים
-                // אם ה-VideoPic כבר מכיל Base64 מהדף הקודם, נשתמש בו במקום לקרוא ל-API שוב
                 if (!string.IsNullOrEmpty(v.VideoPic) && !v.VideoPic.Contains("found"))
                 {
                     BackgroundImage.Source = Base64ToImage(v.VideoPic);
                 }
                 else
                 {
-                    // אם אין תמונה באובייקט, ננסה למשוך מה-API
                     string base64 = await api.GetVideoPicByte64(v.Id);
                     if (!string.IsNullOrEmpty(base64))
                     {
@@ -74,7 +68,6 @@ namespace NoaMedia.Pages
         {
             try
             {
-                //בדיקה אם  קיים
                 if (currentVideo == null || string.IsNullOrWhiteSpace(currentVideo.VideoAddress))
                 {
                     MessageBox.Show("Error: Video address is missing in the database.", "Missing Data");

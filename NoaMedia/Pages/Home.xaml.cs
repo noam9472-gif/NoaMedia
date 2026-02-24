@@ -97,12 +97,18 @@ namespace NoaMedia.Pages
 
             var img = new Image { Stretch = Stretch.UniformToFill };
 
-            // שליפת התמונה מה-API (Base64)
-            string base64 = await api.GetVideoPicByte64(v.Id);
+            // --- שינוי כאן: בדיקה אם התמונה כבר קיימת באובייקט ---
+            string base64 = v.VideoPic;
+
+            // אם היא ריקה או מכילה הודעת שגיאה, ננסה בכל זאת למשוך מה-API
+            if (string.IsNullOrEmpty(base64) || base64.StartsWith("File"))
+            {
+                base64 = await api.GetVideoPicByte64(v.Id);
+            }
 
             if (!string.IsNullOrEmpty(base64))
             {
-                img.Source = Base64ToImage(base64); // שימוש בפונקציה החדשה שלנו
+                img.Source = Base64ToImage(base64);
             }
 
             border.Child = img;
@@ -116,30 +122,30 @@ namespace NoaMedia.Pages
                 Foreground = Brushes.White,
                 FontWeight = FontWeights.Bold,
                 BorderThickness = new Thickness(0),
-                Tag = v
+                Tag = v // חשוב מאוד! זה מה שמאפשר ל-WatchMovie_Click לדעת איזה סרט נבחר
             };
-            btn.Click += WatchMovie_Click; // שיניתי את השם כדי שיהיה ברור
+            btn.Click += WatchMovie_Click;
 
             container.Children.Add(border);
             container.Children.Add(new TextBlock { Text = v.VideoName, Foreground = Brushes.White, HorizontalAlignment = HorizontalAlignment.Center, Margin = new Thickness(0, 5, 0, 0) });
             container.Children.Add(btn);
             return container;
         }
-
         // פונקציית הקסם שהופכת סטרינג לתמונה ב-WPF
         public BitmapImage Base64ToImage(string base64String)
         {
             try
             {
-                if (string.IsNullOrEmpty(base64String)) return null;
+                if (string.IsNullOrEmpty(base64String) || base64String.StartsWith("File")) return null;
                 byte[] imageBytes = Convert.FromBase64String(base64String);
-                using (MemoryStream ms = new MemoryStream(imageBytes))
+                using (System.IO.MemoryStream ms = new System.IO.MemoryStream(imageBytes))
                 {
                     BitmapImage image = new BitmapImage();
                     image.BeginInit();
                     image.StreamSource = ms;
                     image.CacheOption = BitmapCacheOption.OnLoad;
                     image.EndInit();
+                    image.Freeze(); // חשוב מאוד!
                     return image;
                 }
             }
@@ -148,8 +154,23 @@ namespace NoaMedia.Pages
 
         private void WatchMovie_Click(object sender, RoutedEventArgs e)
         {
-            // כאן אפשר להוסיף ניווט לדף צפייה בסרט
-            MessageBox.Show("Enjoy the movie!");
+            // 1. מחלצים את הכפתור שנלחץ
+            Button btn = sender as Button;
+            if (btn != null)
+            {
+                // 2. מחלצים את אובייקט הסרט שהצמדנו לכפתור בתוך ה-Tag
+                Video selectedVideo = btn.Tag as Video;
+
+                if (selectedVideo != null)
+                {
+                    // 3. ניווט לעמוד הפרטים עם האובייקט של הסרט
+                    this.NavigationService.Navigate(new MovieDetails(selectedVideo));
+                }
+                else
+                {
+                    MessageBox.Show("Error: Movie data is missing.");
+                }
+            }
         }
 
         private void AddMovie_Click(object sender, RoutedEventArgs e)

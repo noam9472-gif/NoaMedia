@@ -22,40 +22,52 @@ namespace NoaMedia.Pages
 
         private async void LoadMovieDetails(Video v)
         {
+            if (v == null) return;
+
+            // הצגת נתונים בסיסיים
             MovieTitle.Text = v.VideoName;
-            MovieGenre.Text = v.Genre?.GenreDescription;
-            MovieDuration.Text = v.LengthInMinutes + " min";
+            MovieGenre.Text = v.Genre?.GenreDescription ?? "General";
+            MovieDuration.Text = v.LengthInMinutes > 0 ? $"{v.LengthInMinutes} min" : "";
 
-            // תקציר קצר- שם הסרט
-            MovieDesc.Text = v.VideoName;
+            // שינוי חשוב: הצגת התיאור האמיתי מהמסד (ולא רק את השם)
+            // אם התיאור ריק, נשים טקסט ברירת מחדל
+            string description = !string.IsNullOrWhiteSpace(v.VideoDescription) ? v.VideoDescription : "No description available for this movie.";
+            MovieDesc.Text = description;
+            FullDescriptionText.Text = description;
 
-            // תקציר מלא
-            FullDescriptionText.Text = string.IsNullOrEmpty(v.VideoName) ? "No description available." : v.VideoName;
-
-
+            // מי העלה ומתי
             if (WhoUploadedName != null)
             {
-                WhoUploadedName.Text = v.WhoUploadedTheVideo?.UserName ?? "Unknown User";
+                WhoUploadedName.Text = v.WhoUploadedTheVideo?.UserName ?? "Admin";
             }
 
             if (v.VideoUploadedDate != DateTime.MinValue)
             {
-                ReleaseYear.Text = v.VideoUploadedDate.ToString("dd/MM/yyyy");
-            }
-            else
-            {
-                ReleaseYear.Text = "Unknown Date";
+                ReleaseYear.Text = v.VideoUploadedDate.Year.ToString(); // בדרך כלל מציגים רק שנה בפרטי סרט
             }
 
             try
             {
-                string base64 = await api.GetVideoPicByte64(v.Id);
-                if (!string.IsNullOrEmpty(base64))
+                // טעינת תמונה: שיפור הביצועים
+                // אם ה-VideoPic כבר מכיל Base64 מהדף הקודם, נשתמש בו במקום לקרוא ל-API שוב
+                if (!string.IsNullOrEmpty(v.VideoPic) && !v.VideoPic.Contains("found"))
                 {
-                    BackgroundImage.Source = Base64ToImage(base64);
+                    BackgroundImage.Source = Base64ToImage(v.VideoPic);
+                }
+                else
+                {
+                    // אם אין תמונה באובייקט, ננסה למשוך מה-API
+                    string base64 = await api.GetVideoPicByte64(v.Id);
+                    if (!string.IsNullOrEmpty(base64))
+                    {
+                        BackgroundImage.Source = Base64ToImage(base64);
+                    }
                 }
             }
-            catch { }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("Error loading image: " + ex.Message);
+            }
         }
 
         private void PlayButton_Click(object sender, RoutedEventArgs e)

@@ -1,9 +1,8 @@
 ﻿using Model; 
-using System.Windows.Media; // כאן זה יעבוד!
+using System.Windows.Media; 
 
-namespace NoaMedia // השם של פרויקט ה-WPF
+namespace NoaMedia 
 {
-    // המחלקה הזו יורשת הכל מ-Video ומוסיפה רק את שדה התמונה
     public class VideoDisplay : Video
     {
         public ImageSource MovieImageSource { get; set; }

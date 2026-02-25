@@ -21,7 +21,6 @@
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-
             <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
                 <TextBlock Text="Hi " Foreground="White" FontSize="30" FontWeight="SemiBold"/>
                 <TextBlock x:Name="UserNameText" Text="User" Foreground="#E50914" FontSize="30" FontWeight="Bold"/>

@@ -15,15 +15,21 @@ namespace NoaMedia.Pages
         public ProfilePage(string currentName)
         {
             InitializeComponent();
-
-            // שליפת המשתמש - וודא שב-App.xaml.cs יש לך את המשתנה LoggedInUser
             currentUser = (Application.Current as App).LoggedInUser;
 
             if (currentUser != null)
             {
                 UserNameHeading.Text = currentUser.UserName;
-                LoadMyContent();
+                // במקום לקרוא לזה כאן, אנחנו נשתמש ב-Page_Loaded
             }
+
+            // הוספת האירוע שטוען את התוכן בכל פעם שנכנסים לדף
+            this.Loaded += Page_Loaded;
+        }
+
+        private void Page_Loaded(object sender, RoutedEventArgs e)
+        {
+            LoadMyContent(); // עכשיו זה ירוץ בכל פעם שהדף מוצג
         }
 
         private async void LoadMyContent()
@@ -49,8 +55,12 @@ namespace NoaMedia.Pages
                 if (allLikes != null)
                 {
                     // מוצאים את כל הלייקים ששייכים למשתמש הנוכחי
-                    var myFavoriteLikes = allLikes.Where(l => l.UserId != null && l.UserId.Id == currentUser.Id).ToList();
-
+                    // בתוך LoadMyContent
+                    var myFavoriteLikes = allLikes.Where(l =>
+                        l.UserId != null &&
+                        currentUser != null &&
+                        l.UserId.Id == currentUser.Id // השוואה ישירה של מספרים
+                    ).ToList();
                     foreach (var like in myFavoriteLikes)
                     {
                         // לכל לייק יש אובייקט VideoId (שזה הסרט המלא) בזכות ה-CreateModel שבנינו בשרת
@@ -88,7 +98,44 @@ namespace NoaMedia.Pages
             return btn;
         }
 
+        private async void LoadLikedMovies()
+        {
+            var myApp = Application.Current as App;
+            if (myApp?.LoggedInUser == null) return;
 
+            try
+            {
+                // 1. שליפה מה-API
+                MyLikesList allLikes = await api.GetAllLikes();
+
+                // 2. ניקוי הפאנל
+                LikedVideosPanel.Children.Clear();
+
+                if (allLikes != null)
+                {
+                    // סינון חכם יותר: בודקים אם UserId קיים ואם ה-ID תואם
+                    // המרנו את ה-ID ל-int כדי לוודא שאין השוואה בין סוגים שונים
+                    var myFavoriteLikes = allLikes
+                        .Where(l => l.UserId != null && l.UserId.Id == myApp.LoggedInUser.Id)
+                        .ToList();
+
+                    foreach (var like in myFavoriteLikes)
+                    {
+                        // חשוב: אם VideoId הוא null, זה אומר שהשרת לא החזיר את פרטי הסרט
+                        if (like.VideoId != null)
+                        {
+                            LikedVideosPanel.Children.Add(CreateMovieThumbnail(like.VideoId));
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("שגיאה בטעינת לייקים: " + ex.Message);
+            }
+        }
+
+       
 
         private void Logout_Click(object sender, RoutedEventArgs e)
         {

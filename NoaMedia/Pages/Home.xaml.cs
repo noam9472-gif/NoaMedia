@@ -23,6 +23,14 @@ namespace NoaMedia.Pages
             InitializeComponent();
             this._isPremium = isPremium;
 
+            // 1. עדכון שם המשתמש (מה שדיברנו עכשיו)
+            var currentUser = (Application.Current as App).LoggedInUser;
+            if (currentUser != null && !string.IsNullOrEmpty(currentUser.UserName))
+            {
+                UserNameText.Text = currentUser.UserName;
+            }
+
+            // 2. הבדיקה שלך בין פרימיום לרגיל (החזרתי אותה למקומה)
             if (_isPremium)
             {
                 // פרימיום: רואה הוספת סרט, לא רואה כפתור שדרוג

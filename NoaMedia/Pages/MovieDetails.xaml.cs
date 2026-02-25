@@ -85,29 +85,43 @@ namespace NoaMedia.Pages
             var myApp = Application.Current as App;
             if (myApp?.LoggedInUser == null || currentVideo == null) return;
 
-            // שליפת המצב הנוכחי מה-Tag (אם הוא null, נניח שזה false)
             bool isLiked = (LikeButton.Tag as bool?) ?? false;
 
             try
             {
                 if (isLiked)
                 {
+                    // 1. הסרה מהמסד דרך ה-API
                     await api.RemoveLike(myApp.LoggedInUser.Id, currentVideo.Id);
+
+                    // 2. עדכון ויזואלי
                     LikeIcon.Foreground = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Colors.White);
-                    LikeButton.Tag = false; // עדכון ה-Tag למצב החדש
+                    LikeButton.Tag = false;
                 }
                 else
                 {
-                    await api.AddLike(myApp.LoggedInUser.Id, currentVideo.Id);
-                    LikeIcon.Foreground = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Colors.Red);
-                    LikeButton.Tag = true; // עדכון ה-Tag למצב החדש
+                    // 1. הוספה למסד דרך ה-API
+                    // וודא שב-InterfaceAPI הפונקציה AddLike קוראת ל-Insert של ה-Service ב-Basis
+                    bool success = await api.AddLike(myApp.LoggedInUser.Id, currentVideo.Id);
+
+                    if (success)
+                    {
+                        // 2. עדכון ויזואלי רק אם ההוספה הצליחה
+                        LikeIcon.Foreground = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Colors.Red);
+                        LikeButton.Tag = true;
+
+                        // בונוס: הודעה קטנה כדי שתדע שזה באמת קרה
+                        // MessageBox.Show("הסרט נוסף למועדפים!"); 
+                    }
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Error: " + ex.Message);
+                MessageBox.Show("שגיאה בשמירת הלייק: " + ex.Message);
             }
         }
+
+
         private void PlayButton_Click(object sender, RoutedEventArgs e)
         {
             try

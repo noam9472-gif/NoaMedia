@@ -6,32 +6,6 @@
 
     <Page.Resources>
         <DataTemplate x:Key="MovieTemplate">
-            <Grid Margin="0,0,15,20">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
-
-                <Border Width="220" Height="125" CornerRadius="8" ClipToBounds="True" Background="#222">
-                    <Image x:Name="dbImage" Source="{Binding MovieImageSource}" Stretch="UniformToFill"/>
-                </Border>
-
-                <Button Grid.Row="1" 
-                        Content="Watch Now" 
-                        Margin="0,8,0,0" 
-                        Height="35" 
-                        Background="#E50914" 
-                        Foreground="White" 
-                        FontWeight="Bold"
-                        BorderThickness="0" 
-                        Cursor="Hand">
-                    <Button.Resources>
-                        <Style TargetType="Border">
-                            <Setter Property="CornerRadius" Value="5"/>
-                        </Style>
-                    </Button.Resources>
-                </Button>
-            </Grid>
         </DataTemplate>
     </Page.Resources>
 
@@ -54,11 +28,33 @@
                 <TextBlock Text="!" Foreground="White" FontSize="30" FontWeight="SemiBold"/>
             </StackPanel>
 
-            <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
-                <Button Content="+ Add Movie" Click="AddMovie_Click" Width="110" Height="35" Background="#333" Foreground="White" BorderThickness="0" Margin="0,0,15,0" Cursor="Hand"/>
-                <Button Click="Profile_Click" Background="Transparent" BorderThickness="0" Cursor="Hand">
+            <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+
+                <Button x:Name="UpgradeButton" 
+                Content="Get Premium 👑" 
+                Click="UpgradeButton_Click" 
+                Width="120" Height="35" 
+                Background="#FFD700" Foreground="Black" 
+                FontWeight="Bold" BorderThickness="0" 
+                Margin="0,0,15,0" Cursor="Hand"
+                Visibility="Collapsed"/>
+
+                <Button x:Name="AddMovieButton" 
+                Content="+ Add Movie" 
+                Click="AddMovie_Click" 
+                Width="110" Height="35" 
+                Background="#333" Foreground="White" 
+                BorderThickness="0" Margin="0,0,15,0" 
+                Cursor="Hand"
+                Visibility="Collapsed"/>
+
+                <Button x:Name="ProfileButton"
+                Click="Profile_Click" 
+                Background="Transparent" 
+                BorderThickness="0" 
+                Cursor="Hand">
                     <Border Width="40" Height="40" Background="#E50914" CornerRadius="5">
-                        <TextBlock Text="U" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold"/>
+                        <TextBlock Text="U" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold" FontSize="18"/>
                     </Border>
                 </Button>
             </StackPanel>
@@ -68,5 +64,7 @@
             <StackPanel x:Name="MainGenresContainer" Margin="30,0,30,20" Orientation="Vertical">
             </StackPanel>
         </ScrollViewer>
+        
+        
     </Grid>
 </Page>

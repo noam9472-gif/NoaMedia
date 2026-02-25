@@ -24,7 +24,6 @@ namespace NoaMedia.Pages
         {
             if (v == null) return;
 
-            // הצגת נתונים בסיסיים
             MovieTitle.Text = v.VideoName;
             MovieGenre.Text = v.Genre?.GenreDescription ?? "General";
             MovieDuration.Text = v.LengthInMinutes > 0 ? $"{v.LengthInMinutes} min" : "";
@@ -62,8 +61,53 @@ namespace NoaMedia.Pages
             {
                 System.Diagnostics.Debug.WriteLine("Error loading image: " + ex.Message);
             }
+
+            var myApp = Application.Current as App;
+            if (myApp?.LoggedInUser != null)
+            {
+                // בדיקה מול ה-API האם המשתמש עשה לייק
+                bool hasLiked = await api.CheckIfUserLikedVideo(myApp.LoggedInUser.Id, v.Id);
+
+                // שמירת הסטטוס בתוך ה-Tag של הכפתור
+                LikeButton.Tag = hasLiked;
+
+                // עדכון הצבע בהתאם
+                LikeIcon.Foreground = hasLiked ?
+                    new System.Windows.Media.SolidColorBrush(System.Windows.Media.Colors.Red) :
+                    new System.Windows.Media.SolidColorBrush(System.Windows.Media.Colors.White);
+            }
         }
 
+
+
+        private async void LikeButton_Click(object sender, RoutedEventArgs e)
+        {
+            var myApp = Application.Current as App;
+            if (myApp?.LoggedInUser == null || currentVideo == null) return;
+
+            // שליפת המצב הנוכחי מה-Tag (אם הוא null, נניח שזה false)
+            bool isLiked = (LikeButton.Tag as bool?) ?? false;
+
+            try
+            {
+                if (isLiked)
+                {
+                    await api.RemoveLike(myApp.LoggedInUser.Id, currentVideo.Id);
+                    LikeIcon.Foreground = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Colors.White);
+                    LikeButton.Tag = false; // עדכון ה-Tag למצב החדש
+                }
+                else
+                {
+                    await api.AddLike(myApp.LoggedInUser.Id, currentVideo.Id);
+                    LikeIcon.Foreground = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Colors.Red);
+                    LikeButton.Tag = true; // עדכון ה-Tag למצב החדש
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error: " + ex.Message);
+            }
+        }
         private void PlayButton_Click(object sender, RoutedEventArgs e)
         {
             try

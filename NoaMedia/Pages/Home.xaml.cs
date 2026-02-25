@@ -16,13 +16,34 @@ namespace NoaMedia.Pages
     public partial class Home : Page
     {
         private readonly InterfaceAPI api = new InterfaceAPI();
+        private bool _isPremium;
 
         public Home(bool isPremium)
         {
             InitializeComponent();
+            this._isPremium = isPremium;
+
+            if (_isPremium)
+            {
+                // פרימיום: רואה הוספת סרט, לא רואה כפתור שדרוג
+                AddMovieButton.Visibility = Visibility.Visible;
+                UpgradeButton.Visibility = Visibility.Collapsed;
+            }
+            else
+            {
+                // רגיל: לא רואה הוספת סרט, כן רואה כפתור שדרוג
+                AddMovieButton.Visibility = Visibility.Collapsed;
+                UpgradeButton.Visibility = Visibility.Visible;
+            }
+
             this.Loaded += (s, e) => LoadContent();
         }
 
+        // אל תשכח להוסיף את הפונקציה למעבר לעמוד השדרוג
+        private void UpgradeButton_Click(object sender, RoutedEventArgs e)
+        {
+            this.NavigationService.Navigate(new PremiumSalesPage());
+        }
         private async void LoadContent()
         {
             try
@@ -47,6 +68,7 @@ namespace NoaMedia.Pages
             if (genres == null) return;
             foreach (var g in genres)
             {
+                if (g.GenreDescription == "Premium Only" && !_isPremium) continue;
                 var genreSection = CreateGenreSection(g.GenreDescription);
                 var moviesContainer = new WrapPanel { Orientation = Orientation.Horizontal };
                 // סינון סרטים לפי ז'אנר
@@ -162,12 +184,23 @@ namespace NoaMedia.Pages
 
         private void AddMovie_Click(object sender, RoutedEventArgs e)
         {
-            this.NavigationService.Navigate(new AddMovie());
+            if (_isPremium)
+            {
+                this.NavigationService.Navigate(new AddMovie());
+            }
+            else
+            {
+                MessageBox.Show("אפשרות זו שמורה למשתמשי פרימיום בלבד.");
+            }
         }
 
+        // הכפתור ששאלת עליו - הוא נשאר כאן!
         private void Profile_Click(object sender, RoutedEventArgs e)
         {
-            this.NavigationService.Navigate(new ProfilePage("User"));
+            // אנחנו שולחים לדף הפרופיל את הסטטוס כדי שגם שם הוא ידע אם להציג "Premium"
+            string status = _isPremium ? "Premium" : "User";
+            this.NavigationService.Navigate(new ProfilePage(status));
         }
     }
 }
+

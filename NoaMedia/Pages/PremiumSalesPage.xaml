@@ -1,0 +1,31 @@
+﻿<Page x:Class="NoaMedia.Pages.PremiumSalesPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      Title="Upgrade to Premium" Background="#141414">
+
+    <Grid VerticalAlignment="Center" HorizontalAlignment="Center">
+        <Border Background="#222" CornerRadius="15" Padding="40" Width="450">
+            <StackPanel>
+                <TextBlock Text="👑" FontSize="50" HorizontalAlignment="Center" Margin="0,0,0,10"/>
+                <TextBlock Text="Unlock NoaMedia Premium" Foreground="Gold" FontSize="28" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,20"/>
+
+                <TextBlock Text="• Add your own movies to the library" Foreground="White" FontSize="18" Margin="0,5"/>
+                <TextBlock Text="• Support the project" Foreground="White" FontSize="18" Margin="0,5"/>
+
+                <Button Content="Get Premium Now" 
+                        Click="ConfirmPremium_Click"
+                        Margin="0,30,0,10" Height="45" 
+                        Background="Gold" Foreground="Black" 
+                        FontWeight="Bold" FontSize="18" Cursor="Hand">
+                    <Button.Resources>
+                        <Style TargetType="Border">
+                            <Setter Property="CornerRadius" Value="8"/>
+                        </Style>
+                    </Button.Resources>
+                </Button>
+
+                <Button Content="Maybe Later" Click="Back_Click" Background="Transparent" Foreground="Gray" BorderThickness="0" Cursor="Hand"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Page>

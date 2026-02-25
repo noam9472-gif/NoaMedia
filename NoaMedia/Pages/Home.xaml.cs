@@ -17,7 +17,7 @@ namespace NoaMedia.Pages
     {
         private readonly InterfaceAPI api = new InterfaceAPI();
 
-        public Home()
+        public Home(bool isPremium)
         {
             InitializeComponent();
             this.Loaded += (s, e) => LoadContent();

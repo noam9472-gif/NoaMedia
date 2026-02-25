@@ -31,7 +31,7 @@ namespace NoaMedia.Pages
 
         private async void LoginButton_Click(object sender, RoutedEventArgs e)
         {
-            string username = UsernameTextBox.Text.Trim(); // Trim מנקה רווחים מיותרים
+            string username = UsernameTextBox.Text.Trim();
             string password = PasswordBox.Password;
 
             if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
@@ -42,18 +42,10 @@ namespace NoaMedia.Pages
 
             try
             {
-                // קבלת הרשימה מהשרת
+                // 1. קבלת המשתמשים הכלליים
                 UserList uList = await api.GetAllUsers();
 
-                // שלב הבדיקה 
-                if (uList == null || uList.Count == 0)
-                {
-                    MessageBox.Show("שגיאה: רשימת המשתמשים ריקה ([]). \nהשרת מחובר אבל לא מושך נתונים מהאקסס.");
-                    return;
-                }
-
-                // חיפוש המשתמש 
-                currentUser = uList.FirstOrDefault(u =>
+                currentUser = uList?.FirstOrDefault(u =>
                     u.UserName.Equals(username, StringComparison.OrdinalIgnoreCase) &&
                     u.Pass == password);
 
@@ -63,18 +55,34 @@ namespace NoaMedia.Pages
                     return;
                 }
 
+                // 2. הבדיקה שביקשת: האם ה-ID שלו קיים בטבלת הפרימיום?
+                // אנחנו משתמשים בפונקציה הקיימת שלך GetAllUserPremiums
+                UserPremiumList pList = await api.GetAllUserPremiums();
+                bool isPremium = pList != null && pList.Any(p => p.Id == currentUser.Id);
+
+                // 3. שמירת המשתמש באפליקציה
                 var myApp = Application.Current as App;
                 if (myApp != null)
                 {
                     myApp.LoggedInUser = currentUser;
                 }
 
-                // מעבר לדף הבית
-                this.NavigationService.Navigate(new Home());
+                // 4. ניתוב למסך המתאים
+                if (isPremium)
+                {
+                    MessageBox.Show("שלום VIP! עובר למסך פרימיום...");
+                    // כאן תעבור למסך הבית עם הצעות מורחבות
+                    // בתוך ה-LoginButton_Click אחרי שגילית אם הוא פרימיום:
+                    this.NavigationService.Navigate(new Home(isPremium));
+                }
+                else
+                {
+                    this.NavigationService.Navigate(new Home(false));
+                }
             }
             catch (Exception ex)
             {
-                MessageBox.Show("תקלה בתקשורת עם השרת: " + ex.Message);
+                MessageBox.Show("תקלה בתקשורת: " + ex.Message);
             }
         }
 

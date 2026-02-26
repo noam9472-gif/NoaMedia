@@ -3,21 +3,13 @@ using Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using NoaMedia;
+using NoaMedia.Pages; // וודא שזה תואם לשם הפרויקט שלך
 
 namespace NoaMedia.Pages
-{ 
+{
     public partial class Log_in : Page
     {
         public static User currentUser = null;
@@ -28,12 +20,12 @@ namespace NoaMedia.Pages
             InitializeComponent();
         }
 
-
         private async void LoginButton_Click(object sender, RoutedEventArgs e)
         {
             string username = UsernameTextBox.Text.Trim();
             string password = PasswordBox.Password;
 
+            // בדיקה בסיסית שהשדות לא ריקים
             if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
             {
                 MessageBox.Show("נא להזין שם משתמש וסיסמה.");
@@ -42,47 +34,58 @@ namespace NoaMedia.Pages
 
             try
             {
-                // 1. קבלת המשתמשים הכלליים
+                // 1. שליפת כל המשתמשים מהשרת
                 UserList uList = await api.GetAllUsers();
 
+                // 2. חיפוש המשתמש הספציפי ברשימה
                 currentUser = uList?.FirstOrDefault(u =>
                     u.UserName.Equals(username, StringComparison.OrdinalIgnoreCase) &&
                     u.Pass == password);
 
+                // אם המשתמש לא נמצא - עוצרים כאן
                 if (currentUser == null)
                 {
                     MessageBox.Show("שם משתמש או סיסמה שגויים.");
                     return;
                 }
 
-                // 2. הבדיקה שביקשת: האם ה-ID שלו קיים בטבלת הפרימיום?
-                // אנחנו משתמשים בפונקציה הקיימת שלך GetAllUserPremiums
+                // 3. בדיקה אם הוא פרימיום (לפי טבלת הפרימיום)
                 UserPremiumList pList = await api.GetAllUserPremiums();
                 bool isPremium = pList != null && pList.Any(p => p.Id == currentUser.Id);
 
-                // 3. שמירת המשתמש באפליקציה
+                // 4. שמירת המשתמש ב-App לשימוש גלובלי
                 var myApp = Application.Current as App;
                 if (myApp != null)
                 {
                     myApp.LoggedInUser = currentUser;
                 }
 
-                // 4. ניתוב למסך המתאים
-                if (isPremium)
+                // 5. ניתוב (Routing) לפי סוג המשתמש
+                if (this.NavigationService != null)
                 {
-                    MessageBox.Show("שלום VIP! עובר למסך פרימיום...");
-                    // כאן תעבור למסך הבית עם הצעות מורחבות
-                    // בתוך ה-LoginButton_Click אחרי שגילית אם הוא פרימיום:
-                    this.NavigationService.Navigate(new Home(isPremium));
-                }
-                else
-                {
-                    this.NavigationService.Navigate(new Home(false));
+                    if (currentUser.IsAdmin)
+                    {
+                        // מקרה א': המשתמש הוא מנהל - נשלח אותו לדף בחירת מסלול
+                        MessageBox.Show("שלום מנהל! מעבר לדף אפשרויות...");
+                        this.NavigationService?.Navigate(new TransitionOptionForManager(isPremium));
+                    }
+                    else if (isPremium)
+                    {
+                        // מקרה ב': המשתמש הוא פרימיום (ולא מנהל) - נשלח אותו למסך הבית VIP
+                        MessageBox.Show("ברוך הבא VIP! צפייה מהנה.");
+                        this.NavigationService.Navigate(new Home(true));
+                    }
+                    else
+                    {
+                        // מקרה ג': משתמש רגיל - נשלח אותו למסך הבית הרגיל
+                        this.NavigationService.Navigate(new Home(false));
+                    }
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show("תקלה בתקשורת: " + ex.Message);
+                // אם משהו קורס בדרך (בעיית תקשורת או שדה חסר ב-DB) - תקבל הודעה
+                MessageBox.Show("שגיאה בתהליך ההתחברות: " + ex.Message);
             }
         }
 

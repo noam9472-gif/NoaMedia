@@ -7,8 +7,12 @@
         <ScrollViewer x:Name="MainScrollViewer" VerticalScrollBarVisibility="Hidden">
             <StackPanel>
 
-                <Grid Height="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=ActualHeight}">
-                    <Image x:Name="BackgroundImage" Stretch="UniformToFill" Opacity="0.6"/>
+                <Grid VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+
+                    <Image x:Name="BackgroundImage" 
+           Stretch="UniformToFill" 
+           Opacity="0.6"/>
+
                     <Border>
                         <Border.Background>
                             <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
@@ -19,7 +23,8 @@
                         </Border.Background>
                     </Border>
 
-                    <StackPanel VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="0,0,60,80" Width="600">
+                
+                <StackPanel VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="0,0,60,80" Width="600">
                         <TextBlock x:Name="MovieTitle" Foreground="White" FontSize="72" FontWeight="Bold" TextAlignment="Right" TextWrapping="Wrap">
                             <TextBlock.Effect>
                                 <DropShadowEffect BlurRadius="15" ShadowDepth="2" Opacity="0.9"/>

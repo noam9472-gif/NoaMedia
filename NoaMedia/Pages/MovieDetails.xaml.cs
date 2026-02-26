@@ -3,6 +3,7 @@ using Model;
 using System;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 
@@ -102,16 +103,22 @@ namespace NoaMedia.Pages
                 {
                     // 1. הוספה למסד דרך ה-API
                     // וודא שב-InterfaceAPI הפונקציה AddLike קוראת ל-Insert של ה-Service ב-Basis
-                    bool success = await api.AddLike(myApp.LoggedInUser.Id, currentVideo.Id);
+                    MyLikes like = new MyLikes
+                    {
+                        Id = 0, // לפעמים השרת חייב לראות את השדה הזה
+                        UserId = myApp.LoggedInUser,
+                        VideoId = currentVideo
+                    };
+                    bool success = await api.AddLike(like);
 
                     if (success)
                     {
-                        // 2. עדכון ויזואלי רק אם ההוספה הצליחה
-                        LikeIcon.Foreground = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Colors.Red);
+                        LikeIcon.Foreground = new SolidColorBrush(Colors.Red);
                         LikeButton.Tag = true;
-
-                        // בונוס: הודעה קטנה כדי שתדע שזה באמת קרה
-                        // MessageBox.Show("הסרט נוסף למועדפים!"); 
+                    }
+                    else
+                    {
+                        MessageBox.Show("השרת לא אישר את הלייק. בדוק את החיבור למסד הנתונים.");
                     }
                 }
             }

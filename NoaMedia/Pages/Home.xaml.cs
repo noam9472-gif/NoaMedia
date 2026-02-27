@@ -23,23 +23,34 @@ namespace NoaMedia.Pages
             InitializeComponent();
             this._isPremium = isPremium;
 
-            // 1. עדכון שם המשתמש (מה שדיברנו עכשיו)
             var currentUser = (Application.Current as App).LoggedInUser;
-            if (currentUser != null && !string.IsNullOrEmpty(currentUser.UserName))
+
+            if (currentUser != null)
             {
-                UserNameText.Text = currentUser.UserName;
+                if (!string.IsNullOrEmpty(currentUser.UserName))
+                {
+                    UserNameText.Text = currentUser.UserName;
+                }
+
+                if (currentUser.IsAdmin)
+                {
+                    // אם הוא מנהל נראה את כפתור התפריט
+                    AdminMenuButton.Visibility = Visibility.Visible;
+                }
+                else
+                {
+                    // אם הוא לא מנהל נסתיר אותו לגמרי
+                    AdminMenuButton.Visibility = Visibility.Collapsed;
+                }
             }
 
-            // 2. הבדיקה שלך בין פרימיום לרגיל (החזרתי אותה למקומה)
             if (_isPremium)
             {
-                // פרימיום: רואה הוספת סרט, לא רואה כפתור שדרוג
                 AddMovieButton.Visibility = Visibility.Visible;
                 UpgradeButton.Visibility = Visibility.Collapsed;
             }
             else
             {
-                // רגיל: לא רואה הוספת סרט, כן רואה כפתור שדרוג
                 AddMovieButton.Visibility = Visibility.Collapsed;
                 UpgradeButton.Visibility = Visibility.Visible;
             }
@@ -47,7 +58,6 @@ namespace NoaMedia.Pages
             this.Loaded += (s, e) => LoadContent();
         }
 
-        // אל תשכח להוסיף את הפונקציה למעבר לעמוד השדרוג
         private void UpgradeButton_Click(object sender, RoutedEventArgs e)
         {
             this.NavigationService.Navigate(new PremiumSalesPage());
@@ -91,6 +101,11 @@ namespace NoaMedia.Pages
             }
         }
 
+
+        private void AdminMenu_Click(object sender, RoutedEventArgs e)
+        {
+            this.NavigationService.Navigate(new TransitionOptionForManager(true));
+        }
         private StackPanel CreateGenreSection(string title)
         {
             var section = new StackPanel { Margin = new Thickness(0, 0, 0, 30) };
@@ -202,10 +217,8 @@ namespace NoaMedia.Pages
             }
         }
 
-        // הכפתור ששאלת עליו - הוא נשאר כאן!
         private void Profile_Click(object sender, RoutedEventArgs e)
         {
-            // אנחנו שולחים לדף הפרופיל את הסטטוס כדי שגם שם הוא ידע אם להציג "Premium"
             string status = _isPremium ? "Premium" : "User";
             this.NavigationService.Navigate(new ProfilePage(status));
         }

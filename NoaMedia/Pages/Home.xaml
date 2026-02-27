@@ -29,6 +29,15 @@
 
             <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
 
+                <Button x:Name="AdminMenuButton" 
+            Content="⚙ Menu" 
+            Click="AdminMenu_Click" 
+            Width="90" Height="35" 
+            Background="#444" Foreground="White" 
+            BorderThickness="0" Margin="0,0,15,0" 
+            Cursor="Hand"/>
+                
+                
                 <Button x:Name="UpgradeButton" 
                 Content="Get Premium 👑" 
                 Click="UpgradeButton_Click" 

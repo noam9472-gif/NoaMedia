@@ -1,0 +1,43 @@
+﻿<Page x:Class="NoaMedia.Pages.UserDetailsPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      Title="User Activities">
+    <Grid Background="#F0F2F5">
+        <StackPanel Margin="20">
+            <TextBlock x:Name="UserHeader" FontSize="28" FontWeight="Bold" Margin="0,0,0,20" Foreground="#2C3E50"/>
+
+            <TextBlock Text="Videos Uploaded:" FontWeight="Bold" Margin="0,10,0,5"/>
+            <ListBox x:Name="lstUploadedVideos" Height="100" MouseDoubleClick="VideoList_MouseDoubleClick">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding VideoName}"/>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+
+            <TextBlock Text="Liked Movies:" FontWeight="Bold" Margin="0,10,0,5"/>
+            <ListBox x:Name="lstLikedVideos" Height="100" MouseDoubleClick="VideoList_MouseDoubleClick">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding VideoId.VideoName}"/>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+
+            <TextBlock Text="Reviews Written:" FontWeight="Bold" Margin="0,10,0,5"/>
+            <ListBox x:Name="lstReviews" Height="100" MouseDoubleClick="VideoList_MouseDoubleClick">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding WhichVideoDidTheUserReview.VideoName}" FontWeight="Bold" Margin="0,0,10,0"/>
+                            <TextBlock Text="{Binding ReviewText}"/>
+                        </StackPanel>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+
+            <Button Content="Back" Click="Back_Click" Width="100" HorizontalAlignment="Left" Margin="0,20,0,0" 
+                    Background="#34495E" Foreground="White" Padding="5"/>
+        </StackPanel>
+    </Grid>
+</Page>

@@ -1,22 +1,20 @@
 ﻿using ApiInterface;
 using Model;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 
 namespace NoaMedia.Pages
 {
     public partial class AdminPage : Page
     {
-        // יצירת ממשק ה-API
         InterfaceAPI api = new InterfaceAPI();
 
         public AdminPage()
         {
             InitializeComponent();
-            LoadAllData(); // קריאה לפונקציה שטוענת את הנתונים
+            LoadAllData();
         }
 
         private async void LoadAllData()
@@ -24,43 +22,46 @@ namespace NoaMedia.Pages
             try
             {
                 // 1. טעינת משתמשים
-                UserList uList = await api.GetAllUsers();
-                if (uList != null)
-                {
-                    dgAllUsers.ItemsSource = uList;
-                }
+                dgAllUsers.ItemsSource = await api.GetAllUsers();
 
-                // 2. טעינת משתמשי פרימיום
-                UserPremiumList pList = await api.GetAllUserPremiums();
-                if (pList != null)
-                {
-                    dgPremiumUsers.ItemsSource = pList;
-                }
+                // 2. טעינת משתמשי פרימיום - מוודא שהפונקציה קיימת ב-api
+                dgPremiumUsers.ItemsSource = await api.GetAllUserPremiums();
 
                 // 3. טעינת סרטים
-                VideoList mList = await api.GetAllVideos(); // וודא שיש לך פונקציה כזו ב-API
-                if (mList != null)
-                {
-                    dgMovies.ItemsSource = mList;
-                }
+                dgMovies.ItemsSource = await api.GetAllVideos();
 
-                // 4. טעינת תגובות (ביקורות)
-                // כאן ייתכן שתצטרך פונקציה שמביאה את כל התגובות במערכת
-                // CommentList cList = await api.GetAllComments(); 
-                // dgComments.ItemsSource = cList;
-
+                // 4. טעינת ביקורות
+                dgComments.ItemsSource = await api.GetAllVideoReviews();
             }
             catch (Exception ex)
             {
-                MessageBox.Show("שגיאה בטעינת נתוני ניהול: " + ex.Message);
+                MessageBox.Show("Error loading admin data: " + ex.Message);
             }
         }
 
-        // אירוע ללחיצה על הוספת סרט
-        private void AddMovie_Click(object sender, RoutedEventArgs e)
+        // כפתור חזרה לעמוד האפשרויות
+        private void BackToMenu_Click(object sender, RoutedEventArgs e)
         {
-            // כאן תוכל לנווט לדף הוספת סרט חדש שיצרת בעבר
-            // this.NavigationService.Navigate(new AddMoviePage());
+            // אנחנו שולחים true כי למנהל מגיעה גישה של פרימיום
+            this.NavigationService.Navigate(new TransitionOptionForManager(true));
+        }
+
+        // ניווט למשתמש
+        private void dgAllUsers_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            if (dgAllUsers.SelectedItem is User clickedUser)
+            {
+                this.NavigationService.Navigate(new UserDetailsPage(clickedUser));
+            }
+        }
+
+        // ניווט לסרט
+        private void dgMovies_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            if (dgMovies.SelectedItem is Video clickedVideo)
+            {
+                this.NavigationService.Navigate(new VideoDetailsPage(clickedVideo));
+            }
         }
     }
 }

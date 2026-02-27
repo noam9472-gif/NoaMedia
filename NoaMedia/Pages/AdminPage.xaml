@@ -22,6 +22,10 @@
                 <DataGrid x:Name="dgAllUsers" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" Margin="10" MouseDoubleClick="dgAllUsers_MouseDoubleClick">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="50"/>
+                        <DataGridTextColumn Header="User's Name" Binding="{Binding Name}" Width="*"/>
+                        <DataGridTextColumn Header="Date Of Birth" Binding="{Binding DateOfBirth}" Width="80"/>
+                        <DataGridTextColumn Header="Email" Binding="{Binding Mail}" Width="*"/>
+                        <DataGridTextColumn Header="Password" Binding="{Binding Pass}" Width="*"/>
                         <DataGridTextColumn Header="UserName" Binding="{Binding UserName}" Width="*"/>
                         <DataGridCheckBoxColumn Header="Admin" Binding="{Binding IsAdmin}" Width="80"/>
                     </DataGrid.Columns>
@@ -32,8 +36,13 @@
                 <DataGrid x:Name="dgPremiumUsers" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" Margin="10">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="50"/>
-                        <DataGridTextColumn Header="User Name" Binding="{Binding User.UserName}" Width="*"/>
-                        <DataGridTextColumn Header="Start Date" Binding="{Binding StartDate, StringFormat={}{0:dd/MM/yyyy}}" Width="120"/>
+                        <DataGridTextColumn Header="User's Name" Binding="{Binding Name}" Width="*"/>
+                        <DataGridTextColumn Header="Date Of Birth" Binding="{Binding DateOfBirth}" Width="80"/>
+                        <DataGridTextColumn Header="Email" Binding="{Binding Mail}" Width="*"/>
+                        <DataGridTextColumn Header="Password" Binding="{Binding Pass}" Width="*"/>
+                        <DataGridTextColumn Header="UserName" Binding="{Binding UserName}" Width="*"/>
+                        <DataGridCheckBoxColumn Header="Admin" Binding="{Binding IsAdmin}" Width="80"/>
+                        <DataGridTextColumn Header="Identity Number" Binding="{Binding IdentityCard}" Width="*"/>
                     </DataGrid.Columns>
                 </DataGrid>
             </TabItem>
@@ -41,9 +50,14 @@
             <TabItem Header="Videos Management">
                 <DataGrid x:Name="dgMovies" AutoGenerateColumns="False" IsReadOnly="True" Margin="10" MouseDoubleClick="dgMovies_MouseDoubleClick">
                     <DataGrid.Columns>
-                        <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="50"/>
-                        <DataGridTextColumn Header="Movie's Name" Binding="{Binding VideoName}" Width="2*"/>
-                        <DataGridTextColumn Header="Genre" Binding="{Binding Genre.GenreDescription}" Width="*"/>
+                        <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="25"/>
+                        <DataGridTextColumn Header="Movie's Name" Binding="{Binding VideoName}" />
+                        <DataGridTextColumn Header="Genre" Binding="{Binding Genre.GenreDescription}" />
+                        <DataGridTextColumn Header="Release Date" Binding="{Binding VideoUploadedDate}" Width="100" />
+                        <DataGridTextColumn Header="Uploader" Binding="{Binding WhoUploadedTheVideo.UserName}" />
+                        <DataGridTextColumn Header="Viewing Time" Binding="{Binding LengthInMinutes}" />
+                        <DataGridTextColumn Header="Viewing Age" Binding="{Binding AgeOfVideos.Description}" />
+                        <DataGridTextColumn Header="Movie's Description" Binding="{Binding VideoDescription}"/>
                     </DataGrid.Columns>
                 </DataGrid>
             </TabItem>

@@ -103,14 +103,13 @@ namespace NoaMedia.Pages
 
         private void AddUser_Click(object sender, RoutedEventArgs e)
         {
-            // הנחה שיש לך עמוד הרשמה או הוספה
-            // this.NavigationService.Navigate(new RegisterPage()); 
+            this.NavigationService.Navigate(new AddUserAdmin());
         }
 
         private void AddMovie_Click(object sender, RoutedEventArgs e)
         {
-            // כאן תוכל לנווט לעמוד הוספת סרט חדש
-            // this.NavigationService.Navigate(new AddVideoPage());
+            // ניווט לעמוד הוספת הסרט החדש שיצרת
+            this.NavigationService.Navigate(new AddVideoAdmin());
         }
 
         private async void DeleteGenre_Click(object sender, RoutedEventArgs e)
@@ -135,11 +134,26 @@ namespace NoaMedia.Pages
             }
         }
 
-        private void AddGenre_Click(object sender, RoutedEventArgs e)
+        private async void AddGenre_Click(object sender, RoutedEventArgs e)
         {
-            // כאן נצטרך בהמשך ליצור חלונית קטנה להכנסת שם הז'אנר
-            // או לנווט לעמוד ייעודי
-            MessageBox.Show("Redirecting to Add Genre Page...");
+            // נשתמש בתיבת טקסט פשוטה (אפשר גם ליצור חלון קטן, אבל לצורך הלמידה):
+            string genreName = Microsoft.VisualBasic.Interaction.InputBox("Enter New Genre Name:", "Add Genre", "");
+
+            if (!string.IsNullOrEmpty(genreName))
+            {
+                Genre newGenre = new Genre { GenreDescription = genreName };
+                int result = await api.InsertGenre(newGenre);
+
+                if (result == 1)
+                {
+                    MessageBox.Show("Genre added successfully!");
+                    LoadAllData(); // ריענון הטבלה
+                }
+                else
+                {
+                    MessageBox.Show("Error adding genre.");
+                }
+            }
         }
     }
 }

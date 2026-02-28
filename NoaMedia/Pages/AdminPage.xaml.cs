@@ -63,5 +63,51 @@ namespace NoaMedia.Pages
                 this.NavigationService.Navigate(new VideoDetailsPage(clickedVideo));
             }
         }
+
+        // --- פעולות מחיקה ---
+
+        private async void DeleteUser_Click(object sender, RoutedEventArgs e)
+        {
+            var user = (sender as Button).DataContext as User;
+            if (MessageBox.Show($"Are you sure you want to delete {user.UserName}?", "Confirm", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+            {
+                await api.DeleteUser(user.Id);
+                LoadAllData(); // ריענון הטבלה
+            }
+        }
+
+        private async void DeleteMovie_Click(object sender, RoutedEventArgs e)
+        {
+            var video = (sender as Button).DataContext as Video;
+            if (MessageBox.Show($"Delete {video.VideoName}?", "Confirm", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+            {
+                await api.DeleteVideo(video.Id);
+                LoadAllData();
+            }
+        }
+
+        private async void DeleteReview_Click(object sender, RoutedEventArgs e)
+        {
+            var review = (sender as Button).DataContext as VideoReview;
+            if (MessageBox.Show("Delete this review?", "Confirm", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+            {
+                await api.DeleteVideoReview(review.Id);
+                LoadAllData();
+            }
+        }
+
+        // --- פעולות הוספה ---
+
+        private void AddUser_Click(object sender, RoutedEventArgs e)
+        {
+            // הנחה שיש לך עמוד הרשמה או הוספה
+            // this.NavigationService.Navigate(new RegisterPage()); 
+        }
+
+        private void AddMovie_Click(object sender, RoutedEventArgs e)
+        {
+            // כאן תוכל לנווט לעמוד הוספת סרט חדש
+            // this.NavigationService.Navigate(new AddVideoPage());
+        }
     }
 }

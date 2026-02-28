@@ -24,7 +24,7 @@ namespace NoaMedia.Pages
                 // 1. טעינת משתמשים
                 dgAllUsers.ItemsSource = await api.GetAllUsers();
 
-                // 2. טעינת משתמשי פרימיום - מוודא שהפונקציה קיימת ב-api
+                // 2. טעינת משתמשי פרימיום
                 dgPremiumUsers.ItemsSource = await api.GetAllUserPremiums();
 
                 // 3. טעינת סרטים
@@ -32,6 +32,9 @@ namespace NoaMedia.Pages
 
                 // 4. טעינת ביקורות
                 dgComments.ItemsSource = await api.GetAllVideoReviews();
+
+                // 5. טעינת ז'אנרים - זה השורה החדשה שלך
+                dgGenres.ItemsSource = await api.GetAllGenres();
             }
             catch (Exception ex)
             {
@@ -108,6 +111,35 @@ namespace NoaMedia.Pages
         {
             // כאן תוכל לנווט לעמוד הוספת סרט חדש
             // this.NavigationService.Navigate(new AddVideoPage());
+        }
+
+        private async void DeleteGenre_Click(object sender, RoutedEventArgs e)
+        {
+            var genre = (sender as Button).DataContext as Genre;
+            if (genre == null) return;
+
+            var result = MessageBox.Show($"Are you sure you want to delete the genre: {genre.GenreDescription}?\nNote: This might affect movies assigned to this genre.",
+                                         "Confirm Delete", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+
+            if (result == MessageBoxResult.Yes)
+            {
+                int success = await api.DeleteGenre(genre.Id);
+                if (success == 1)
+                {
+                    LoadAllData(); // ריענון
+                }
+                else
+                {
+                    MessageBox.Show("Could not delete genre. It might be in use by some movies.");
+                }
+            }
+        }
+
+        private void AddGenre_Click(object sender, RoutedEventArgs e)
+        {
+            // כאן נצטרך בהמשך ליצור חלונית קטנה להכנסת שם הז'אנר
+            // או לנווט לעמוד ייעודי
+            MessageBox.Show("Redirecting to Add Genre Page...");
         }
     }
 }

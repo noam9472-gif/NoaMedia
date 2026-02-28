@@ -24,17 +24,11 @@
                     <DataGrid x:Name="dgAllUsers" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" Margin="10" MouseDoubleClick="dgAllUsers_MouseDoubleClick">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="50"/>
-
                             <DataGridTextColumn Header="User's Name" Binding="{Binding Name}" Width="*"/>
-
                             <DataGridTextColumn Header="Date Of Birth" Binding="{Binding DateOfBirth}" Width="80"/>
-
                             <DataGridTextColumn Header="Email" Binding="{Binding Mail}" Width="*"/>
-
                             <DataGridTextColumn Header="Password" Binding="{Binding Pass}" Width="*"/>
-
                             <DataGridTextColumn Header="UserName" Binding="{Binding UserName}" Width="*"/>
-
                             <DataGridCheckBoxColumn Header="Admin" Binding="{Binding IsAdmin}" Width="80"/>
                             <DataGridTemplateColumn Header="Actions" Width="100">
                                 <DataGridTemplateColumn.CellTemplate>
@@ -62,6 +56,31 @@
                     </DataGrid.Columns>
                 </DataGrid>
             </TabItem>
+            <TabItem Header="Genres">
+                <StackPanel>
+                    <Button Content="Add New Genre" Click="AddGenre_Click" Width="120" 
+       HorizontalAlignment="Left" Margin="10,10,0,0" 
+       Background="#27AE60" Foreground="White" BorderThickness="0" Padding="5"/>
+
+                    <DataGrid x:Name="dgGenres" AutoGenerateColumns="False" CanUserAddRows="False" 
+         IsReadOnly="True" Margin="10">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="50"/>
+                            <DataGridTextColumn Header="Genre Name" Binding="{Binding GenreDescription}" Width="*"/>
+
+                            <DataGridTemplateColumn Header="Actions" Width="100">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button Content="Delete" Click="DeleteGenre_Click" 
+                           Background="#E74C3C" Foreground="White" BorderThickness="0"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </StackPanel>
+            </TabItem>
+
 
             <TabItem Header="Videos Management">
                 <StackPanel>
@@ -82,6 +101,8 @@
                     </DataGrid>
                 </StackPanel>
             </TabItem>
+
+         
 
             <TabItem Header="Video Reviews">
                 <DataGrid x:Name="dgComments" AutoGenerateColumns="False" IsReadOnly="True" Margin="10">

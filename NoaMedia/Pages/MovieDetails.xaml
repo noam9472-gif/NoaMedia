@@ -7,12 +7,12 @@
         <ScrollViewer x:Name="MainScrollViewer" VerticalScrollBarVisibility="Hidden">
             <StackPanel>
 
-                <Grid VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+                <Grid MinHeight="900" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
 
                     <Image x:Name="BackgroundImage" 
-           Stretch="UniformToFill" 
-           Opacity="0.6"/>
-
+                           Stretch="UniformToFill" 
+                           Opacity="0.6"
+                           MinHeight="900"/>
                     <Border>
                         <Border.Background>
                             <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
@@ -23,14 +23,12 @@
                         </Border.Background>
                     </Border>
 
-                
-                <StackPanel VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="0,0,60,80" Width="600">
+                    <StackPanel VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="0,0,60,80" Width="600">
                         <TextBlock x:Name="MovieTitle" Foreground="White" FontSize="72" FontWeight="Bold" TextAlignment="Right" TextWrapping="Wrap">
                             <TextBlock.Effect>
                                 <DropShadowEffect BlurRadius="15" ShadowDepth="2" Opacity="0.9"/>
                             </TextBlock.Effect>
                         </TextBlock>
-                        
 
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,20">
                             <TextBlock x:Name="MovieDuration" Foreground="#CCC" FontSize="18"/>
@@ -52,8 +50,8 @@
                                     FontSize="18" FontWeight="Bold" BorderThickness="0" Cursor="Hand"/>
 
                             <Button x:Name="LikeButton" Click="LikeButton_Click" 
-Width="60" Height="50" Background="#33FFFFFF" 
-Margin="15,0,0,0" Cursor="Hand" BorderThickness="0">
+                                    Width="60" Height="50" Background="#33FFFFFF" 
+                                    Margin="15,0,0,0" Cursor="Hand" BorderThickness="0">
                                 <TextBlock x:Name="LikeIcon" Text="❤" Foreground="White" FontSize="26" VerticalAlignment="Center"/>
                                 <Button.Resources>
                                     <Style TargetType="Border">

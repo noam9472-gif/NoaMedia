@@ -29,15 +29,14 @@ namespace NoaMedia.Pages
                 // יצירת אובייקט משתמש
                 User newUser = new User
                 {
-                    Name = txtName.Text,
-                    UserName = txtUserName.Text,
+                    Name = txtUserName.Text,
+                    UserName = txtName.Text,
                     Mail = txtEmail.Text,
-                    Pass = txtPassword.Password, // חילוץ מה-PasswordBox
+                    Pass = txtPassword.Password, 
                     DateOfBirth = dpBirthDate.SelectedDate ?? DateTime.Now.AddYears(-18),
                     IsAdmin = chkIsAdmin.IsChecked ?? false
                 };
 
-                // שליחה ל-API
                 int result = await api.InsertUser(newUser);
 
                 if (result == 1)

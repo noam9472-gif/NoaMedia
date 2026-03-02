@@ -39,7 +39,6 @@ namespace NoaMedia.Pages
             this.Loaded += (s, e) => LoadContent();
         }
 
-        // אל תשכח להוסיף את הפונקציה למעבר לעמוד השדרוג
         private void UpgradeButton_Click(object sender, RoutedEventArgs e)
         {
             this.NavigationService.Navigate(new PremiumSalesPage());
@@ -194,10 +193,12 @@ namespace NoaMedia.Pages
             }
         }
 
-        // הכפתור ששאלת עליו - הוא נשאר כאן!
+        private void AdminMenu_Click(object sender, RoutedEventArgs e)
+        {
+            this.NavigationService.Navigate(new TransitionOptionForManager(true));
+        }
         private void Profile_Click(object sender, RoutedEventArgs e)
         {
-            // אנחנו שולחים לדף הפרופיל את הסטטוס כדי שגם שם הוא ידע אם להציג "Premium"
             string status = _isPremium ? "Premium" : "User";
             this.NavigationService.Navigate(new ProfilePage(status));
         }

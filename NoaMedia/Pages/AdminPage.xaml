@@ -33,7 +33,21 @@
                             <DataGridTemplateColumn Header="Actions" Width="100">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <Button Content="Delete" Click="DeleteUser_Click" Background="#E74C3C" Foreground="White" BorderThickness="0"/>
+                                        <Button Content="Delete" Click="DeleteUser_Click" Background="#E74C3C" Foreground="White" Padding="5,2" Cursor="Hand" FontWeight="Bold" BorderThickness="0">
+                                            <Button.Resources>
+                                                <Style TargetType="Button">
+                                                    <Setter Property="Template">
+                                                        <Setter.Value>
+                                                            <ControlTemplate TargetType="Button">
+                                                                <Border Background="{TemplateBinding Background}" CornerRadius="3">
+                                                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                                </Border>
+                                                            </ControlTemplate>
+                                                        </Setter.Value>
+                                                    </Setter>
+                                                </Style>
+                                            </Button.Resources>
+                                        </Button>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
@@ -56,23 +70,32 @@
                     </DataGrid.Columns>
                 </DataGrid>
             </TabItem>
+
             <TabItem Header="Genres">
                 <StackPanel>
-                    <Button Content="Add New Genre" Click="AddGenre_Click" Width="120" 
-       HorizontalAlignment="Left" Margin="10,10,0,0" 
-       Background="#27AE60" Foreground="White" BorderThickness="0" Padding="5"/>
-
-                    <DataGrid x:Name="dgGenres" AutoGenerateColumns="False" CanUserAddRows="False" 
-         IsReadOnly="True" Margin="10">
+                    <Button Content="Add New Genre" Click="AddGenre_Click" Width="120" HorizontalAlignment="Left" Margin="10,10,0,0" Background="#27AE60" Foreground="White" BorderThickness="0" Padding="5"/>
+                    <DataGrid x:Name="dgGenres" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" Margin="10">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="50"/>
                             <DataGridTextColumn Header="Genre Name" Binding="{Binding GenreDescription}" Width="*"/>
-
                             <DataGridTemplateColumn Header="Actions" Width="100">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <Button Content="Delete" Click="DeleteGenre_Click" 
-                           Background="#E74C3C" Foreground="White" BorderThickness="0"/>
+                                        <Button Content="Delete" Click="DeleteGenre_Click" Background="#E74C3C" Foreground="White" Padding="5,2" Cursor="Hand" FontWeight="Bold" BorderThickness="0">
+                                            <Button.Resources>
+                                                <Style TargetType="Button">
+                                                    <Setter Property="Template">
+                                                        <Setter.Value>
+                                                            <ControlTemplate TargetType="Button">
+                                                                <Border Background="{TemplateBinding Background}" CornerRadius="3">
+                                                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                                </Border>
+                                                            </ControlTemplate>
+                                                        </Setter.Value>
+                                                    </Setter>
+                                                </Style>
+                                            </Button.Resources>
+                                        </Button>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
@@ -80,7 +103,6 @@
                     </DataGrid>
                 </StackPanel>
             </TabItem>
-
 
             <TabItem Header="Videos Management">
                 <StackPanel>
@@ -93,7 +115,21 @@
                             <DataGridTemplateColumn Header="Actions" Width="100">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <Button Content="Delete" Click="DeleteMovie_Click" Background="#E74C3C" Foreground="White" BorderThickness="0"/>
+                                        <Button Content="Delete" Click="DeleteMovie_Click" Background="#E74C3C" Foreground="White" Padding="5,2" Cursor="Hand" FontWeight="Bold" BorderThickness="0">
+                                            <Button.Resources>
+                                                <Style TargetType="Button">
+                                                    <Setter Property="Template">
+                                                        <Setter.Value>
+                                                            <ControlTemplate TargetType="Button">
+                                                                <Border Background="{TemplateBinding Background}" CornerRadius="3">
+                                                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                                </Border>
+                                                            </ControlTemplate>
+                                                        </Setter.Value>
+                                                    </Setter>
+                                                </Style>
+                                            </Button.Resources>
+                                        </Button>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
@@ -101,8 +137,6 @@
                     </DataGrid>
                 </StackPanel>
             </TabItem>
-
-         
 
             <TabItem Header="Video Reviews">
                 <DataGrid x:Name="dgComments" AutoGenerateColumns="False" IsReadOnly="True" Margin="10">
@@ -113,17 +147,27 @@
                         <DataGridTemplateColumn Header="Actions" Width="100">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
-                                    <Button Content="Delete" Click="DeleteReview_Click" Background="#E74C3C" Foreground="White" BorderThickness="0"/>
+                                    <Button Content="Delete" Click="DeleteReview_Click" Background="#E74C3C" Foreground="White" Padding="5,2" Cursor="Hand" FontWeight="Bold" BorderThickness="0">
+                                        <Button.Resources>
+                                            <Style TargetType="Button">
+                                                <Setter Property="Template">
+                                                    <Setter.Value>
+                                                        <ControlTemplate TargetType="Button">
+                                                            <Border Background="{TemplateBinding Background}" CornerRadius="3">
+                                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                            </Border>
+                                                        </ControlTemplate>
+                                                    </Setter.Value>
+                                                </Setter>
+                                            </Style>
+                                        </Button.Resources>
+                                    </Button>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
                     </DataGrid.Columns>
                 </DataGrid>
             </TabItem>
-
-           
-
-            
         </TabControl>
     </Grid>
 </Page>

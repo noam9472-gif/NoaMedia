@@ -71,21 +71,62 @@ namespace NoaMedia.Pages
 
         private async void DeleteUser_Click(object sender, RoutedEventArgs e)
         {
-            var user = (sender as Button).DataContext as User;
-            if (MessageBox.Show($"Are you sure you want to delete {user.UserName}?", "Confirm", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+            var user = (sender as Button)?.DataContext as User;
+            if (user == null) return;
+
+            // מניעת מחיקת המנהל המחובר
+            var myApp = Application.Current as App;
+            if (myApp?.LoggedInUser != null && user.Id == myApp.LoggedInUser.Id)
             {
-                await api.DeleteUser(user.Id);
-                LoadAllData(); // ריענון הטבלה
+                MessageBox.Show("You cannot delete yourself!", "Stop", MessageBoxButton.OK, MessageBoxImage.Hand);
+                return;
+            }
+
+            if (MessageBox.Show($"Are you sure you want to delete {user.UserName}?\nThis is a deep delete.", "Confirm", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+            {
+                try
+                {
+                    // קריאה לפונקציית הניקוי המסיבי
+                    await api.ForceClearUserEverything(user.Id);
+
+                    // ניסיון מחיקה סופי
+                    int success = await api.DeleteUser(user.Id);
+
+                    if (success == 1)
+                    {
+                        MessageBox.Show("User deleted successfully!");
+                        LoadAllData();
+                    }
+                    else
+                    {
+                        // אם הגעת לכאן, פתח את ה-Access/SQL שלך ידנית ובדוק איזה טבלאות נוספות יש שם
+                        MessageBox.Show("The Database still refuses.\n\n" +
+                                        "Please open your Access file and check for a table called 'Orders', 'Payments' or 'WatchList'.",
+                                        "Critical DB Constraint", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Error during delete: " + ex.Message);
+                }
             }
         }
-
         private async void DeleteMovie_Click(object sender, RoutedEventArgs e)
         {
-            var video = (sender as Button).DataContext as Video;
-            if (MessageBox.Show($"Delete {video.VideoName}?", "Confirm", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+            var video = (sender as Button)?.DataContext as Video;
+            if (video == null) return;
+
+            if (MessageBox.Show($"Delete movie '{video.VideoName}'?", "Confirm", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
             {
-                await api.DeleteVideo(video.Id);
-                LoadAllData();
+                int success = await api.DeleteVideo(video.Id);
+                if (success == 1)
+                {
+                    LoadAllData();
+                }
+                else
+                {
+                    MessageBox.Show("Error: Could not delete video.");
+                }
             }
         }
 

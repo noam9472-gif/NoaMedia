@@ -21,6 +21,7 @@ namespace NoaMedia.Pages
         public Home(bool isPremium)
         {
             InitializeComponent();
+            CheckUserPermissions();
             this._isPremium = isPremium;
 
             if (AddMovieButton != null && UpgradeButton != null)
@@ -39,6 +40,28 @@ namespace NoaMedia.Pages
 
             this.Loaded += (s, e) => LoadContent();
         }
+
+        private void CheckUserPermissions()
+        {
+            var myApp = Application.Current as App;
+            if (myApp?.LoggedInUser != null)
+            {
+                // הצגת שם המשתמש
+                UserNameText.Text = myApp.LoggedInUser.UserName;
+
+                // בדיקה אם המשתמש הוא מנהל (IsAdmin)
+                if (myApp.LoggedInUser.IsAdmin)
+                {
+                    BackToMenuButton.Visibility = Visibility.Visible;
+                    AddMovieButton.Visibility = Visibility.Visible; // בדרך כלל גם זה למנהלים
+                }
+
+                // בדיקה אם המשתמש הוא פרימיום
+                // אם הוא לא פרימיום, נציג לו את כפתור השדרוג
+                // UpgradeButton.Visibility = myApp.LoggedInUser.IsPremium ? Visibility.Collapsed : Visibility.Visible;
+            }
+        }
+
 
         private void UpgradeButton_Click(object sender, RoutedEventArgs e)
         {

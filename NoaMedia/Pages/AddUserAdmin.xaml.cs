@@ -29,8 +29,8 @@ namespace NoaMedia.Pages
                 // 1. יצירת אובייקט משתמש - שים לב ש-IsAdmin תמיד false
                 User newUser = new User
                 {
-                    Name = txtName.Text,         // תיקנתי כאן לפי שמות השדות המקובלים
-                    UserName = txtUserName.Text,
+                    Name = txtUserName.Text,         // תיקנתי כאן לפי שמות השדות המקובלים
+                    UserName = txtName.Text,
                     Mail = txtEmail.Text,
                     Pass = txtPassword.Password,
                     DateOfBirth = dpBirthDate.SelectedDate ?? DateTime.Now.AddYears(-18),

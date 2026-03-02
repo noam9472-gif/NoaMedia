@@ -69,67 +69,69 @@ namespace NoaMedia.Pages
 
         // --- פעולות מחיקה ---
 
-        private async void DeleteUser_Click(object sender, RoutedEventArgs e)
+       private async void DeleteUser_Click(object sender, RoutedEventArgs e)
+{
+    var user = (sender as Button)?.DataContext as User;
+    if (user == null) return;
+
+    // מניעת מחיקת המנהל המחובר
+    var myApp = Application.Current as App;
+    if (myApp?.LoggedInUser != null && user.Id == myApp.LoggedInUser.Id)
+    {
+        MessageBox.Show("You cannot delete yourself!", "Stop", MessageBoxButton.OK, MessageBoxImage.Hand);
+        return;
+    }
+
+    if (MessageBox.Show($"Are you sure you want to delete {user.UserName}?\nThis is a deep delete.", "Confirm", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+    {
+        try 
         {
-            var user = (sender as Button)?.DataContext as User;
-            if (user == null) return;
+            // קריאה לפונקציית הניקוי המסיבי
+            await api.ForceClearUserEverything(user.Id);
 
-            // מניעת מחיקת המנהל המחובר
-            var myApp = Application.Current as App;
-            if (myApp?.LoggedInUser != null && user.Id == myApp.LoggedInUser.Id)
+            // ניסיון מחיקה סופי
+            int success = await api.DeleteUser(user.Id);
+            
+            if (success == 1)
             {
-                MessageBox.Show("You cannot delete yourself!", "Stop", MessageBoxButton.OK, MessageBoxImage.Hand);
-                return;
+                MessageBox.Show("User deleted successfully!");
+                LoadAllData();
             }
-
-            if (MessageBox.Show($"Are you sure you want to delete {user.UserName}?\nThis is a deep delete.", "Confirm", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+            else
             {
-                try
-                {
-                    // קריאה לפונקציית הניקוי המסיבי
-                    await api.ForceClearUserEverything(user.Id);
-
-                    // ניסיון מחיקה סופי
-                    int success = await api.DeleteUser(user.Id);
-
-                    if (success == 1)
-                    {
-                        MessageBox.Show("User deleted successfully!");
-                        LoadAllData();
-                    }
-                    else
-                    {
-                        // אם הגעת לכאן, פתח את ה-Access/SQL שלך ידנית ובדוק איזה טבלאות נוספות יש שם
-                        MessageBox.Show("The Database still refuses.\n\n" +
-                                        "Please open your Access file and check for a table called 'Orders', 'Payments' or 'WatchList'.",
-                                        "Critical DB Constraint", MessageBoxButton.OK, MessageBoxImage.Error);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Error during delete: " + ex.Message);
-                }
+                // אם הגעת לכאן, פתח את ה-Access/SQL שלך ידנית ובדוק איזה טבלאות נוספות יש שם
+                MessageBox.Show("The Database still refuses.\n\n" + 
+                                "Please open your Access file and check for a table called 'Orders', 'Payments' or 'WatchList'.", 
+                                "Critical DB Constraint", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+        catch (Exception ex)
+        {
+            MessageBox.Show("Error during delete: " + ex.Message);
+        }
+    }
+}
         private async void DeleteMovie_Click(object sender, RoutedEventArgs e)
         {
             var video = (sender as Button)?.DataContext as Video;
             if (video == null) return;
 
-            if (MessageBox.Show($"Delete movie '{video.VideoName}'?", "Confirm", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+            if (MessageBox.Show($"Delete '{video.VideoName}' and all its reviews?", "Confirm", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
             {
-                int success = await api.DeleteVideo(video.Id);
+                await api.ForceClearVideo(video.Id); // ניקוי מקדים
+                int success = await api.DeleteVideo(video.Id); // מחיקה סופית
+
                 if (success == 1)
                 {
+                    MessageBox.Show("Video deleted successfully.");
                     LoadAllData();
                 }
                 else
                 {
-                    MessageBox.Show("Error: Could not delete video.");
+                    MessageBox.Show("The Database still refuses to delete the Video.");
                 }
             }
         }
-
         private async void DeleteReview_Click(object sender, RoutedEventArgs e)
         {
             var review = (sender as Button).DataContext as VideoReview;

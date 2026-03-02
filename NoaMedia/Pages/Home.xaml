@@ -30,14 +30,16 @@
             <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
 
                 <Button x:Name="BackToMenuButton" 
-        Content="Back To The Menu" 
-        Click="BackToMenu_Click" 
-        Width="130" Height="35" 
-        Background="#E50914" Foreground="White" 
-        FontWeight="Bold" BorderThickness="0" 
-        Margin="0,0,15,0" Cursor="Hand"
-        Visibility="Collapsed"/>
+                   Content="Back To The Menu" 
+                   Click="BackToMenu_Click" 
+                   Width="130" Height="35" 
+                   Background="#E50914" Foreground="White" 
+                   FontWeight="Bold" BorderThickness="0" 
+                   Margin="0,0,15,0" Cursor="Hand"
+                   Visibility="Collapsed"/>
 
+                
+                
 
                 <Button x:Name="UpgradeButton" 
                 Content="Get Premium 👑" 
@@ -52,7 +54,7 @@
                 Content="+ Add Movie" 
                 Click="AddMovie_Click" 
                 Width="110" Height="35" 
-                Background="#333" Foreground="White" 
+               Background="#E50914" Foreground="White"  
                 BorderThickness="0" Margin="0,0,15,0" 
                 Cursor="Hand"
                 Visibility="Collapsed"/>

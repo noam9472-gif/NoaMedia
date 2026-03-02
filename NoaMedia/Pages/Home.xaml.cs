@@ -23,17 +23,18 @@ namespace NoaMedia.Pages
             InitializeComponent();
             this._isPremium = isPremium;
 
-            if (_isPremium)
+            if (AddMovieButton != null && UpgradeButton != null)
             {
-                // פרימיום: רואה הוספת סרט, לא רואה כפתור שדרוג
-                AddMovieButton.Visibility = Visibility.Visible;
-                UpgradeButton.Visibility = Visibility.Collapsed;
-            }
-            else
-            {
-                // רגיל: לא רואה הוספת סרט, כן רואה כפתור שדרוג
-                AddMovieButton.Visibility = Visibility.Collapsed;
-                UpgradeButton.Visibility = Visibility.Visible;
+                if (_isPremium)
+                {
+                    AddMovieButton.Visibility = Visibility.Visible;
+                    UpgradeButton.Visibility = Visibility.Collapsed;
+                }
+                else
+                {
+                    AddMovieButton.Visibility = Visibility.Collapsed;
+                    UpgradeButton.Visibility = Visibility.Visible;
+                }
             }
 
             this.Loaded += (s, e) => LoadContent();
@@ -41,7 +42,7 @@ namespace NoaMedia.Pages
 
         private void UpgradeButton_Click(object sender, RoutedEventArgs e)
         {
-            this.NavigationService.Navigate(new PremiumSalesPage());
+            this.NavigationService.Navigate(new PremiumSalesPage());// מעבר לעמוד רכישת פרימיום
         }
         private async void LoadContent()
         {
@@ -82,7 +83,7 @@ namespace NoaMedia.Pages
             }
         }
 
-        private StackPanel CreateGenreSection(string title)
+        private StackPanel CreateGenreSection(string title)// יצירת פאנל מתאים לכל ז'אנר עם כותרת וסרטים מתאימים
         {
             var section = new StackPanel { Margin = new Thickness(0, 0, 0, 30) };
             section.Children.Add(new TextBlock
@@ -172,7 +173,7 @@ namespace NoaMedia.Pages
 
                 if (selectedVideo != null)
                 {
-                    this.NavigationService.Navigate(new MovieDetails(selectedVideo));
+                    this.NavigationService.Navigate(new MovieDetails(selectedVideo));// מעבר לעמוד פרטי הסרט עם הסרט הנבחר
                 }
                 else
                 {
@@ -185,7 +186,7 @@ namespace NoaMedia.Pages
         {
             if (_isPremium)
             {
-                this.NavigationService.Navigate(new AddMovie());
+                this.NavigationService.Navigate(new AddMovie());// מעבר לעמוד הוספת סרט
             }
             else
             {
@@ -193,14 +194,14 @@ namespace NoaMedia.Pages
             }
         }
 
-        private void AdminMenu_Click(object sender, RoutedEventArgs e)
+        private void BackToMenu_Click(object sender, RoutedEventArgs e)
         {
-            this.NavigationService.Navigate(new TransitionOptionForManager(true));
+            this.NavigationService.Navigate(new TransitionOptionForManager(true));// חזרה לעמוד תפריט מנהל
         }
         private void Profile_Click(object sender, RoutedEventArgs e)
         {
             string status = _isPremium ? "Premium" : "User";
-            this.NavigationService.Navigate(new ProfilePage(status));
+            this.NavigationService.Navigate(new ProfilePage(status));// מעבר לעמוד פרופיל עם סטטוס המשתמש
         }
     }
 }

@@ -142,7 +142,39 @@ namespace NoaMedia.Pages
             }
         }
 
-        // --- פעולות הוספה ---
+        private async void DeleteGenre_Click(object sender, RoutedEventArgs e)
+        {
+            //  קבלת הז'אנר שנבחר מהרשימה
+            Genre genre = (sender as Button)?.DataContext as Genre;
+            if (genre == null) return;
+
+            if (genre.Id == 14) // ID=14 זה ז'אנר ברירת מחדל- אסור למחוק
+            {
+                MessageBox.Show("Cannot delete the default 'No Genre' category.");
+                return;
+            }
+
+            //  אישור מהמשתמש
+            var result = MessageBox.Show($"Are you sure you want to delete '{genre.GenreDescription}'? " +
+                "All movies in this genre will move to 'No Genre'.", "Confirm Delete", MessageBoxButton.YesNo);
+
+            if (result == MessageBoxResult.Yes)
+            {
+                int success = await api.DeleteGenre(genre.Id);
+
+                if (success > 0)
+                {
+                    MessageBox.Show("Genre deleted successfully!");
+                    // רענון הרשימה כדי לראות את השינויים
+                    LoadAllData();
+                }
+                else
+                {
+                    MessageBox.Show("Delete failed. Check server logs.");
+                }
+            }
+        }
+
 
         private void AddUser_Click(object sender, RoutedEventArgs e)
         {
@@ -155,24 +187,87 @@ namespace NoaMedia.Pages
             this.NavigationService.Navigate(new AddVideoAdmin());
         }
 
-        private async void DeleteGenre_Click(object sender, RoutedEventArgs e)
+
+        // פונקציה להעברה גורפת של סרטים בין קטגוריות
+        private async void MoveMovies_Click(object sender, RoutedEventArgs e)
         {
-            var genre = (sender as Button).DataContext as Genre;
-            if (genre == null) return;
+            // 1. קלט מהמשתמש לגבי ז'אנר המקור (למשל 14 שבו נמצאים הסרטים ה"זמניים")
+            string fromInput = Microsoft.VisualBasic.Interaction.InputBox("Enter SOURCE Genre ID (e.g. 14):", "Move Movies Bulk Action", "");
+            if (string.IsNullOrEmpty(fromInput)) return;
 
-            var result = MessageBox.Show($"Are you sure you want to delete the genre: {genre.GenreDescription}?\nNote: This might affect movies assigned to this genre.",
-                                         "Confirm Delete", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+            // 2. קלט ליעד (הז'אנר החדש שאליו רוצים להעביר)
+            string toInput = Microsoft.VisualBasic.Interaction.InputBox("Enter TARGET Genre ID:", "Move Movies Bulk Action", "");
+            if (string.IsNullOrEmpty(toInput)) return;
 
-            if (result == MessageBoxResult.Yes)
+            // המרה למספרים ובדיקת תקינות
+            if (int.TryParse(fromInput, out int fromId) && int.TryParse(toInput, out int toId))
             {
-                int success = await api.DeleteGenre(genre.Id);
-                if (success == 1)
+                if (fromId == toId)
                 {
-                    LoadAllData(); // ריענון
+                    MessageBox.Show("Source and Target cannot be the same!", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
                 }
-                else
+
+                var confirm = MessageBox.Show($"Are you sure you want to move ALL movies from Genre ID {fromId} to Genre ID {toId}?",
+                                              "Confirm Migration", MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+                if (confirm == MessageBoxResult.Yes)
                 {
-                    MessageBox.Show("Could not delete genre. It might be in use by some movies.");
+                    try
+                    {
+                        // קריאה ל-InterfaceAPI (לוודא שעדכנת שם את הנתיב ל-api/Update)
+                        int movedCount = await api.MoveMoviesBetweenGenres(fromId, toId);
+
+                        if (movedCount > 0)
+                        {
+                            MessageBox.Show($"Successfully moved {movedCount} movies!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                            LoadAllData(); // ריענון כל הטבלאות כדי לראות את השינוי ב-Videos Management
+                        }
+                        else
+                        {
+                            MessageBox.Show("No movies were found in the source genre, or an error occurred.", "No Action Taken", MessageBoxButton.OK, MessageBoxImage.Information);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("Communication Error: " + ex.Message);
+                    }
+                }
+            }
+            else
+            {
+                MessageBox.Show("Please enter valid numeric IDs only.", "Input Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+
+        private async void ChangeMovieGenre_Click(object sender, RoutedEventArgs e)
+        {
+            // שליפת הסרט מהשורה שנלחצה
+            var video = (sender as Button)?.DataContext as Video;
+            if (video == null) return;
+
+            // פתיחת תיבת קלט לקבלת ה-ID החדש
+            string input = Microsoft.VisualBasic.Interaction.InputBox($"Enter New Genre ID for '{video.VideoName}':", "Change Movie Genre", "");
+
+            if (int.TryParse(input, out int newGenreId))
+            {
+                try
+                {
+                    int result = await api.UpdateSingleMovieGenre(video.Id, newGenreId);
+                    if (result > 0)
+                    {
+                        MessageBox.Show("Genre updated successfully!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                        LoadAllData(); // רענון הטבלה
+                    }
+                    else
+                    {
+                        MessageBox.Show("Failed to update. Make sure the Genre ID exists in the database.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Error updating genre: " + ex.Message);
                 }
             }
         }

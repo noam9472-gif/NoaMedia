@@ -73,7 +73,11 @@
 
             <TabItem Header="Genres">
                 <StackPanel>
-                    <Button Content="Add New Genre" Click="AddGenre_Click" Width="120" HorizontalAlignment="Left" Margin="10,10,0,0" Background="#27AE60" Foreground="White" BorderThickness="0" Padding="5"/>
+                    <WrapPanel Margin="10,10,0,0">
+                        <Button Content="Add New Genre" Click="AddGenre_Click" Width="130" Background="#27AE60" Foreground="White" BorderThickness="0" Padding="5" Margin="0,0,10,0"/>
+
+                        <Button Content="Move Movies Between Genres" Click="MoveMovies_Click" Width="200" Background="#F39C12" Foreground="White" BorderThickness="0" Padding="5"/>
+                    </WrapPanel>
                     <DataGrid x:Name="dgGenres" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" Margin="10">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="50"/>
@@ -112,24 +116,14 @@
                             <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="25"/>
                             <DataGridTextColumn Header="Movie's Name" Binding="{Binding VideoName}" Width="*"/>
                             <DataGridTextColumn Header="Genre" Binding="{Binding Genre.GenreDescription}" Width="*"/>
-                            <DataGridTemplateColumn Header="Actions" Width="100">
+                            <DataGridTemplateColumn Header="Actions" Width="180">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <Button Content="Delete" Click="DeleteMovie_Click" Background="#E74C3C" Foreground="White" Padding="5,2" Cursor="Hand" FontWeight="Bold" BorderThickness="0">
-                                            <Button.Resources>
-                                                <Style TargetType="Button">
-                                                    <Setter Property="Template">
-                                                        <Setter.Value>
-                                                            <ControlTemplate TargetType="Button">
-                                                                <Border Background="{TemplateBinding Background}" CornerRadius="3">
-                                                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                                                </Border>
-                                                            </ControlTemplate>
-                                                        </Setter.Value>
-                                                    </Setter>
-                                                </Style>
-                                            </Button.Resources>
-                                        </Button>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Button Content="Change Genre" Click="ChangeMovieGenre_Click" Background="#3498DB" Foreground="White" Padding="5,2" Margin="0,0,5,0" Cursor="Hand" FontWeight="Bold" BorderThickness="0"/>
+
+                                            <Button Content="Delete" Click="DeleteMovie_Click" Background="#E74C3C" Foreground="White" Padding="5,2" Cursor="Hand" FontWeight="Bold" BorderThickness="0"/>
+                                        </StackPanel>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>

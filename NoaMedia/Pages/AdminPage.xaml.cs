@@ -218,7 +218,7 @@ namespace NoaMedia.Pages
                         // קריאה ל-InterfaceAPI (לוודא שעדכנת שם את הנתיב ל-api/Update)
                         int movedCount = await api.MoveMoviesBetweenGenres(fromId, toId);
 
-                        if (movedCount > 0)
+                        if (movedCount >= 0)
                         {
                             MessageBox.Show($"Successfully moved {movedCount} movies!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
                             LoadAllData(); // ריענון כל הטבלאות כדי לראות את השינוי ב-Videos Management

@@ -1,6 +1,7 @@
 ﻿using ApiInterface;
 using Model;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -10,56 +11,30 @@ namespace NoaMedia.Pages
 {
     public partial class VideoDetailsPage : Page
     {
-        InterfaceAPI api = new InterfaceAPI();
+        private readonly InterfaceAPI api = new InterfaceAPI();
         private Video currentVideo;
 
         public VideoDetailsPage(Video video)
         {
             InitializeComponent();
             currentVideo = video;
-
-            // מילוי הנתונים בטקסטים שבעיצוב
-            txtTitle.Text = video.VideoName;
-            txtGenre.Text = video.Genre?.GenreDescription ?? "General";
-            txtYear.Text = video.VideoUploadedDate.Year.ToString();
-            txtDuration.Text = $"{video.LengthInMinutes} min";
-            txtDescription.Text = video.VideoDescription ?? "No description available.";
-            btnUploader.Content = video.WhoUploadedTheVideo?.UserName ?? "Unknown";
-
-            // טעינת התמונה
-            if (!string.IsNullOrEmpty(video.VideoPic))
-            {
-                imgPoster.Source = Base64ToImage(video.VideoPic);
-            }
-
+            PopulateVideoDetails();
             LoadReviews();
         }
 
-        // --- פונקציות שחובה להוסיף כדי לפתור את השגיאות מהצילום מסך ---
-
-        // 1. פונקציית חזרה (מטפלת ב-Back_Click)
-        private void Back_Click(object sender, RoutedEventArgs e)
+        private void PopulateVideoDetails()
         {
-            if (NavigationService.CanGoBack)
-                NavigationService.GoBack();
-        }
+            txtTitle.Text = currentVideo.VideoName;
+            txtGenre.Text = currentVideo.Genre?.GenreDescription ?? "General";
+            txtYear.Text = currentVideo.VideoUploadedDate.Year.ToString();
+            txtDuration.Text = $"{currentVideo.LengthInMinutes} min";
+            txtDescription.Text = currentVideo.VideoDescription ?? "No description available.";
+            btnUploader.Content = currentVideo.WhoUploadedTheVideo?.UserName ?? "Unknown";
 
-        // 2. פונקציית לחיצה על כותב הביקורת (מטפלת ב-ReviewUser_Click)
-        private void ReviewUser_Click(object sender, RoutedEventArgs e)
-        {
-            var btn = sender as Button;
-            if (btn?.DataContext is VideoReview review && review.WhoUpdatedTheReview != null)
+            if (!string.IsNullOrEmpty(currentVideo.VideoPic))
             {
-                NavigationService.Navigate(new UserDetailsPage(review.WhoUpdatedTheReview));
+                imgPoster.Source = Base64ToImage(currentVideo.VideoPic);
             }
-        }
-
-        // ---------------------------------------------------------
-
-        private void btnUploader_Click(object sender, RoutedEventArgs e)
-        {
-            if (currentVideo.WhoUploadedTheVideo != null)
-                NavigationService.Navigate(new UserDetailsPage(currentVideo.WhoUploadedTheVideo));
         }
 
         private async void LoadReviews()
@@ -69,18 +44,43 @@ namespace NoaMedia.Pages
                 var allReviews = await api.GetAllVideoReviews();
                 if (allReviews != null)
                 {
-                    lstMovieReviews.ItemsSource = allReviews
-                        .Where(r => r.WhichVideoDidTheUserReview != null && r.WhichVideoDidTheUserReview.Id == currentVideo.Id)
+                    // סינון ביקורות ששייכות לסרט הנוכחי בלבד
+                    var movieReviews = allReviews
+                        .Where(r => r.WhichVideoDidTheUserReview != null &&
+                                    r.WhichVideoDidTheUserReview.Id == currentVideo.Id)
                         .ToList();
+
+                    lstMovieReviews.ItemsSource = movieReviews;
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Error loading reviews: " + ex.Message);
+                System.Diagnostics.Debug.WriteLine("Error loading reviews: " + ex.Message);
             }
         }
 
-        // פונקציית עזר להצגת התמונה
+        private void Back_Click(object sender, RoutedEventArgs e)
+        {
+            if (NavigationService.CanGoBack)
+                NavigationService.GoBack();
+        }
+
+        private void ReviewUser_Click(object sender, RoutedEventArgs e)
+        {
+            var btn = sender as Button;
+            // תיקון: שימוש ב-WhoUpdatedTheReview כדי להתאים ל-Model
+            if (btn?.DataContext is VideoReview review && review.WhoUpdatedTheReview != null)
+            {
+                NavigationService.Navigate(new UserDetailsPage(review.WhoUpdatedTheReview));
+            }
+        }
+
+        private void btnUploader_Click(object sender, RoutedEventArgs e)
+        {
+            if (currentVideo.WhoUploadedTheVideo != null)
+                NavigationService.Navigate(new UserDetailsPage(currentVideo.WhoUploadedTheVideo));
+        }
+
         private BitmapImage Base64ToImage(string base64String)
         {
             try
@@ -93,6 +93,7 @@ namespace NoaMedia.Pages
                     image.StreamSource = ms;
                     image.CacheOption = BitmapCacheOption.OnLoad;
                     image.EndInit();
+                    image.Freeze(); // חשוב לביצועים ושימוש ב-UI
                     return image;
                 }
             }

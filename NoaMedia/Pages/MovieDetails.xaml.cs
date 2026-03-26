@@ -24,6 +24,7 @@ namespace NoaMedia.Pages
             InitializeComponent();
             currentVideo = selectedVideo;
             LoadMovieDetails(selectedVideo);
+            CheckPremiumForMyList();
 
             timer = new DispatcherTimer();
             timer.Interval = TimeSpan.FromSeconds(1);
@@ -87,6 +88,36 @@ namespace NoaMedia.Pages
                 LikeIcon.Foreground = hasLiked ? new SolidColorBrush(Colors.Red) : new SolidColorBrush(Colors.White);
             }
         }
+
+
+        private void CheckPremiumForMyList()
+        {
+            var currentUser = (Application.Current as App).LoggedInUser;
+            // הצגת הכפתור רק אם המשתמש אדמין או פרימיום
+            if (currentUser != null && currentUser.IsAdmin)
+            {
+                MyListButton.Visibility = Visibility.Visible;
+                // כאן כדאי להוסיף בדיקה מול ה-API אם הסרט כבר ברשימה כדי לשנות את ה-+ ל-V
+            }
+        }
+
+        private async void MyListButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                // כאן אתה קורא ל-API שלך כדי להוסיף לרשימה
+                // נניח שיש לך פונקציה כזו ב-InterfaceAPI:
+                await api.AddToMyList(currentUser.Id, currentVideo.Id);
+
+                MyListIcon.Text = "✓"; // שינוי ויזואלי לאישור
+                MessageBox.Show("Added to your list!");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error: " + ex.Message);
+            }
+        }
+
 
         private void MoreInfoButton_Click(object sender, RoutedEventArgs e)
         {

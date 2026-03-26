@@ -77,7 +77,6 @@
                                     <TextBlock Text="PLAY NOW" FontWeight="Bold" FontSize="18"/>
                                 </StackPanel>
                             </Button>
-
                             <Button x:Name="LikeButton" Click="LikeButton_Click" Width="60" Height="60" 
                                     Background="#33FFFFFF" BorderThickness="0" Cursor="Hand" Margin="20,0">
                                 <Button.Resources>
@@ -86,6 +85,17 @@
                                     </Style>
                                 </Button.Resources>
                                 <TextBlock x:Name="LikeIcon" Text="❤" Foreground="White" FontSize="24"/>
+                            </Button>
+
+                            <Button x:Name="MyListButton" Click="MyListButton_Click" Width="60" Height="60" 
+        Background="#33FFFFFF" BorderThickness="0" Cursor="Hand" Margin="0,0,20,0"
+        Visibility="Collapsed">
+                                <Button.Resources>
+                                    <Style TargetType="Border">
+                                        <Setter Property="CornerRadius" Value="30"/>
+                                    </Style>
+                                </Button.Resources>
+                                <TextBlock x:Name="MyListIcon" Text="+" Foreground="White" FontSize="30" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                             </Button>
                         </StackPanel>
                     </StackPanel>

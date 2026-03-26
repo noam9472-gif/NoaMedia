@@ -1,10 +1,13 @@
-﻿using System;
+﻿using ApiInterface;
+using Model;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using Model;
-using ApiInterface;
-using System.Collections.Generic;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
 
 namespace NoaMedia.Pages
 {
@@ -54,9 +57,15 @@ namespace NoaMedia.Pages
 
                     case "Liked":
                         SectionTitle.Text = "Liked Videos";
+                        // *** כאן אתה מחליף את התוכן הישן בחדש ***
                         var allLikes = (MyLikesList)await api.GetAllLikes();
-                        var myLikes = allLikes.Where(l => l.UserId?.Id == currentUser.Id).Select(l => l.VideoId).ToList();
-                        FillVideoPanel(myLikes);
+
+                        var myLikedVideos = allLikes
+                            .Where(l => l.UserId?.Id == currentUser.Id)
+                            .Select(l => l.VideoId)
+                            .ToList();
+
+                        FillVideoPanel(myLikedVideos);
                         break;
 
                     case "Watched":
@@ -91,13 +100,22 @@ namespace NoaMedia.Pages
             }
         }
 
-        private void FillVideoPanel(IEnumerable<Video> videos)
+        private async void FillVideoPanel(IEnumerable<Video> videos)
         {
             MainDisplayPanel.Visibility = Visibility.Visible;
             CommentsDisplayPanel.Visibility = Visibility.Collapsed;
+
             foreach (var v in videos)
             {
-                if (v != null) MainDisplayPanel.Children.Add(CreateMovieThumbnail(v));
+                if (v == null) continue;
+
+                // בדיקה אם ה-Base64 חסר, בדיוק כמו ב-Home
+                if (string.IsNullOrEmpty(v.VideoPic) || v.VideoPic.StartsWith("File"))
+                {
+                    v.VideoPic = await api.GetVideoPicByte64(v.Id);
+                }
+
+                MainDisplayPanel.Children.Add(CreateMovieThumbnail(v));
             }
         }
 
@@ -111,19 +129,47 @@ namespace NoaMedia.Pages
 
         private Button CreateMovieThumbnail(Video v)
         {
-            // עיצוב כפתור הסרט (כמו שקיים אצלך, אפשר להוסיף פה תמונה בעתיד)
             Button btn = new Button
             {
-                Content = v.VideoName,
-                Width = 180,
-                Height = 250, // גודל אנכי לפוסטר
-                Margin = new Thickness(0, 0, 20, 20),
-                Background = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#222")),
-                Foreground = System.Windows.Media.Brushes.White,
-                Cursor = System.Windows.Input.Cursors.Hand,
-                FontWeight = FontWeights.Bold
+                Width = 150,
+                Height = 220,
+                Margin = new Thickness(10),
+                Background = new SolidColorBrush(Color.FromRgb(30, 30, 30)),
+                BorderThickness = new Thickness(0),
+                Cursor = Cursors.Hand
             };
+
+            // הגדרת גודל ושיטת מתיחה לתמונה
+            Image movieImg = new Image
+            {
+                Stretch = Stretch.UniformToFill,
+                Width = 150,
+                Height = 220
+            };
+
+            try
+            {
+                if (v != null && !string.IsNullOrEmpty(v.VideoPic))
+                {
+                    // שימוש בשיטה מה-Home: המרה מ-Base64
+                    movieImg.Source = Base64ToImage(v.VideoPic);
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("Image Load Error: " + ex.Message);
+            }
+
+            Border mask = new Border
+            {
+                CornerRadius = new CornerRadius(10),
+                ClipToBounds = true,
+                Child = movieImg
+            };
+
+            btn.Content = mask;
             btn.Click += (s, e) => this.NavigationService.Navigate(new MovieDetails(v));
+
             return btn;
         }
 
@@ -136,6 +182,26 @@ namespace NoaMedia.Pages
         private void Back_Click(object sender, RoutedEventArgs e)
         {
             if (this.NavigationService.CanGoBack) this.NavigationService.GoBack();
+        }
+
+        public BitmapImage Base64ToImage(string base64String)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(base64String) || base64String.StartsWith("File")) return null;
+                byte[] imageBytes = Convert.FromBase64String(base64String);
+                using (System.IO.MemoryStream ms = new System.IO.MemoryStream(imageBytes))
+                {
+                    BitmapImage image = new BitmapImage();
+                    image.BeginInit();
+                    image.StreamSource = ms;
+                    image.CacheOption = BitmapCacheOption.OnLoad;
+                    image.EndInit();
+                    image.Freeze();
+                    return image;
+                }
+            }
+            catch { return null; }
         }
     }
 }

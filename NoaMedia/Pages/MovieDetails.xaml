@@ -1,103 +1,149 @@
 ﻿<Page x:Class="NoaMedia.Pages.MovieDetails"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-      Title="Movie Details" Background="#141414"
+      Title="Movie Details" Background="#0A0A0A"
       SnapsToDevicePixels="True">
 
     <Grid>
-        <Button Content="← Back" Click="Back_Click" 
-                VerticalAlignment="Top" HorizontalAlignment="Left" 
-                Margin="20" Padding="12,6" 
-                Background="#333" Foreground="White" 
-                FontSize="14" BorderThickness="0" Cursor="Hand" Panel.ZIndex="10">
+        <Grid VerticalAlignment="Top" Height="700">
+            <Image x:Name="BackgroundImage" Stretch="UniformToFill" Opacity="0.3"
+                   RenderOptions.BitmapScalingMode="HighQuality"/>
+            <Rectangle>
+                <Rectangle.Fill>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                        <GradientStop Color="Transparent" Offset="0"/>
+                        <GradientStop Color="#0A0A0A" Offset="0.9"/>
+                    </LinearGradientBrush>
+                </Rectangle.Fill>
+            </Rectangle>
+        </Grid>
+
+        <Button Click="Back_Click" VerticalAlignment="Top" HorizontalAlignment="Left" 
+                Margin="30" Background="#44000000" Foreground="White" BorderBrush="White"
+                Padding="15,8" Cursor="Hand" Panel.ZIndex="10">
             <Button.Resources>
                 <Style TargetType="Border">
-                    <Setter Property="CornerRadius" Value="15"/>
+                    <Setter Property="CornerRadius" Value="20"/>
                 </Style>
             </Button.Resources>
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="" FontFamily="Segoe MDL2 Assets" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                <TextBlock Text="BACK" FontWeight="SemiBold" VerticalAlignment="Center"/>
+            </StackPanel>
         </Button>
 
-        <ScrollViewer x:Name="MainScrollViewer" VerticalScrollBarVisibility="Auto">
-            <StackPanel Margin="40,80,40,40">
-                <Grid Margin="0,0,0,30">
+        <ScrollViewer x:Name="MainScrollViewer" VerticalScrollBarVisibility="Hidden">
+            <StackPanel>
+                <Grid x:Name="HeroSection" Height="700" Margin="60,100,60,0">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-
-                    <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="0,0,20,0">
-                        <TextBlock x:Name="MovieTitle" Foreground="White" FontSize="42" FontWeight="Bold" TextWrapping="Wrap" TextAlignment="Right"/>
-
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10">
-                            <Border Background="#E50914" CornerRadius="3" Padding="6,2" Margin="10,0,0,0">
-                                <TextBlock x:Name="MovieGenre" Foreground="White" FontSize="12" FontWeight="Bold"/>
-                            </Border>
-                            <TextBlock x:Name="MovieDuration" Foreground="#AAA" FontSize="14" VerticalAlignment="Center"/>
-                        </StackPanel>
-
-                        <TextBlock x:Name="MovieDesc" Foreground="#DDD" FontSize="16" TextAlignment="Right" TextWrapping="Wrap" MaxWidth="600" Margin="0,10,0,20"/>
-
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                            <Button x:Name="LikeButton" Click="LikeButton_Click" Width="45" Height="40" Background="#22FFFFFF" BorderThickness="0" Cursor="Hand" Margin="0,0,10,0">
-                                <TextBlock x:Name="LikeIcon" Text="❤" Foreground="White" FontSize="18"/>
-                            </Button>
-                            <Button x:Name="PlayButton" Content="▶ Play" Click="PlayButton_Click" Width="120" Height="40" Background="#E50914" Foreground="White" FontWeight="Bold" BorderThickness="0" Cursor="Hand"/>
-                        </StackPanel>
-                    </StackPanel>
-
-                    <Border Grid.Column="1" Width="220" Height="125" CornerRadius="8" ClipToBounds="True" BorderBrush="#333" BorderThickness="1" VerticalAlignment="Top">
-                        <Image x:Name="BackgroundImage" Stretch="UniformToFill" RenderOptions.BitmapScalingMode="HighQuality"/>
-                    </Border>
-                </Grid>
-
-                <Separator Background="#333" Margin="0,20"/>
-
-                <Grid x:Name="DetailedInfoPanel">
-                    <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="250"/>
                     </Grid.ColumnDefinitions>
 
-                    <StackPanel Grid.Column="0" Margin="0,0,30,0">
-                        <TextBlock Text="Synopsis" Foreground="#E50914" FontSize="20" FontWeight="Bold" TextAlignment="Right" Margin="0,0,0,10"/>
-                        <TextBlock x:Name="FullDescriptionText" Foreground="White" FontSize="16" TextAlignment="Right" TextWrapping="Wrap" LineHeight="24"/>
+                    <Border Grid.Column="0" Width="300" Height="450" CornerRadius="15" 
+                            ClipToBounds="True" VerticalAlignment="Top">
+                        <Border.Effect>
+                            <DropShadowEffect BlurRadius="40" Opacity="0.6" ShadowDepth="0"/>
+                        </Border.Effect>
+                        <Image x:Name="MainPosterImage" Stretch="UniformToFill" 
+                               RenderOptions.BitmapScalingMode="HighQuality"/>
+                    </Border>
+
+                    <StackPanel Grid.Column="1" VerticalAlignment="Top" Margin="50,0,0,0">
+                        <TextBlock x:Name="MovieTitle" Foreground="White" FontSize="64" FontWeight="ExtraBold" 
+                                   TextWrapping="Wrap" Text="MOVIE TITLE"/>
+
+                        <StackPanel Orientation="Horizontal" Margin="0,15">
+                            <Border Background="#E50914" CornerRadius="4" Padding="12,5">
+                                <TextBlock x:Name="MovieGenre" Foreground="White" FontSize="14" FontWeight="Bold"/>
+                            </Border>
+                            <TextBlock x:Name="MovieDuration" Foreground="#CCC" FontSize="18" Margin="25,0" VerticalAlignment="Center"/>
+                            <TextBlock x:Name="ReleaseYear" Foreground="#888" FontSize="18" VerticalAlignment="Center"/>
+                        </StackPanel>
+
+                        <TextBlock x:Name="MovieDesc" Foreground="#DDD" FontSize="18" LineHeight="28"
+                                   MaxWidth="700" HorizontalAlignment="Left" TextWrapping="Wrap" Margin="0,10,0,40"/>
+
+                        <StackPanel Orientation="Horizontal">
+                            <Button x:Name="PlayButton" Click="PlayButton_Click" Width="200" Height="60" 
+                                    Background="White" Foreground="Black" BorderThickness="0" Cursor="Hand">
+                                <Button.Resources>
+                                    <Style TargetType="Border">
+                                        <Setter Property="CornerRadius" Value="8"/>
+                                    </Style>
+                                </Button.Resources>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="▶" Margin="0,0,12,0" FontSize="20"/>
+                                    <TextBlock Text="PLAY NOW" FontWeight="Bold" FontSize="18"/>
+                                </StackPanel>
+                            </Button>
+
+                            <Button x:Name="LikeButton" Click="LikeButton_Click" Width="60" Height="60" 
+                                    Background="#33FFFFFF" BorderThickness="0" Cursor="Hand" Margin="20,0">
+                                <Button.Resources>
+                                    <Style TargetType="Border">
+                                        <Setter Property="CornerRadius" Value="30"/>
+                                    </Style>
+                                </Button.Resources>
+                                <TextBlock x:Name="LikeIcon" Text="❤" Foreground="White" FontSize="24"/>
+                            </Button>
+                        </StackPanel>
                     </StackPanel>
 
-                    <StackPanel Grid.Column="1">
-                        <TextBlock Text="Info" Foreground="#E50914" FontSize="20" FontWeight="Bold" TextAlignment="Right" Margin="0,0,0,10"/>
-                        <TextBlock Text="Uploaded By" Foreground="Gray" FontSize="14" TextAlignment="Right"/>
-                        <TextBlock x:Name="WhoUploadedName" Foreground="White" FontSize="16" TextAlignment="Right" Margin="0,0,0,15"/>
-                        <TextBlock Text="Release Date" Foreground="Gray" FontSize="14" TextAlignment="Right"/>
-                        <TextBlock x:Name="ReleaseYear" Foreground="White" FontSize="16" TextAlignment="Right"/>
-                    </StackPanel>
+                    <Button VerticalAlignment="Bottom" HorizontalAlignment="Center" Grid.ColumnSpan="2" Margin="0,0,0,30"
+                            Background="Transparent" BorderThickness="0" Cursor="Hand" Click="MoreInfoButton_Click">
+                        <StackPanel>
+                            <TextBlock Text="Storyline &amp; Reviews" Foreground="White" HorizontalAlignment="Center" Opacity="0.5"/>
+                            <TextBlock Text="" FontFamily="Segoe MDL2 Assets" Foreground="White" FontSize="24" HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
                 </Grid>
 
-                <Separator Background="#333" Margin="0,40"/>
+                <StackPanel Margin="60,40,60,60">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
 
-                <StackPanel>
-                    <Grid Margin="0,0,0,20">
-                        <Button x:Name="AddReviewButton" Content="+ Write a Review" Click="AddReviewButton_Click" 
-                                HorizontalAlignment="Left" Background="Transparent" Foreground="#E50914" 
-                                BorderThickness="0" Cursor="Hand" FontSize="16" FontWeight="Bold"/>
-                        <TextBlock Text="Recent Reviews" Foreground="White" FontSize="24" FontWeight="Bold" TextAlignment="Right"/>
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Synopsis" Foreground="White" FontSize="28" FontWeight="Bold" Margin="0,0,0,20"/>
+                            <TextBlock x:Name="FullDescriptionText" Foreground="#BBB" FontSize="17" TextWrapping="Wrap" LineHeight="28"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="1" Margin="60,0,0,0">
+                            <TextBlock Text="Credits" Foreground="White" FontSize="28" FontWeight="Bold" Margin="0,0,0,20"/>
+                            <TextBlock Text="CURATED BY" Foreground="#E50914" FontSize="11" FontWeight="Bold"/>
+                            <TextBlock x:Name="WhoUploadedName" Foreground="White" FontSize="18" Margin="0,5,0,25"/>
+                        </StackPanel>
                     </Grid>
 
-                    <ListBox x:Name="lstMovieReviews" Background="Transparent" BorderThickness="0" HorizontalContentAlignment="Stretch">
-                        <ListBox.ItemTemplate>
-                            <DataTemplate>
-                                <Border Background="#1A1A1D" Margin="0,0,0,12" Padding="20" CornerRadius="10" BorderBrush="#333" BorderThickness="1">
-                                    <StackPanel>
-                                        <Button Content="{Binding WhoUpdatedTheReview.UserName}" 
-                                                Click="ReviewUser_Click" 
-                                                Foreground="#E50914" FontWeight="Bold" Background="Transparent" 
-                                                BorderThickness="0" HorizontalAlignment="Right" Cursor="Hand" Margin="0,0,0,8"/>
-                                        <TextBlock Text="{Binding ReviewDescription}" Foreground="White" FontSize="15" 
-                                                   TextWrapping="Wrap" TextAlignment="Right" Opacity="0.9"/>
-                                    </StackPanel>
-                                </Border>
-                            </DataTemplate>
-                        </ListBox.ItemTemplate>
-                    </ListBox>
+                    <Separator Background="#222" Margin="0,60"/>
+
+                    <StackPanel>
+                        <DockPanel LastChildFill="False" Margin="0,0,0,30">
+                            <TextBlock Text="Member Reviews" Foreground="White" FontSize="32" FontWeight="Bold" DockPanel.Dock="Left"/>
+                            <Button x:Name="AddReviewButton" Click="AddReviewButton_Click" Content="+ WRITE A REVIEW" 
+                                    Foreground="#E50914" Background="Transparent" BorderThickness="0" 
+                                    FontWeight="Bold" DockPanel.Dock="Right" Cursor="Hand" FontSize="14"/>
+                        </DockPanel>
+
+                        <ListBox x:Name="lstMovieReviews" Background="Transparent" BorderThickness="0" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Background="#121212" Margin="0,0,0,15" Padding="25" CornerRadius="12" BorderBrush="#222" BorderThickness="1">
+                                        <StackPanel>
+                                            <Button Click="ReviewUser_Click" Foreground="#E50914" FontWeight="Bold" 
+                                                    Background="Transparent" BorderThickness="0" HorizontalAlignment="Left" 
+                                                    Content="{Binding WhoUpdatedTheReview.UserName}" FontSize="16"/>
+                                            <TextBlock Text="{Binding ReviewDescription}" Foreground="#AAA" FontSize="16" 
+                                                       Margin="0,12,0,0" TextWrapping="Wrap" LineHeight="24"/>
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </StackPanel>
                 </StackPanel>
             </StackPanel>
         </ScrollViewer>
@@ -108,26 +154,14 @@
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
-            <MediaElement x:Name="InlinePlayer" 
-                          Grid.Row="0"
-                          LoadedBehavior="Manual" 
-                          UnloadedBehavior="Stop" 
-                          Stretch="Uniform"
-                          ScrubbingEnabled="True"
-                          MediaOpened="InlinePlayer_MediaOpened"
-                          BufferingStarted="InlinePlayer_BufferingStarted"
-                          BufferingEnded="InlinePlayer_BufferingEnded"/>
+            <MediaElement x:Name="InlinePlayer" Grid.Row="0" LoadedBehavior="Manual" UnloadedBehavior="Stop" Stretch="Uniform" ScrubbingEnabled="True" MediaOpened="InlinePlayer_MediaOpened" BufferingStarted="InlinePlayer_BufferingStarted" BufferingEnded="InlinePlayer_BufferingEnded"/>
 
             <StackPanel x:Name="LoadingStatus" Grid.Row="0" VerticalAlignment="Center" HorizontalAlignment="Center" Visibility="Collapsed">
                 <ProgressBar IsIndeterminate="True" Width="200" Height="10" Foreground="#E50914" Background="#333"/>
                 <TextBlock Text="Loading Movie..." Foreground="White" HorizontalAlignment="Center" Margin="0,10,0,0" FontSize="18"/>
             </StackPanel>
 
-            <Button Content="✕ Close" Click="CloseVideo_Click" 
-                    VerticalAlignment="Top" HorizontalAlignment="Left" 
-                    Margin="20" Padding="15,5" 
-                    Background="#CC000000" Foreground="White" 
-                    BorderThickness="1" BorderBrush="White" Cursor="Hand" Panel.ZIndex="101"/>
+            <Button Content="✕ Close" Click="CloseVideo_Click" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="20" Padding="15,5" Background="#CC000000" Foreground="White" BorderThickness="1" BorderBrush="White" Cursor="Hand" Panel.ZIndex="101"/>
 
             <Border Grid.Row="1" Background="#AA000000" Padding="20,10">
                 <Grid>
@@ -138,19 +172,10 @@
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-
                     <TextBlock x:Name="TimeStatus" Grid.Column="0" Text="00:00" Foreground="White" VerticalAlignment="Center" Margin="0,0,10,0"/>
-
                     <Button Grid.Column="1" Content="-10s" Click="Rewind_Click" Background="Transparent" Foreground="White" BorderThickness="0" Cursor="Hand" Margin="0,0,10,0"/>
-
-                    <Slider x:Name="TimelineSlider" Grid.Column="2" 
-                            Minimum="0" Maximum="100" 
-                            VerticalAlignment="Center"
-                            PreviewMouseLeftButtonUp="TimelineSlider_MouseUp"
-                            Cursor="Hand"/>
-
+                    <Slider x:Name="TimelineSlider" Grid.Column="2" Minimum="0" Maximum="100" VerticalAlignment="Center" PreviewMouseLeftButtonUp="TimelineSlider_MouseUp" Cursor="Hand"/>
                     <Button Grid.Column="3" Content="+10s" Click="Forward_Click" Background="Transparent" Foreground="White" BorderThickness="0" Cursor="Hand" Margin="10,0,10,0"/>
-
                     <TextBlock x:Name="TotalTime" Grid.Column="4" Text="00:00" Foreground="White" VerticalAlignment="Center"/>
                 </Grid>
             </Border>

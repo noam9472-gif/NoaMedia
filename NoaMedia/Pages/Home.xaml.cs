@@ -3,12 +3,13 @@ using Model;
 using NoaMedia;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
-using System.IO;
 using System.Windows.Media.Imaging;
 
 namespace NoaMedia.Pages
@@ -53,20 +54,16 @@ namespace NoaMedia.Pages
                 if (myApp.LoggedInUser.IsAdmin)
                 {
                     BackToMenuButton.Visibility = Visibility.Visible;
-                    AddMovieButton.Visibility = Visibility.Visible; // בדרך כלל גם זה למנהלים
+                    AddMovieButton.Visibility = Visibility.Visible;
                 }
-
-                // בדיקה אם המשתמש הוא פרימיום
-                // אם הוא לא פרימיום, נציג לו את כפתור השדרוג
-                // UpgradeButton.Visibility = myApp.LoggedInUser.IsPremium ? Visibility.Collapsed : Visibility.Visible;
             }
         }
 
-
         private void UpgradeButton_Click(object sender, RoutedEventArgs e)
         {
-            this.NavigationService.Navigate(new PremiumSalesPage());// מעבר לעמוד רכישת פרימיום
+            this.NavigationService.Navigate(new PremiumSalesPage()); // מעבר לעמוד רכישת פרימיום
         }
+
         private async void LoadContent()
         {
             try
@@ -88,12 +85,16 @@ namespace NoaMedia.Pages
             var genres = await api.GetAllGenres();
             var allVideosRaw = await api.GetAllVideos();
             List<Video> allVideos = (allVideosRaw as IEnumerable<Video>)?.ToList() ?? new List<Video>();
+
             if (genres == null) return;
+
             foreach (var g in genres)
             {
                 if (g.GenreDescription == "Premium Only" && !_isPremium) continue;
+
                 var genreSection = CreateGenreSection(g.GenreDescription);
                 var moviesContainer = new WrapPanel { Orientation = Orientation.Horizontal };
+
                 // סינון סרטים לפי ז'אנר
                 var genreVideos = allVideos.Where(v => v != null && v.Genre?.Id == g.Id).ToList();
                 foreach (var v in genreVideos)
@@ -101,12 +102,13 @@ namespace NoaMedia.Pages
                     var videoUI = await CreateVideoItemUI(v);
                     moviesContainer.Children.Add(videoUI);
                 }
+
                 genreSection.Children.Add(moviesContainer);
                 MainGenresContainer.Children.Add(genreSection);
             }
         }
 
-        private StackPanel CreateGenreSection(string title)// יצירת פאנל מתאים לכל ז'אנר עם כותרת וסרטים מתאימים
+        private StackPanel CreateGenreSection(string title)
         {
             var section = new StackPanel { Margin = new Thickness(0, 0, 0, 30) };
             section.Children.Add(new TextBlock
@@ -120,23 +122,38 @@ namespace NoaMedia.Pages
             return section;
         }
 
-        private async Task<StackPanel> CreateVideoItemUI(Video v)
+        private async Task<FrameworkElement> CreateVideoItemUI(Video v)
         {
-            var container = new StackPanel { Margin = new Thickness(0, 0, 15, 20) };
+            // הקונטיינר הראשי של הסרט - רוחב קבוע לפוסטר
+            var container = new StackPanel
+            {
+                Margin = new Thickness(0, 0, 20, 30),
+                Width = 180
+            };
 
+            // יצירת המסגרת של התמונה (Portrait - 180x270)
             var border = new Border
             {
-                Width = 220,
-                Height = 125,
-                CornerRadius = new CornerRadius(8),
+                Width = 180,
+                Height = 270,
+                CornerRadius = new CornerRadius(10),
                 ClipToBounds = true,
-                Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#222"))
+                Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#222")),
+                Effect = new System.Windows.Media.Effects.DropShadowEffect
+                {
+                    BlurRadius = 15,
+                    Opacity = 0.3,
+                    ShadowDepth = 2
+                }
             };
 
             var img = new Image { Stretch = Stretch.UniformToFill };
 
-            string base64 = v.VideoPic;
+            // תיקון השגיאה: הגדרת BitmapScalingMode בצורה נכונה כמאפיין מצורף
+            RenderOptions.SetBitmapScalingMode(img, BitmapScalingMode.HighQuality);
 
+            // טעינת התמונה
+            string base64 = v.VideoPic;
             if (string.IsNullOrEmpty(base64) || base64.StartsWith("File"))
             {
                 base64 = await api.GetVideoPicByte64(v.Id);
@@ -149,24 +166,35 @@ namespace NoaMedia.Pages
 
             border.Child = img;
 
-            var btn = new Button
+            // יצירת כפתור שקוף שעוטף את כל הפוסטר
+            var overlayButton = new Button
             {
-                Content = "Watch Now",
-                Height = 35,
-                Margin = new Thickness(0, 8, 0, 0),
-                Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#E50914")),
-                Foreground = Brushes.White,
-                FontWeight = FontWeights.Bold,
+                Content = border,
+                Background = Brushes.Transparent,
                 BorderThickness = new Thickness(0),
+                Padding = new Thickness(0),
+                Cursor = Cursors.Hand,
                 Tag = v
             };
-            btn.Click += WatchMovie_Click;
+            overlayButton.Click += WatchMovie_Click;
 
-            container.Children.Add(border);
-            container.Children.Add(new TextBlock { Text = v.VideoName, Foreground = Brushes.White, HorizontalAlignment = HorizontalAlignment.Center, Margin = new Thickness(0, 5, 0, 0) });
-            container.Children.Add(btn);
+            // כותרת הסרט מתחת לפוסטר
+            var titleText = new TextBlock
+            {
+                Text = v.VideoName,
+                Foreground = Brushes.White,
+                FontSize = 14,
+                FontWeight = FontWeights.SemiBold,
+                Margin = new Thickness(2, 10, 0, 0),
+                TextTrimming = TextTrimming.CharacterEllipsis
+            };
+
+            container.Children.Add(overlayButton);
+            container.Children.Add(titleText);
+
             return container;
         }
+
         public BitmapImage Base64ToImage(string base64String)
         {
             try
@@ -189,19 +217,14 @@ namespace NoaMedia.Pages
 
         private void WatchMovie_Click(object sender, RoutedEventArgs e)
         {
-            Button btn = sender as Button;
-            if (btn != null)
+            // שליפת המידע מה-Tag של הכפתור (שהוא ה-overlayButton)
+            if (sender is Button btn && btn.Tag is Video selectedVideo)
             {
-                Video selectedVideo = btn.Tag as Video;
-
-                if (selectedVideo != null)
-                {
-                    this.NavigationService.Navigate(new MovieDetails(selectedVideo));// מעבר לעמוד פרטי הסרט עם הסרט הנבחר
-                }
-                else
-                {
-                    MessageBox.Show("Error: Movie data is missing.");
-                }
+                this.NavigationService.Navigate(new MovieDetails(selectedVideo));
+            }
+            else
+            {
+                MessageBox.Show("Error: Movie data is missing.");
             }
         }
 
@@ -209,7 +232,7 @@ namespace NoaMedia.Pages
         {
             if (_isPremium)
             {
-                this.NavigationService.Navigate(new AddMovie());// מעבר לעמוד הוספת סרט
+                this.NavigationService.Navigate(new AddMovie());
             }
             else
             {
@@ -219,12 +242,13 @@ namespace NoaMedia.Pages
 
         private void BackToMenu_Click(object sender, RoutedEventArgs e)
         {
-            this.NavigationService.Navigate(new TransitionOptionForManager(true));// חזרה לעמוד תפריט מנהל
+            this.NavigationService.Navigate(new TransitionOptionForManager(true));
         }
+
         private void Profile_Click(object sender, RoutedEventArgs e)
         {
             string status = _isPremium ? "Premium" : "User";
-            this.NavigationService.Navigate(new ProfilePage(status));// מעבר לעמוד פרופיל עם סטטוס המשתמש
+            this.NavigationService.Navigate(new ProfilePage(status));
         }
     }
 }

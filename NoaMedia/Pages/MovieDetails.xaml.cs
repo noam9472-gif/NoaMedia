@@ -36,15 +36,15 @@ namespace NoaMedia.Pages
             if (v == null) return;
 
             // עדכון טקסטים
-            MovieTitle.Text = v.VideoName.ToUpper();
+            MovieTitle.Text = v.VideoName?.ToUpper() ?? "UNKNOWN TITLE";
             MovieGenre.Text = v.Genre?.GenreDescription.ToUpper() ?? "GENERAL";
             MovieDuration.Text = v.LengthInMinutes > 0 ? $"{v.LengthInMinutes} MIN" : "";
 
             if (v.VideoUploadedDate != DateTime.MinValue)
                 ReleaseYear.Text = v.VideoUploadedDate.Year.ToString();
 
-            MovieDesc.Text = v.VideoDescription;
-            FullDescriptionText.Text = v.VideoDescription;
+            MovieDesc.Text = v.VideoDescription ?? "";
+            FullDescriptionText.Text = v.VideoDescription ?? "";
             WhoUploadedName.Text = v.WhoUploadedTheVideo?.UserName ?? "Admin";
 
             // טעינת תמונה לשני המקומות (רקע ופוסטר)
@@ -89,7 +89,6 @@ namespace NoaMedia.Pages
             }
         }
 
-
         private void CheckPremiumForMyList()
         {
             var currentUser = (Application.Current as App).LoggedInUser;
@@ -97,7 +96,6 @@ namespace NoaMedia.Pages
             if (currentUser != null && currentUser.IsAdmin)
             {
                 MyListButton.Visibility = Visibility.Visible;
-                // כאן כדאי להוסיף בדיקה מול ה-API אם הסרט כבר ברשימה כדי לשנות את ה-+ ל-V
             }
         }
 
@@ -105,19 +103,23 @@ namespace NoaMedia.Pages
         {
             try
             {
-                // כאן אתה קורא ל-API שלך כדי להוסיף לרשימה
-                // נניח שיש לך פונקציה כזו ב-InterfaceAPI:
-                await api.AddToMyList(currentUser.Id, currentVideo.Id);
+                var currentUser = (Application.Current as App).LoggedInUser;
+                if (currentUser == null || currentVideo == null) return;
 
-                MyListIcon.Text = "✓"; // שינוי ויזואלי לאישור
-                MessageBox.Show("Added to your list!");
+                var watch = new MyWatchList { UserId = currentUser, VideoId = currentVideo };
+                int result = await api.InsertMyWatchList(watch);
+
+                if (result > 0)
+                {
+                    MyListIcon.Text = "✓";
+                    MessageBox.Show("Added to your list!");
+                }
             }
             catch (Exception ex)
             {
                 MessageBox.Show("Error: " + ex.Message);
             }
         }
-
 
         private void MoreInfoButton_Click(object sender, RoutedEventArgs e)
         {

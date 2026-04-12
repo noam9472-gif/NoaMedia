@@ -39,8 +39,8 @@ namespace NoaMedia.Pages
 
                 // 2. חיפוש המשתמש הספציפי ברשימה
                 currentUser = uList?.FirstOrDefault(u =>
-                    u.UserName.Equals(username, StringComparison.OrdinalIgnoreCase) &&
-                    u.Pass == password);
+    u.Name != null && u.Name.Trim().Equals(username, StringComparison.OrdinalIgnoreCase) &&
+    u.Pass == password);
 
                 // אם המשתמש לא נמצא - עוצרים כאן
                 if (currentUser == null)
@@ -53,8 +53,18 @@ namespace NoaMedia.Pages
                 UserPremiumList pList = await api.GetAllUserPremiums();
                 bool isPremium = pList != null && pList.Any(p => p.Id == currentUser.Id);
 
+                // --- הוספת סנכרון פה ---
+                // אם המשתמש נמצא בטבלת פרימיום אבל השדה IsPremium שלו הוא false, נעדכן אותו
+                if (isPremium && !currentUser.IsPremium)
+                {
+                    currentUser.IsPremium = true;
+                    await api.UpdateUser(currentUser);
+                }
+                // -----------------------
+
                 // 4. שמירת המשתמש ב-App לשימוש גלובלי
                 var myApp = Application.Current as App;
+                // ... המשך הקוד שלך
                 if (myApp != null)
                 {
                     myApp.LoggedInUser = currentUser;

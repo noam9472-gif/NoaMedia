@@ -30,6 +30,7 @@
                             <DataGridTextColumn Header="Password" Binding="{Binding Pass}" Width="*"/>
                             <DataGridTextColumn Header="UserName" Binding="{Binding UserName}" Width="*"/>
                             <DataGridCheckBoxColumn Header="Admin" Binding="{Binding IsAdmin}" Width="80"/>
+                            <DataGridCheckBoxColumn Header="Premium" Binding="{Binding IsPremium}" Width="80"/>
                             <DataGridTemplateColumn Header="Actions" Width="100">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>

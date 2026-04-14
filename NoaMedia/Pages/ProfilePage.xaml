@@ -72,6 +72,16 @@
                 <StackPanel>
                     <TextBlock x:Name="SectionTitle" Text="My Videos" Foreground="White" FontSize="32" FontWeight="Bold" Margin="0,0,0,30"/>
                     <WrapPanel x:Name="MainDisplayPanel" />
+
+                    <Button x:Name="ShowAllHistoryButton" 
+                            Content="לצפייה בשאר הסרטים" 
+                            Visibility="Collapsed" 
+                            Click="ShowAllHistory_Click"
+                            Background="#E50914" Foreground="White" 
+                            Padding="20,10" Margin="10,20,0,0" 
+                            BorderThickness="0" Cursor="Hand" 
+                            HorizontalAlignment="Left" FontWeight="Bold"/>
+
                     <StackPanel x:Name="CommentsDisplayPanel" Visibility="Collapsed"/>
                 </StackPanel>
             </ScrollViewer>

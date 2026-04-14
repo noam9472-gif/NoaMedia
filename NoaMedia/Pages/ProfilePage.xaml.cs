@@ -15,6 +15,8 @@ namespace NoaMedia.Pages
     {
         private IInterfaceAPI api = new InterfaceAPI();
         private User currentUser;
+        // רשימה שתשמור את ההיסטוריה המלאה כדי שלא נצטרך לקרוא ל-API שוב בלחיצה על "הצג הכל"
+        private List<Video> fullHistoryList = new List<Video>();
 
         public ProfilePage(string currentName)
         {
@@ -26,15 +28,9 @@ namespace NoaMedia.Pages
                 UserNameHeading.Text = currentUser.UserName;
                 ProfileInitialText.Text = currentUser.UserName.Substring(0, 1).ToUpper();
 
-                // בדיקה אם המשתמש הוא פרימיום (בהנחה שיש שדה IsPremium במודל User)
                 if (currentUser.IsAdmin)
                     PremiumBadge.Visibility = Visibility.Visible;
             }
-        }
-
-        private void Page_Loaded(object sender, RoutedEventArgs e)
-        {
-            MenuListBox.SelectedIndex = 0; // טעינת ברירת המחדל
         }
 
         private async void LoadContent(string category)
@@ -43,6 +39,7 @@ namespace NoaMedia.Pages
             CommentsDisplayPanel.Children.Clear();
             PremiumLockPanel.Visibility = Visibility.Collapsed;
             ContentScrollViewer.Visibility = Visibility.Visible;
+            ShowAllHistoryButton.Visibility = Visibility.Collapsed; // הסתרה כברירת מחדל
 
             try
             {
@@ -57,20 +54,41 @@ namespace NoaMedia.Pages
 
                     case "Liked":
                         SectionTitle.Text = "Liked Videos";
-                        // *** כאן אתה מחליף את התוכן הישן בחדש ***
                         var allLikes = (MyLikesList)await api.GetAllLikes();
-
                         var myLikedVideos = allLikes
                             .Where(l => l.UserId?.Id == currentUser.Id)
                             .Select(l => l.VideoId)
                             .ToList();
-
                         FillVideoPanel(myLikedVideos);
                         break;
 
                     case "Watched":
                         SectionTitle.Text = "Watched History";
-                        // כאן תוכל להוסיף לוגיקה של היסטוריית צפייה מה-API בעתיד
+
+                        var historyResponse = await api.GetAllMyHistory();
+                        if (historyResponse == null) break;
+
+                        List<MyHistory> allHistoryRecords = historyResponse.ToList();
+
+                        // יצירת הרשימה המלאה (בלי ה-Take 5)
+                        fullHistoryList = allHistoryRecords
+                            .Where(h => h.UserId?.Id == currentUser.Id)
+                            .OrderByDescending(h => h.Id)
+                            .Select(h => h.VideoId)
+                            .Where(v => v != null)
+                            .GroupBy(v => v.Id)
+                            .Select(g => g.First())
+                            .ToList();
+
+                        // הצגת רק 5 ראשונים בתחילה
+                        var partialHistory = fullHistoryList.Take(5).ToList();
+                        FillVideoPanel(partialHistory);
+
+                        // אם יש יותר מ-5 סרטים, נציג את הכפתור
+                        if (fullHistoryList.Count > 5)
+                        {
+                            ShowAllHistoryButton.Visibility = Visibility.Visible;
+                        }
                         break;
 
                     case "MyList":
@@ -82,7 +100,13 @@ namespace NoaMedia.Pages
                         }
                         else
                         {
-                            // לוגיקה לטעינת "הרשימה שלי" מה-API
+                            var allWatchList = (MyWatchListList)await api.GetAllMyWatchList();
+                            var myPersonalList = allWatchList
+                                .Where(w => w.UserId?.Id == currentUser.Id)
+                                .Select(w => w.VideoId)
+                                .Where(v => v != null)
+                                .ToList();
+                            FillVideoPanel(myPersonalList);
                         }
                         break;
 
@@ -90,7 +114,6 @@ namespace NoaMedia.Pages
                         SectionTitle.Text = "My Comments";
                         MainDisplayPanel.Visibility = Visibility.Collapsed;
                         CommentsDisplayPanel.Visibility = Visibility.Visible;
-                        // לוגיקה לטעינת תגובות
                         break;
                 }
             }
@@ -98,6 +121,17 @@ namespace NoaMedia.Pages
             {
                 MessageBox.Show("Loading failed: " + ex.Message);
             }
+        }
+
+        // פונקציית הלחיצה על הכפתור החדש
+        private void ShowAllHistory_Click(object sender, RoutedEventArgs e)
+        {
+            // ניקוי הפאנל וטעינת כל הרשימה ששמרנו מראש
+            MainDisplayPanel.Children.Clear();
+            FillVideoPanel(fullHistoryList);
+
+            // הסתרת הכפתור לאחר הלחיצה כי כבר רואים הכל
+            ShowAllHistoryButton.Visibility = Visibility.Collapsed;
         }
 
         private async void FillVideoPanel(IEnumerable<Video> videos)
@@ -109,7 +143,6 @@ namespace NoaMedia.Pages
             {
                 if (v == null) continue;
 
-                // בדיקה אם ה-Base64 חסר, בדיוק כמו ב-Home
                 if (string.IsNullOrEmpty(v.VideoPic) || v.VideoPic.StartsWith("File"))
                 {
                     v.VideoPic = await api.GetVideoPicByte64(v.Id);
@@ -139,7 +172,6 @@ namespace NoaMedia.Pages
                 Cursor = Cursors.Hand
             };
 
-            // הגדרת גודל ושיטת מתיחה לתמונה
             Image movieImg = new Image
             {
                 Stretch = Stretch.UniformToFill,
@@ -151,7 +183,6 @@ namespace NoaMedia.Pages
             {
                 if (v != null && !string.IsNullOrEmpty(v.VideoPic))
                 {
-                    // שימוש בשיטה מה-Home: המרה מ-Base64
                     movieImg.Source = Base64ToImage(v.VideoPic);
                 }
             }
@@ -171,6 +202,18 @@ namespace NoaMedia.Pages
             btn.Click += (s, e) => this.NavigationService.Navigate(new MovieDetails(v));
 
             return btn;
+        }
+
+        private void Page_Loaded(object sender, RoutedEventArgs e)
+        {
+            if (MenuListBox.SelectedItem is TextBlock selectedItem)
+            {
+                LoadContent(selectedItem.Tag.ToString());
+            }
+            else
+            {
+                MenuListBox.SelectedIndex = 0;
+            }
         }
 
         private void Logout_Click(object sender, RoutedEventArgs e)

@@ -47,7 +47,7 @@ namespace NoaMedia.Pages
             FullDescriptionText.Text = v.VideoDescription ?? "";
             WhoUploadedName.Text = v.WhoUploadedTheVideo?.UserName ?? "Admin";
 
-            // טעינת תמונה לשני המקומות (רקע ופוסטר)
+            // טעינת תמונה:רקע ופוסטר
             try
             {
                 BitmapImage movieImg = null;
@@ -87,12 +87,28 @@ namespace NoaMedia.Pages
                 LikeButton.Tag = hasLiked;
                 LikeIcon.Foreground = hasLiked ? new SolidColorBrush(Colors.Red) : new SolidColorBrush(Colors.White);
             }
+
+
+            // בדיקה האם הסרט כבר נמצא ב-WatchList (הרשימה שלי)
+            if (myApp?.LoggedInUser != null)
+            {
+                // הערה: וודא שיש לך מתודה כזו ב-API, בדומה ל-CheckIfUserLikedVideo
+                bool isInWatchList = await api.CheckIfUserInWatchList(myApp.LoggedInUser.Id, v.Id);
+
+                // שמירת הסטטוס ב-Tag של הכפתור (כמו בלייק)
+                MyListButton.Tag = isInWatchList;
+
+                // עדכון האייקון: אם נמצא ברשימה נציג V, אם לא נציג + (או מה שבחרת ב-XAML)
+                MyListIcon.Text = isInWatchList ? "✓" : "+";
+                MyListIcon.Foreground = isInWatchList ? new SolidColorBrush(Colors.Gold) : new SolidColorBrush(Colors.White);
+            }
+
+
         }
 
         private void CheckPremiumForMyList()
         {
             var currentUser = (Application.Current as App).LoggedInUser;
-            // הצגת הכפתור רק אם המשתמש אדמין או פרימיום
             if (currentUser != null && currentUser.IsAdmin)
             {
                 MyListButton.Visibility = Visibility.Visible;
@@ -106,13 +122,33 @@ namespace NoaMedia.Pages
                 var currentUser = (Application.Current as App).LoggedInUser;
                 if (currentUser == null || currentVideo == null) return;
 
-                var watch = new MyWatchList { UserId = currentUser, VideoId = currentVideo };
-                int result = await api.InsertMyWatchList(watch);
+                bool alreadyInList = (MyListButton.Tag as bool?) ?? false;
 
-                if (result > 0)
+                if (alreadyInList)
                 {
-                    MyListIcon.Text = "✓";
-                    MessageBox.Show("Added to your list!");
+                    bool removed = await api.DeleteMyWatchList(currentUser.Id, currentVideo.Id);
+                    if (removed)
+                    {
+                        // חזרה למצב רגיל: פלוס לבן ורקע שקוף
+                        MyListIcon.Text = "+";
+                        MyListIcon.Foreground = Brushes.White;
+                        MyListButton.Background = new SolidColorBrush(Color.FromArgb(51, 255, 255, 255)); // #33FFFFFF
+                        MyListButton.Tag = false;
+                    }
+                }
+                else
+                {
+                    var watch = new MyWatchList { UserId = currentUser, VideoId = currentVideo };
+                    int result = await api.InsertMyWatchList(watch);
+
+                    if (result > 0)
+                    {
+                        // מצב מסומן: וי (V) בצבע זהב/אדום ורקע קצת יותר כהה
+                        MyListIcon.Text = "✓";
+                        MyListIcon.Foreground = Brushes.Gold;
+                        MyListButton.Background = new SolidColorBrush(Color.FromArgb(80, 255, 215, 0)); // זהב שקוף מעט
+                        MyListButton.Tag = true;
+                    }
                 }
             }
             catch (Exception ex)
@@ -167,9 +203,30 @@ namespace NoaMedia.Pages
             catch (Exception ex) { MessageBox.Show("Error: " + ex.Message); }
         }
 
-        private void PlayButton_Click(object sender, RoutedEventArgs e)
+        private async void PlayButton_Click(object sender, RoutedEventArgs e)
         {
             if (currentVideo == null || string.IsNullOrWhiteSpace(currentVideo.VideoAddress)) return;
+
+            // --- רישום היסטוריית צפייה ---
+            var myApp = Application.Current as App;
+            if (myApp?.LoggedInUser != null)
+            {
+                try
+                {
+                    MyHistory historyEntry = new MyHistory
+                    {
+                        UserId = myApp.LoggedInUser,
+                        VideoId = currentVideo
+                    };
+                    await api.InsertMyHistory(historyEntry);
+                }
+                catch (Exception ex)
+                {
+                    // אנחנו לא רוצים להפסיק את הסרט אם הרישום נכשל, רק מדפיסים לדיבאג
+                    System.Diagnostics.Debug.WriteLine("Failed to record history: " + ex.Message);
+                }
+            }
+            // -----------------------------
 
             VideoLayer.Visibility = Visibility.Visible;
             string movieFileName = currentVideo.VideoAddress;

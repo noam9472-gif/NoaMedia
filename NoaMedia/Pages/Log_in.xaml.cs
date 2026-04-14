@@ -6,7 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using NoaMedia.Pages; // וודא שזה תואם לשם הפרויקט שלך
+using NoaMedia.Pages; 
 
 namespace NoaMedia.Pages
 {
@@ -53,18 +53,15 @@ namespace NoaMedia.Pages
                 UserPremiumList pList = await api.GetAllUserPremiums();
                 bool isPremium = pList != null && pList.Any(p => p.Id == currentUser.Id);
 
-                // --- הוספת סנכרון פה ---
                 // אם המשתמש נמצא בטבלת פרימיום אבל השדה IsPremium שלו הוא false, נעדכן אותו
                 if (isPremium && !currentUser.IsPremium)
                 {
                     currentUser.IsPremium = true;
                     await api.UpdateUser(currentUser);
                 }
-                // -----------------------
 
                 // 4. שמירת המשתמש ב-App לשימוש גלובלי
                 var myApp = Application.Current as App;
-                // ... המשך הקוד שלך
                 if (myApp != null)
                 {
                     myApp.LoggedInUser = currentUser;

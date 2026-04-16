@@ -88,8 +88,8 @@
                             </Button>
 
                             <Button x:Name="MyListButton" Click="MyListButton_Click" Width="60" Height="60" 
-        Background="#33FFFFFF" BorderThickness="0" Cursor="Hand" Margin="0,0,20,0"
-        Visibility="Collapsed">
+                                    Background="#33FFFFFF" BorderThickness="0" Cursor="Hand" Margin="0,0,20,0"
+                                    Visibility="Collapsed">
                                 <Button.Resources>
                                     <Style TargetType="Border">
                                         <Setter Property="CornerRadius" Value="30"/>
@@ -131,23 +131,54 @@
                     <Separator Background="#222" Margin="0,60"/>
 
                     <StackPanel>
-                        <DockPanel LastChildFill="False" Margin="0,0,0,30">
-                            <TextBlock Text="Member Reviews" Foreground="White" FontSize="32" FontWeight="Bold" DockPanel.Dock="Left"/>
-                            <Button x:Name="AddReviewButton" Click="AddReviewButton_Click" Content="+ WRITE A REVIEW" 
-                                    Foreground="#E50914" Background="Transparent" BorderThickness="0" 
-                                    FontWeight="Bold" DockPanel.Dock="Right" Cursor="Hand" FontSize="14"/>
-                        </DockPanel>
+                        <TextBlock Text="Member Reviews" Foreground="White" FontSize="32" FontWeight="Bold" Margin="0,0,0,30"/>
 
-                        <ListBox x:Name="lstMovieReviews" Background="Transparent" BorderThickness="0" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                        <Border Background="#1A1A1A" CornerRadius="12" Padding="20" Margin="0,0,0,30" BorderBrush="#333" BorderThickness="1">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="67*"/>
+                                    <ColumnDefinition Width="565*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBox x:Name="txtNewReview" Background="Transparent" Foreground="White" 
+                                         BorderThickness="0" FontSize="16" TextWrapping="Wrap" 
+                                         AcceptsReturn="True" MaxLength="500" MinHeight="40"
+                                         VerticalContentAlignment="Center" Margin="0,0,15,0" Grid.ColumnSpan="2"/>
+                                <TextBlock Text="{Binding ReviewDescription}" Foreground="White" Grid.ColumnSpan="3" Margin="0,0,82,0" />
+                                <TextBlock Text="{Binding WhoUpdatedTheReview.UserName}" Foreground="Red" Grid.ColumnSpan="3" Margin="0,0,82,0" />
+                                <Button Grid.Column="2" x:Name="AddReviewBtn" Click="AddReviewButton_Click" 
+                                        Content="POST" Background="#E50914" Foreground="White" 
+                                        FontWeight="Bold" Padding="25,10" Cursor="Hand">
+                                    <Button.Resources>
+                                        <Style TargetType="Border">
+                                            <Setter Property="CornerRadius" Value="5"/>
+                                        </Style>
+                                    </Button.Resources>
+                                </Button>
+                            </Grid>
+                        </Border>
+
+                        <ListBox x:Name="lstMovieReviews" Background="Transparent" BorderThickness="0">
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
-                                    <Border Background="#121212" Margin="0,0,0,15" Padding="25" CornerRadius="12" BorderBrush="#222" BorderThickness="1">
+                                    <Border Background="#121212" Margin="0,0,0,15" Padding="20" CornerRadius="10">
                                         <StackPanel>
-                                            <Button Click="ReviewUser_Click" Foreground="#E50914" FontWeight="Bold" 
-                                                    Background="Transparent" BorderThickness="0" HorizontalAlignment="Left" 
-                                                    Content="{Binding WhoUpdatedTheReview.UserName}" FontSize="16"/>
-                                            <TextBlock Text="{Binding ReviewDescription}" Foreground="#AAA" FontSize="16" 
-                                                       Margin="0,12,0,0" TextWrapping="Wrap" LineHeight="24"/>
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+
+                                                <TextBlock Text="{Binding WhoUpdatedTheReview.UserName}" 
+                                   Foreground="#E50914" FontWeight="Bold" FontSize="16"/>
+
+                                                <TextBlock Grid.Column="1" 
+                                   Text="{Binding ReviewDate, StringFormat='{}{0:dd/MM/yyyy }'}" 
+                                   Foreground="#666" FontSize="12"/>
+                                            </Grid>
+
+                                            <TextBlock Text="{Binding ReviewDescription}" 
+                               Foreground="#AAA" FontSize="15" Margin="0,10,0,0" TextWrapping="Wrap"/>
                                         </StackPanel>
                                     </Border>
                                 </DataTemplate>
@@ -163,16 +194,12 @@
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
-
             <MediaElement x:Name="InlinePlayer" Grid.Row="0" LoadedBehavior="Manual" UnloadedBehavior="Stop" Stretch="Uniform" ScrubbingEnabled="True" MediaOpened="InlinePlayer_MediaOpened" BufferingStarted="InlinePlayer_BufferingStarted" BufferingEnded="InlinePlayer_BufferingEnded"/>
-
             <StackPanel x:Name="LoadingStatus" Grid.Row="0" VerticalAlignment="Center" HorizontalAlignment="Center" Visibility="Collapsed">
                 <ProgressBar IsIndeterminate="True" Width="200" Height="10" Foreground="#E50914" Background="#333"/>
                 <TextBlock Text="Loading Movie..." Foreground="White" HorizontalAlignment="Center" Margin="0,10,0,0" FontSize="18"/>
             </StackPanel>
-
             <Button Content="✕ Close" Click="CloseVideo_Click" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="20" Padding="15,5" Background="#CC000000" Foreground="White" BorderThickness="1" BorderBrush="White" Cursor="Hand" Panel.ZIndex="101"/>
-
             <Border Grid.Row="1" Background="#AA000000" Padding="20,10">
                 <Grid>
                     <Grid.ColumnDefinitions>

@@ -5,45 +5,43 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:NoaMedia.Pages"
       mc:Ignorable="d" 
-      d:DesignHeight="450" d:DesignWidth="800"
+      d:DesignHeight="650" d:DesignWidth="800"
       Title="SignUp">
 
     <Grid>
         <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
 
             <TextBlock Text="Welcome To NoaMedia!" 
-               Foreground="Red" 
-               FontSize="32" 
-               FontWeight="Bold" 
-               Margin="0,0,0,30" 
-               HorizontalAlignment="Center"/>
+                       Foreground="Red" 
+                       FontSize="32" 
+                       FontWeight="Bold" 
+                       Margin="0,0,0,20" 
+                       HorizontalAlignment="Center"/>
 
             <TextBlock Text="User Name" Foreground="DimGray" Margin="0,0,0,5" FontSize="14"/>
-            <Border BorderBrush="LightGray" BorderThickness="1" CornerRadius="3" Margin="0,0,0,20" Width="350">
-                <TextBox x:Name="NewUserTextBox" 
-                 Padding="10" 
-                 BorderThickness="0" 
-                 FontSize="16" 
-                 Background="White"/>
+            <Border BorderBrush="LightGray" BorderThickness="1" CornerRadius="3" Margin="0,0,0,15" Width="350">
+                <TextBox x:Name="NewUserTextBox" Padding="8" BorderThickness="0" FontSize="16" Background="White"/>
             </Border>
+
+            <TextBlock Text="Full Name" Foreground="DimGray" Margin="0,0,0,5" FontSize="14"/>
+            <Border BorderBrush="LightGray" BorderThickness="1" CornerRadius="3" Margin="0,0,0,15" Width="350">
+                <TextBox x:Name="FullNameTextBox" Padding="8" BorderThickness="0" FontSize="16" Background="White"/>
+            </Border>
+
+            <TextBlock Text="Email" Foreground="DimGray" Margin="0,0,0,5" FontSize="14"/>
+            <Border BorderBrush="LightGray" BorderThickness="1" CornerRadius="3" Margin="0,0,0,15" Width="350">
+                <TextBox x:Name="EmailTextBox" Padding="8" BorderThickness="0" FontSize="16" Background="White"/>
+            </Border>
+
+            <TextBlock Text="Birth Date" Foreground="DimGray" Margin="0,0,0,5" FontSize="14"/>
+            <DatePicker x:Name="BirthDatePicker" Width="350" Margin="0,0,0,15" Padding="5"/>
 
             <TextBlock Text="Password" Foreground="DimGray" Margin="0,0,0,5" FontSize="14"/>
-            <Border BorderBrush="LightGray" BorderThickness="1" CornerRadius="3" Margin="0,0,0,30" Width="350">
-                <PasswordBox x:Name="NewPasswordBox" 
-                     Padding="10" 
-                     BorderThickness="0" 
-                     FontSize="16" 
-                     Background="White"/>
+            <Border BorderBrush="LightGray" BorderThickness="1" CornerRadius="3" Margin="0,0,0,20" Width="350">
+                <PasswordBox x:Name="NewPasswordBox" Padding="8" BorderThickness="0" FontSize="16" Background="White"/>
             </Border>
 
-            <Button Content="Sign Up" 
-            Click="RegisterBtn_Click" 
-            Width="350" Height="45" 
-            Background="#E50914" 
-            Foreground="White" 
-            FontWeight="Bold" 
-            FontSize="16"
-            Cursor="Hand">
+            <Button Content="Sign Up" Click="RegisterBtn_Click" Width="350" Height="45" Background="#E50914" Foreground="White" FontWeight="Bold" FontSize="16" Cursor="Hand">
                 <Button.Style>
                     <Style TargetType="Button">
                         <Setter Property="Template">
@@ -64,13 +62,7 @@
                 </Button.Style>
             </Button>
 
-            <Button Content="Already have an account? Sign in" 
-            Background="Transparent" 
-            Foreground="Gray" 
-            BorderThickness="0" 
-            Margin="0,20,0,0" 
-            Click="BackToLogin_Click" 
-            Cursor="Hand"/>
+            <Button Content="Already have an account? Sign in" Background="Transparent" Foreground="Gray" BorderThickness="0" Margin="0,15,0,0" Click="BackToLogin_Click" Cursor="Hand"/>
         </StackPanel>
     </Grid>
 </Page>

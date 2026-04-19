@@ -23,14 +23,12 @@ namespace NoaMedia.Pages
         {
             InitializeComponent();
 
-            // איתחול הטיימר - חובה!
             timer = new DispatcherTimer();
             timer.Interval = TimeSpan.FromSeconds(1);
             timer.Tick += Timer_Tick;
 
             currentVideo = selectedVideo;
             LoadMovieDetails(selectedVideo);
-            RefreshReviews();
         }
 
         private async void LoadMovieDetails(Video v)
@@ -67,7 +65,6 @@ namespace NoaMedia.Pages
             }
             catch (Exception ex) { System.Diagnostics.Debug.WriteLine("Error: " + ex.Message); }
 
-            // טעינת תגובות
             RefreshReviews();
 
             var myApp = Application.Current as App;
@@ -81,42 +78,33 @@ namespace NoaMedia.Pages
                 MyListButton.Tag = isInWatchList;
                 MyListIcon.Text = isInWatchList ? "✓" : "+";
                 MyListIcon.Foreground = isInWatchList ? new SolidColorBrush(Colors.Gold) : new SolidColorBrush(Colors.White);
+
+                // Show MyList only if logged in
+                MyListButton.Visibility = Visibility.Visible;
             }
         }
 
         private async void RefreshReviews()
         {
-            if (currentVideo == null) return;
+            if (currentVideo == null || lstMovieReviews == null) return;
             try
             {
-                // קריאה ל-API למשיכת הביקורות
                 var reviews = await api.GetReviewsByVideoId(currentVideo.Id);
                 lstMovieReviews.ItemsSource = reviews;
             }
-            catch (Exception ex) { /* לוג שגיאה */ }
+            catch (Exception ex) { System.Diagnostics.Debug.WriteLine("Review Load Error: " + ex.Message); }
         }
 
-        private void CheckPremiumForMyList()
-        {
-            var currentUser = (Application.Current as App).LoggedInUser;
-            if (currentUser != null && currentUser.IsAdmin)
-                MyListButton.Visibility = Visibility.Visible;
-        }
-
-        // פונקציית הוספת תגובה
         private async void AddReviewButton_Click(object sender, RoutedEventArgs e)
         {
-            // 1. השגת ה-App כדי לגשת למשתמש המחובר
             var myApp = Application.Current as App;
 
-            // 2. בדיקה שהמשתמש מחובר
             if (myApp?.LoggedInUser == null)
             {
                 MessageBox.Show("עליך להתחבר כדי להוסיף ביקורת.");
                 return;
             }
 
-            // 3. בדיקה שהטקסט לא ריק
             if (string.IsNullOrWhiteSpace(txtNewReview.Text))
             {
                 MessageBox.Show("לא ניתן להוסיף ביקורת ריקה.");
@@ -125,45 +113,33 @@ namespace NoaMedia.Pages
 
             try
             {
-                // 4. יצירת אובייקט הביקורת החדש
-                // שים לב: אנחנו משתמשים ב-DateTime.Now עבור תאריך היום
-                // 4. יצירת אובייקט הביקורת החדש - שים לב לאותיות הגדולות!
-VideoReview newReview = new VideoReview
-{
-    WhoUpdatedTheReview = myApp.LoggedInUser,
-    WhichVideoDidTheUserReview = currentVideo,
-    ReviewDate = DateTime.Now,
-    ReviewDescription = txtNewReview.Text
-};
+                VideoReview newReview = new VideoReview
+                {
+                    WhoUpdatedTheReview = myApp.LoggedInUser,
+                    WhichVideoDidTheUserReview = currentVideo,
+                    ReviewDate = DateTime.Now,
+                    ReviewDescription = txtNewReview.Text
+                };
 
-                // 5. שליחה ל-API (ה-Insert יחזיר int)
-                // השתמשתי ב-await כדי למנוע תקיעה של הממשק
                 int result = await api.InsertVideoReview(newReview);
 
                 if (result > 0)
                 {
-                    // 6. הצלחה: ניקוי התיבה ורענון הרשימה
                     txtNewReview.Text = "";
-
-                    // בדיקה שה-ListBox קיים לפני הגישה אליו (מניעת ה-Null שראינו)
-                    if (lstMovieReviews != null)
-                    {
-                        RefreshReviews();
-                    }
-
+                    RefreshReviews();
                     MessageBox.Show("הביקורת נוספה בהצלחה!");
                 }
                 else
                 {
-                    MessageBox.Show("הפעולה בוצעה אך לא נשמרו שורות במסד הנתונים.");
+                    MessageBox.Show("שגיאה בשמירת הביקורת.");
                 }
             }
             catch (Exception ex)
             {
-                // 7. טיפול בשגיאת ה-Timeout או בעיות תקשורת
-                MessageBox.Show("שגיאה בהוספת הביקורת: " + ex.Message);
+                MessageBox.Show("שגיאה: " + ex.Message);
             }
         }
+
         private async void MyListButton_Click(object sender, RoutedEventArgs e)
         {
             var currentUser = (Application.Current as App).LoggedInUser;
@@ -175,7 +151,6 @@ VideoReview newReview = new VideoReview
                 if (await api.DeleteMyWatchList(currentUser.Id, currentVideo.Id))
                 {
                     MyListIcon.Text = "+"; MyListIcon.Foreground = Brushes.White;
-                    MyListButton.Background = new SolidColorBrush(Color.FromArgb(51, 255, 255, 255));
                     MyListButton.Tag = false;
                 }
             }
@@ -185,7 +160,6 @@ VideoReview newReview = new VideoReview
                 if (await api.InsertMyWatchList(watch) > 0)
                 {
                     MyListIcon.Text = "✓"; MyListIcon.Foreground = Brushes.Gold;
-                    MyListButton.Background = new SolidColorBrush(Color.FromArgb(80, 255, 215, 0));
                     MyListButton.Tag = true;
                 }
             }
@@ -193,9 +167,7 @@ VideoReview newReview = new VideoReview
 
         private void MoreInfoButton_Click(object sender, RoutedEventArgs e)
         {
-            double scrollTo = MainScrollViewer.ScrollableHeight;
-            DoubleAnimation scrollAnimation = new DoubleAnimation { From = MainScrollViewer.VerticalOffset, To = scrollTo, Duration = new Duration(TimeSpan.FromSeconds(0.8)), EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut } };
-            this.BeginAnimation(ScrollOffsetProperty, scrollAnimation);
+            MainScrollViewer.ScrollToBottom();
         }
 
         private async void LikeButton_Click(object sender, RoutedEventArgs e)
@@ -240,19 +212,23 @@ VideoReview newReview = new VideoReview
         private void InlinePlayer_BufferingEnded(object sender, RoutedEventArgs e) => LoadingStatus.Visibility = Visibility.Collapsed;
         private void Back_Click(object sender, RoutedEventArgs e) => this.NavigationService.GoBack();
 
-        public static readonly DependencyProperty ScrollOffsetProperty = DependencyProperty.Register("ScrollOffset", typeof(double), typeof(MovieDetails), new PropertyMetadata(0.0, OnScrollOffsetChanged));
-        private static void OnScrollOffsetChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) => (d as MovieDetails)?.MainScrollViewer.ScrollToVerticalOffset((double)e.NewValue);
-
         public BitmapImage Base64ToImage(string base64String)
         {
             try
             {
                 byte[] imageBytes = Convert.FromBase64String(base64String);
-                using (var ms = new System.IO.MemoryStream(imageBytes)) { var image = new BitmapImage(); image.BeginInit(); image.StreamSource = ms; image.CacheOption = BitmapCacheOption.OnLoad; image.EndInit(); image.Freeze(); return image; }
+                using (var ms = new System.IO.MemoryStream(imageBytes))
+                {
+                    var image = new BitmapImage();
+                    image.BeginInit();
+                    image.StreamSource = ms;
+                    image.CacheOption = BitmapCacheOption.OnLoad;
+                    image.EndInit();
+                    image.Freeze();
+                    return image;
+                }
             }
             catch { return null; }
         }
-
-        private void ReviewUser_Click(object sender, RoutedEventArgs e) { }
     }
 }

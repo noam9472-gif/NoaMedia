@@ -71,6 +71,7 @@
             <ScrollViewer x:Name="ContentScrollViewer" VerticalScrollBarVisibility="Auto">
                 <StackPanel>
                     <TextBlock x:Name="SectionTitle" Text="My Videos" Foreground="White" FontSize="32" FontWeight="Bold" Margin="0,0,0,30"/>
+
                     <WrapPanel x:Name="MainDisplayPanel" />
 
                     <Button x:Name="ShowAllHistoryButton" 

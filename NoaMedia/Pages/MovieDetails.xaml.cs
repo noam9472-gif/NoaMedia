@@ -19,6 +19,25 @@ namespace NoaMedia.Pages
         private Video currentVideo;
         private DispatcherTimer timer;
 
+        // Dependency Property המאפשר להפעיל אנימציה על גלילה אנכית
+        public static readonly DependencyProperty VerticalOffsetProperty =
+            DependencyProperty.Register("VerticalOffset", typeof(double), typeof(MovieDetails),
+            new PropertyMetadata(0.0, OnVerticalOffsetChanged));
+
+        public double VerticalOffset
+        {
+            get => (double)GetValue(VerticalOffsetProperty);
+            set => SetValue(VerticalOffsetProperty, value);
+        }
+
+        private static void OnVerticalOffsetChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            if (d is MovieDetails page && page.MainScrollViewer != null)
+            {
+                page.MainScrollViewer.ScrollToVerticalOffset((double)e.NewValue);
+            }
+        }
+
         public MovieDetails(Video selectedVideo)
         {
             InitializeComponent();
@@ -44,7 +63,7 @@ namespace NoaMedia.Pages
 
             MovieDesc.Text = v.VideoDescription ?? "";
             FullDescriptionText.Text = v.VideoDescription ?? "";
-            WhoUploadedName.Text = v.WhoUploadedTheVideo?.UserName ?? "Admin";
+            WhoUploadedName.Text = v.WhoUploadedTheVideo?.Name ?? "Admin";
 
             try
             {
@@ -79,7 +98,6 @@ namespace NoaMedia.Pages
                 MyListIcon.Text = isInWatchList ? "✓" : "+";
                 MyListIcon.Foreground = isInWatchList ? new SolidColorBrush(Colors.Gold) : new SolidColorBrush(Colors.White);
 
-                // Show MyList only if logged in
                 MyListButton.Visibility = Visibility.Visible;
             }
         }
@@ -98,7 +116,6 @@ namespace NoaMedia.Pages
         private async void AddReviewButton_Click(object sender, RoutedEventArgs e)
         {
             var myApp = Application.Current as App;
-
             if (myApp?.LoggedInUser == null)
             {
                 MessageBox.Show("עליך להתחבר כדי להוסיף ביקורת.");
@@ -122,21 +139,58 @@ namespace NoaMedia.Pages
                 };
 
                 int result = await api.InsertVideoReview(newReview);
-
                 if (result > 0)
                 {
                     txtNewReview.Text = "";
                     RefreshReviews();
                     MessageBox.Show("הביקורת נוספה בהצלחה!");
                 }
-                else
-                {
-                    MessageBox.Show("שגיאה בשמירת הביקורת.");
-                }
+                else { MessageBox.Show("שגיאה בשמירת הביקורת."); }
             }
-            catch (Exception ex)
+            catch (Exception ex) { MessageBox.Show("שגיאה: " + ex.Message); }
+        }
+
+        private async void DeleteReviewBtn_Click(object sender, RoutedEventArgs e)
+        {
+            // 1. שליפת כפתור המחיקה והנתונים שלו
+            var button = sender as Button;
+            var review = button?.DataContext as VideoReview;
+            var myApp = Application.Current as App;
+
+            // 2. בדיקות בטיחות בסיסיות
+            if (review == null || myApp?.LoggedInUser == null) return;
+
+            // 3. הווידוא הקריטי: האם המשתמש המחובר הוא אכן כותב הביקורת?
+            if (review.WhoUpdatedTheReview.Id != myApp.LoggedInUser.Id)
             {
-                MessageBox.Show("שגיאה: " + ex.Message);
+                MessageBox.Show("אינך מורשה למחוק ביקורת שאינה שלך.", "שגיאת הרשאה", MessageBoxButton.OK, MessageBoxImage.Stop);
+                return;
+            }
+
+            // 4. אישור מהמשתמש לפני המחיקה הסופית
+            var result = MessageBox.Show("האם אתה בטוח שברצונך למחוק את הביקורת לצמיתות?", "אישור מחיקה", MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+            if (result == MessageBoxResult.Yes)
+            {
+                try
+                {
+                    // 5. קריאה ל-API (לפי המתודה הקיימת אצלך שמחזירה Task<int>)
+                    int affectedRows = await api.DeleteVideoReview(review.Id);
+
+                    if (affectedRows > 0)
+                    {
+                        // 6. רענון הרשימה כדי שהביקורת תיעלם מהמסך
+                        RefreshReviews();
+                    }
+                    else
+                    {
+                        MessageBox.Show("המחיקה נכשלה. ייתכן שהביקורת כבר לא קיימת במערכת.");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("שגיאה בחיבור לשרת: " + ex.Message);
+                }
             }
         }
 
@@ -167,7 +221,19 @@ namespace NoaMedia.Pages
 
         private void MoreInfoButton_Click(object sender, RoutedEventArgs e)
         {
-            MainScrollViewer.ScrollToBottom();
+            if (MainScrollViewer == null) return;
+
+            double scrollTo = MainScrollViewer.ScrollableHeight;
+            DoubleAnimation scrollAnimation = new DoubleAnimation
+            {
+                From = MainScrollViewer.VerticalOffset,
+                To = scrollTo,
+                Duration = new Duration(TimeSpan.FromSeconds(0.8)),
+                EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut }
+            };
+
+            // הפעלת האנימציה דרך ה-Dependency Property שיצרנו
+            this.BeginAnimation(VerticalOffsetProperty, scrollAnimation);
         }
 
         private async void LikeButton_Click(object sender, RoutedEventArgs e)

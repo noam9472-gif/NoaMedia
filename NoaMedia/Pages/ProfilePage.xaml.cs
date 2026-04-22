@@ -15,7 +15,6 @@ namespace NoaMedia.Pages
     {
         private IInterfaceAPI api = new InterfaceAPI();
         private User currentUser;
-        // רשימה שתשמור את ההיסטוריה המלאה כדי שלא נצטרך לקרוא ל-API שוב בלחיצה על "הצג הכל"
         private List<Video> fullHistoryList = new List<Video>();
 
         public ProfilePage(string currentName)
@@ -39,7 +38,9 @@ namespace NoaMedia.Pages
             CommentsDisplayPanel.Children.Clear();
             PremiumLockPanel.Visibility = Visibility.Collapsed;
             ContentScrollViewer.Visibility = Visibility.Visible;
-            ShowAllHistoryButton.Visibility = Visibility.Collapsed; // הסתרה כברירת מחדל
+            ShowAllHistoryButton.Visibility = Visibility.Collapsed;
+            MainDisplayPanel.Visibility = Visibility.Collapsed;
+            CommentsDisplayPanel.Visibility = Visibility.Collapsed;
 
             try
             {
@@ -47,6 +48,7 @@ namespace NoaMedia.Pages
                 {
                     case "MyVideos":
                         SectionTitle.Text = "My Videos";
+                        MainDisplayPanel.Visibility = Visibility.Visible;
                         var allVideos = (VideoList)await api.GetAllVideos();
                         var myVideos = allVideos.Where(v => v.WhoUploadedTheVideo?.Id == currentUser.Id).ToList();
                         FillVideoPanel(myVideos);
@@ -54,6 +56,7 @@ namespace NoaMedia.Pages
 
                     case "Liked":
                         SectionTitle.Text = "Liked Videos";
+                        MainDisplayPanel.Visibility = Visibility.Visible;
                         var allLikes = (MyLikesList)await api.GetAllLikes();
                         var myLikedVideos = allLikes
                             .Where(l => l.UserId?.Id == currentUser.Id)
@@ -64,13 +67,11 @@ namespace NoaMedia.Pages
 
                     case "Watched":
                         SectionTitle.Text = "Watched History";
-
+                        MainDisplayPanel.Visibility = Visibility.Visible;
                         var historyResponse = await api.GetAllMyHistory();
                         if (historyResponse == null) break;
 
                         List<MyHistory> allHistoryRecords = historyResponse.ToList();
-
-                        // יצירת הרשימה המלאה (בלי ה-Take 5)
                         fullHistoryList = allHistoryRecords
                             .Where(h => h.UserId?.Id == currentUser.Id)
                             .OrderByDescending(h => h.Id)
@@ -80,15 +81,11 @@ namespace NoaMedia.Pages
                             .Select(g => g.First())
                             .ToList();
 
-                        // הצגת רק 5 ראשונים בתחילה
                         var partialHistory = fullHistoryList.Take(5).ToList();
                         FillVideoPanel(partialHistory);
 
-                        // אם יש יותר מ-5 סרטים, נציג את הכפתור
                         if (fullHistoryList.Count > 5)
-                        {
                             ShowAllHistoryButton.Visibility = Visibility.Visible;
-                        }
                         break;
 
                     case "MyList":
@@ -100,6 +97,7 @@ namespace NoaMedia.Pages
                         }
                         else
                         {
+                            MainDisplayPanel.Visibility = Visibility.Visible;
                             var allWatchList = (MyWatchListList)await api.GetAllMyWatchList();
                             var myPersonalList = allWatchList
                                 .Where(w => w.UserId?.Id == currentUser.Id)
@@ -112,8 +110,72 @@ namespace NoaMedia.Pages
 
                     case "Comments":
                         SectionTitle.Text = "My Comments";
-                        MainDisplayPanel.Visibility = Visibility.Collapsed;
                         CommentsDisplayPanel.Visibility = Visibility.Visible;
+                        var allComments = await api.GetAllVideoReviews();
+                        var myComments = allComments.Where(c => c.WhoUpdatedTheReview.Id == currentUser.Id).ToList();
+
+                        foreach (var comment in myComments)
+                        {
+                            // יצירת הקונטיינר הראשי לכל תגובה
+                            Grid commentContainer = new Grid { Margin = new Thickness(0, 0, 0, 20) };
+                            commentContainer.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+                            commentContainer.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+
+                            StackPanel textStack = new StackPanel();
+
+                            // שם הסרטון
+                            TextBlock videoTitle = new TextBlock
+                            {
+                                Text = $"Video: {comment.WhichVideoDidTheUserReview?.VideoName ?? "Unknown Video"}",
+                                Foreground = Brushes.Gray,
+                                FontSize = 12,
+                                Cursor = Cursors.Hand
+                            };
+                            videoTitle.MouseDown += (s, e) => this.NavigationService.Navigate(new MovieDetails(comment.WhichVideoDidTheUserReview));
+
+                            // תוכן התגובה
+                            TextBlock commentText = new TextBlock
+                            {
+                                Text = $"\"{comment.ReviewDescription}\"",
+                                Foreground = Brushes.White,
+                                FontSize = 16,
+                                Margin = new Thickness(0, 5, 0, 0),
+                                TextWrapping = TextWrapping.Wrap
+                            };
+
+                            textStack.Children.Add(videoTitle);
+                            textStack.Children.Add(commentText);
+                            textStack.Children.Add(new Separator { Background = Brushes.DimGray, Margin = new Thickness(0, 10, 0, 0) });
+
+                            Grid.SetColumn(textStack, 0);
+                            commentContainer.Children.Add(textStack);
+
+                            // הוספת כפתור המחיקה
+                            Button deleteBtn = new Button
+                            {
+                                Content = "", // אייקון פח אשפה
+                                FontFamily = new FontFamily("Segoe MDL2 Assets"),
+                                Background = Brushes.Transparent,
+                                Foreground = Brushes.Gray,
+                                BorderThickness = new Thickness(0),
+                                FontSize = 18,
+                                VerticalAlignment = VerticalAlignment.Top,
+                                Cursor = Cursors.Hand,
+                                Tag = comment // שומרים את האובייקט של התגובה בתוך הכפתור
+                            };
+
+                            // עיצוב קטן למעבר עכבר
+                            deleteBtn.MouseEnter += (s, e) => (s as Button).Foreground = Brushes.Red;
+                            deleteBtn.MouseLeave += (s, e) => (s as Button).Foreground = Brushes.Gray;
+
+                            // אירוע לחיצה על מחיקה
+                            deleteBtn.Click += DeleteComment_Click;
+
+                            Grid.SetColumn(deleteBtn, 1);
+                            commentContainer.Children.Add(deleteBtn);
+
+                            CommentsDisplayPanel.Children.Add(commentContainer);
+                        }
                         break;
                 }
             }
@@ -123,31 +185,55 @@ namespace NoaMedia.Pages
             }
         }
 
-        // פונקציית הלחיצה על הכפתור החדש
+        private async void DeleteComment_Click(object sender, RoutedEventArgs e)
+        {
+            var button = sender as Button;
+            var comment = button?.Tag as VideoReview;
+
+            if (comment == null) return;
+
+            var result = MessageBox.Show("Are you sure you want to delete this comment?", "Confirm Delete", MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+            if (result == MessageBoxResult.Yes)
+            {
+                try
+                {
+                    // קריאה ל-API שלך
+                    int affectedRows = await api.DeleteVideoReview(comment.Id);
+
+                    if (affectedRows > 0)
+                    {
+                        // רענון התצוגה של התגובות
+                        LoadContent("Comments");
+                    }
+                    else
+                    {
+                        MessageBox.Show("Delete failed.");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Error: " + ex.Message);
+                }
+            }
+        }
+
+
+
         private void ShowAllHistory_Click(object sender, RoutedEventArgs e)
         {
-            // ניקוי הפאנל וטעינת כל הרשימה ששמרנו מראש
             MainDisplayPanel.Children.Clear();
             FillVideoPanel(fullHistoryList);
-
-            // הסתרת הכפתור לאחר הלחיצה כי כבר רואים הכל
             ShowAllHistoryButton.Visibility = Visibility.Collapsed;
         }
 
         private async void FillVideoPanel(IEnumerable<Video> videos)
         {
-            MainDisplayPanel.Visibility = Visibility.Visible;
-            CommentsDisplayPanel.Visibility = Visibility.Collapsed;
-
             foreach (var v in videos)
             {
                 if (v == null) continue;
-
                 if (string.IsNullOrEmpty(v.VideoPic) || v.VideoPic.StartsWith("File"))
-                {
                     v.VideoPic = await api.GetVideoPicByte64(v.Id);
-                }
-
                 MainDisplayPanel.Children.Add(CreateMovieThumbnail(v));
             }
         }
@@ -155,9 +241,7 @@ namespace NoaMedia.Pages
         private void MenuListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (MenuListBox.SelectedItem is TextBlock selectedItem)
-            {
                 LoadContent(selectedItem.Tag.ToString());
-            }
         }
 
         private Button CreateMovieThumbnail(Video v)
@@ -171,49 +255,19 @@ namespace NoaMedia.Pages
                 BorderThickness = new Thickness(0),
                 Cursor = Cursors.Hand
             };
-
-            Image movieImg = new Image
-            {
-                Stretch = Stretch.UniformToFill,
-                Width = 150,
-                Height = 220
-            };
-
-            try
-            {
-                if (v != null && !string.IsNullOrEmpty(v.VideoPic))
-                {
-                    movieImg.Source = Base64ToImage(v.VideoPic);
-                }
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine("Image Load Error: " + ex.Message);
-            }
-
-            Border mask = new Border
-            {
-                CornerRadius = new CornerRadius(10),
-                ClipToBounds = true,
-                Child = movieImg
-            };
-
+            Image movieImg = new Image { Stretch = Stretch.UniformToFill, Width = 150, Height = 220 };
+            try { if (v != null && !string.IsNullOrEmpty(v.VideoPic)) movieImg.Source = Base64ToImage(v.VideoPic); }
+            catch { }
+            Border mask = new Border { CornerRadius = new CornerRadius(10), ClipToBounds = true, Child = movieImg };
             btn.Content = mask;
             btn.Click += (s, e) => this.NavigationService.Navigate(new MovieDetails(v));
-
             return btn;
         }
 
         private void Page_Loaded(object sender, RoutedEventArgs e)
         {
-            if (MenuListBox.SelectedItem is TextBlock selectedItem)
-            {
-                LoadContent(selectedItem.Tag.ToString());
-            }
-            else
-            {
-                MenuListBox.SelectedIndex = 0;
-            }
+            if (MenuListBox.SelectedItem is TextBlock selectedItem) LoadContent(selectedItem.Tag.ToString());
+            else MenuListBox.SelectedIndex = 0;
         }
 
         private void Logout_Click(object sender, RoutedEventArgs e)

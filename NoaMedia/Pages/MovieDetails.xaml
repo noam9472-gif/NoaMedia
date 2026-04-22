@@ -168,18 +168,24 @@
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="*"/>
                                                     <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="Auto"/>
                                                 </Grid.ColumnDefinitions>
 
-                                                <TextBlock Text="{Binding WhoUpdatedTheReview.UserName}" 
-                                                           Foreground="#E50914" FontWeight="Bold" FontSize="16"/>
+                                                <TextBlock Text="{Binding WhoUpdatedTheReview.Name}" 
+                               Foreground="#E50914" FontWeight="Bold" FontSize="16"/>
 
                                                 <TextBlock Grid.Column="1" 
-                                                           Text="{Binding ReviewDate, StringFormat='{}{0:dd/MM/yyyy }'}" 
-                                                           Foreground="#666" FontSize="12"/>
+                               Text="{Binding ReviewDate, StringFormat='{}{0:dd/MM/yyyy }'}" 
+                               Foreground="#666" FontSize="12" VerticalAlignment="Center" Margin="10,0"/>
+
+                                                <Button Grid.Column="2" x:Name="DeleteReviewBtn" Click="DeleteReviewBtn_Click"
+                            Content="" FontFamily="Segoe MDL2 Assets" Foreground="#666"
+                            Background="Transparent" BorderThickness="0" Cursor="Hand"
+                            VerticalAlignment="Center" ToolTip="Delete Review"/>
                                             </Grid>
 
                                             <TextBlock Text="{Binding ReviewDescription}" 
-                                                       Foreground="#AAA" FontSize="15" Margin="0,10,0,0" TextWrapping="Wrap"/>
+                           Foreground="#AAA" FontSize="15" Margin="0,10,0,0" TextWrapping="Wrap"/>
                                         </StackPanel>
                                     </Border>
                                 </DataTemplate>

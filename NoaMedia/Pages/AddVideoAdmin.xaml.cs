@@ -69,6 +69,7 @@ namespace NoaMedia.Pages
                 }
 
                 // יצירת אובייקט סרט חדש מהנתונים שהוזנו בטופס
+                // בתוך AddVideoAdmin.xaml.cs
                 Video newVideo = new Video
                 {
                     VideoName = txtVideoName.Text,
@@ -76,11 +77,13 @@ namespace NoaMedia.Pages
                     AgeOfVideo = cbAge.SelectedItem as AgeOfVideos,
                     LengthInMinutes = int.TryParse(txtLength.Text, out int len) ? len : 0,
                     VideoDescription = txtDescription.Text,
-                    VideoPic = base64Image, // כאן נשלחת התמונה שהמרנו
+                    VideoPic = base64Image,
                     VideoUploadedDate = DateTime.Now,
-                    VideoAddress = "local_storage" // כאן תוכל להוסיף לינק לקובץ הוידאו בעתיד
-                };
+                    VideoAddress = "local_storage",
 
+                    // קיבוע המנהל - פותר את הבעיה בלי להוסיף כפתורים
+                    WhoUploadedTheVideo = new User { Id = 5 }
+                };
                 // שליחה לשרת
                 int success = await api.InsertVideo(newVideo);
 

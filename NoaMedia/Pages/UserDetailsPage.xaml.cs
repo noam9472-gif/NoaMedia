@@ -37,8 +37,11 @@ namespace NoaMedia.Pages
                 if (allLikes != null)
                     lstLikedVideos.ItemsSource = allLikes.Where(l => l.UserId != null && l.UserId.Id == selectedUser.Id).ToList();
 
+                // תיקון: סינון לפי המשתמש שכתב את הביקורת ולא לפי ה-ID של הסרט
                 if (allReviews != null)
-                    lstReviews.ItemsSource = allReviews.Where(r => r.WhichVideoDidTheUserReview != null && r.WhichVideoDidTheUserReview.Id == selectedUser.Id).ToList();
+                {
+                    lstReviews.ItemsSource = allReviews.Where(r => r.WhoUpdatedTheReview != null && r.WhoUpdatedTheReview.Id == selectedUser.Id).ToList();
+                }
             }
             catch (Exception ex)
             {

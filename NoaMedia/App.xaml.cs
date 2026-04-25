@@ -1,4 +1,5 @@
-﻿using System.Configuration;
+﻿using Model;
+using System.Configuration;
 using System.Data;
 using System.Windows;
 
@@ -11,6 +12,9 @@ namespace NoaMedia
     {
         // המשתנה שיחזיק את המשתמש המחובר מכל מקום בפרויקט
         public Model.User LoggedInUser { get; set; }
-    }
 
+        // משתנה סטטי שנגיש מכל מקום בפרויקט
+        public static User CurrentUser { get; set; }
+
+    }
 }

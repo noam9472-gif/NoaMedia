@@ -23,8 +23,17 @@
         <Border Background="#1A1A1A" BorderBrush="White" BorderThickness="2" Padding="10" Width="350" Margin="0,5">
             <StackPanel>
                 <TextBlock Text="Enter a password" Foreground="White" FontSize="14" Margin="0,0,0,8"/>
-                <PasswordBox x:Name="PasswordBox" Background="Transparent" Foreground="White" 
-                             BorderThickness="0" FontSize="16" CaretBrush="White"/>
+                <Grid>
+                    <PasswordBox x:Name="PasswordBox" Background="Transparent" Foreground="White" 
+                                 BorderThickness="0" FontSize="16" CaretBrush="White" Visibility="Visible"/>
+
+                    <TextBox x:Name="PasswordTextBox" Background="Transparent" Foreground="White" 
+                             BorderThickness="0" FontSize="16" CaretBrush="White" Visibility="Collapsed"/>
+
+                    <Button x:Name="ShowPasswordButton" Content="👁" HorizontalAlignment="Right" 
+                            VerticalAlignment="Center" Background="Transparent" BorderThickness="0" 
+                            Foreground="White" Cursor="Hand" Click="ShowPasswordButton_Click" FontSize="18"/>
+                </Grid>
             </StackPanel>
         </Border>
 
@@ -53,7 +62,7 @@
         </Button>
 
         <Button Content="Don't have an account? Sign up" Background="Transparent"      
-                BorderThickness="0" Foreground="LightGray" Cursor="Hand"        
+                BorderThickness="0" Foreground="LightGray" Cursor="Hand"         
                 Click="SignupButton_Click" Margin="0,20,0,0"/>
 
     </StackPanel>

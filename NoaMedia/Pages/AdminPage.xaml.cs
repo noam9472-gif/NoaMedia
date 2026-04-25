@@ -1,6 +1,7 @@
 ﻿using ApiInterface;
 using Model;
 using System;
+using System.Linq; // הוספנו את זה בשביל הסינון (Where)
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -14,18 +15,27 @@ namespace NoaMedia.Pages
         public AdminPage()
         {
             InitializeComponent();
-            LoadAllData();
+            this.Loaded += AdminPage_Loaded;
         }
 
-        private async void LoadAllData()// פונקציה שמטעינה את כל הטבלאות בדף הניהול
+        private void AdminPage_Loaded(object sender, RoutedEventArgs e)
+        {
+            LoadAllData();// טעינת כל הנתונים הדרושים לטבלאות השונות בדף הניהול
+        }
+
+        private async void LoadAllData() // פונקציה שמטעינה את כל הטבלאות בדף הניהול
         {
             try
             {
-                // 1. טעינת משתמשים
-                dgAllUsers.ItemsSource = await api.GetAllUsers();
+                // 1. טעינת כל המשתמשים מה-API פעם אחת
+                var allUsers = await api.GetAllUsers();
+                dgAllUsers.ItemsSource = allUsers;
 
-                // 2. טעינת משתמשי פרימיום
-                dgPremiumUsers.ItemsSource = await api.GetAllUserPremiums();
+                // 2. עדכון משתמשי פרימיום - סינון מתוך הרשימה הכללית לפי השדה IsPremium
+                if (allUsers != null)
+                {
+                    dgPremiumUsers.ItemsSource = allUsers.Where(u => u.IsPremium).ToList();
+                }
 
                 // 3. טעינת סרטים
                 dgMovies.ItemsSource = await api.GetAllVideos();
@@ -33,7 +43,7 @@ namespace NoaMedia.Pages
                 // 4. טעינת ביקורות
                 dgComments.ItemsSource = await api.GetAllVideoReviews();
 
-                // 5. טעינת ז'אנרים - זה השורה החדשה שלך
+                // 5. טעינת ז'אנרים
                 dgGenres.ItemsSource = await api.GetAllGenres();
             }
             catch (Exception ex)
@@ -41,6 +51,39 @@ namespace NoaMedia.Pages
                 MessageBox.Show("Error loading admin data: " + ex.Message);
             }
         }
+
+
+        // פונקציה שמופעלת ברגע שסיימת לשנות תא (למשל הורדת V מפרימיום)
+        private async void dgAllUsers_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
+        {
+            // אנחנו משתמשים ב-Dispatcher כדי לתת ל-WPF לסיים לעדכן את האובייקט בזיכרון לפני שנשלח אותו
+            await Dispatcher.BeginInvoke(new Action(async () =>
+            {
+                // שליפת המשתמש מהשורה שנערכה
+                if (e.Row.Item is User user)
+                {
+                    try
+                    {
+                        // 1. שליחת העדכון למסד הנתונים דרך ה-API
+                        // הערה: וודא שיש לך פונקציית UpdateUser ב-InterfaceAPI שמקבלת אובייקט User
+                        int success = await api.UpdateUser(user);
+
+                        if (success > 0)
+                        {
+                            // 2. קריאה מחדש לנתונים - זה יגרום ל-dgPremiumUsers להסתנכרן מיד
+                            LoadAllData();
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("Error updating user: " + ex.Message);
+                    }
+                }
+            }), System.Windows.Threading.DispatcherPriority.Background);
+        }
+
+
+
 
         // כפתור חזרה לעמוד האפשרויות
         private void BackToMenu_Click(object sender, RoutedEventArgs e)
@@ -67,8 +110,7 @@ namespace NoaMedia.Pages
             }
         }
 
-
-       private async void DeleteUser_Click(object sender, RoutedEventArgs e)// פונקציה שמוחקת משתמש
+        private async void DeleteUser_Click(object sender, RoutedEventArgs e)// פונקציה שמוחקת משתמש
         {
             var user = (sender as Button)?.DataContext as User;
             if (user == null) return;
@@ -83,7 +125,7 @@ namespace NoaMedia.Pages
 
             if (MessageBox.Show($"Are you sure you want to delete {user.UserName}?\nThis is a deep delete.", "Confirm", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
             {
-                try 
+                try
                 {
                     await api.ForceClearUserEverything(user.Id);// ניקוי מקדים של כל הנתונים הקשורים למשתמש לפני המחיקה הסופית
 
@@ -96,8 +138,8 @@ namespace NoaMedia.Pages
                     }
                     else
                     {
-                        MessageBox.Show("The Database still refuses.\n\n" + 
-                                "Please open your Access file and check for a table called 'Orders', 'Payments' or 'WatchList'.", 
+                        MessageBox.Show("The Database still refuses.\n\n" +
+                                "Please open your Access file and check for a table called 'Orders', 'Payments' or 'WatchList'.",
                                 "Critical DB Constraint", MessageBoxButton.OK, MessageBoxImage.Error);// הודעת שגיאה עם הסבר
                     }
                 }
@@ -107,6 +149,7 @@ namespace NoaMedia.Pages
                 }
             }
         }
+
         private async void DeleteMovie_Click(object sender, RoutedEventArgs e)// פונקציה שמוחקת סרט
         {
             var video = (sender as Button)?.DataContext as Video;// שליפת הסרט מהשורה שנבחרה
@@ -128,6 +171,7 @@ namespace NoaMedia.Pages
                 }
             }
         }
+
         private async void DeleteReview_Click(object sender, RoutedEventArgs e)// פונקציה שמוחקת ביקורת
         {
             var review = (sender as Button)?.DataContext as VideoReview;// שליפת הביקורת מהשורה שנבחרה
@@ -193,7 +237,6 @@ namespace NoaMedia.Pages
             }
         }
 
-
         private void AddUser_Click(object sender, RoutedEventArgs e)// ניווט לעמוד הוספת משתמש
         {
             this.NavigationService.Navigate(new AddUserAdmin());
@@ -204,19 +247,15 @@ namespace NoaMedia.Pages
             this.NavigationService.Navigate(new AddVideoAdmin());
         }
 
-
         // פונקציה להעברה גורפת של סרטים בין קטגוריות
         private async void MoveMovies_Click(object sender, RoutedEventArgs e)
         {
-            // קולטים מהמשתמש מאיזה מספר ז'אנר הוא רוצה להעביר
             string fromInput = Microsoft.VisualBasic.Interaction.InputBox("Enter SOURCE Genre ID (e.g. 14):", "Move Movies Bulk Action", "");
             if (string.IsNullOrEmpty(fromInput)) return;
 
-            // קולטים מהמשתמש לאיזה מספר ז'אנר הוא רוצה להעביר
             string toInput = Microsoft.VisualBasic.Interaction.InputBox("Enter TARGET Genre ID:", "Move Movies Bulk Action", "");
             if (string.IsNullOrEmpty(toInput)) return;
 
-            // בדיקת תקינות
             if (int.TryParse(fromInput, out int fromId) && int.TryParse(toInput, out int toId))
             {
                 if (fromId == toId)
@@ -232,7 +271,6 @@ namespace NoaMedia.Pages
                 {
                     try
                     {
-                        // קריאה לפונקציה שמבצעת את ההעברה במסד הנתונים(InterfaceAPI.cs)
                         int movedCount = await api.MoveMoviesBetweenGenres(fromId, toId);
 
                         if (movedCount >= 0)
@@ -257,30 +295,27 @@ namespace NoaMedia.Pages
             }
         }
 
-
         // פונקציה לשינוי ז'אנר של סרט בודד
         private async void ChangeMovieGenre_Click(object sender, RoutedEventArgs e)
         {
-            // שליפת הסרט מהשורה שנלחצה
             var video = (sender as Button)?.DataContext as Video;
             if (video == null) return;
 
-            // מקבלים מהמשתמש את מספר הז'אנר החדש לסרט הזה
             string input = Microsoft.VisualBasic.Interaction.InputBox($"Enter New Genre ID for '{video.VideoName}':", "Change Movie Genre", "");
 
-            if (int.TryParse(input, out int newGenreId))// בדיקת תקינות
+            if (int.TryParse(input, out int newGenreId))
             {
                 try
                 {
-                    int result = await api.UpdateSingleMovieGenre(video.Id, newGenreId);// קריאה לפונקציה שמבצעת את העדכון במסד הנתונים(InterfaceAPI.cs)
+                    int result = await api.UpdateSingleMovieGenre(video.Id, newGenreId);
                     if (result > 0)
                     {
-                        MessageBox.Show("Genre updated successfully!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);//הודעת הצלחה
+                        MessageBox.Show("Genre updated successfully!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
                         LoadAllData(); // רענון הטבלה
                     }
                     else
                     {
-                        MessageBox.Show("Failed to update. Make sure the Genre ID exists in the database.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);// הודעת שגיאה
+                        MessageBox.Show("Failed to update. Make sure the Genre ID exists in the database.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
                     }
                 }
                 catch (Exception ex)
@@ -292,22 +327,37 @@ namespace NoaMedia.Pages
 
         private async void AddGenre_Click(object sender, RoutedEventArgs e)
         {
-            string genreName = Microsoft.VisualBasic.Interaction.InputBox("Enter New Genre Name:", "Add Genre", "");// קבלת שם הז'אנר החדש מהמשתמש
+            // פתיחת תיבת קלט
+            string genreName = Microsoft.VisualBasic.Interaction.InputBox("Enter New Genre Name:", "Add Genre", "");
 
-            if (!string.IsNullOrEmpty(genreName))
+            // בדיקה שהמשתמש לא לחץ Cancel ולא השאיר ריק
+            if (string.IsNullOrWhiteSpace(genreName))
             {
+                return; // פשוט יוצאים בלי לעשות כלום
+            }
+
+            try
+            {
+                // יצירת האובייקט
                 Genre newGenre = new Genre { GenreDescription = genreName };
+
+                // שליחה ל-API
                 int result = await api.InsertGenre(newGenre);
 
-                if (result == 1)
+                if (result > 0)
                 {
-                    MessageBox.Show("Genre added successfully!");
-                    LoadAllData(); // ריענון הטבלה
+                    MessageBox.Show($"Genre '{genreName}' added successfully!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                    LoadAllData(); // ריענון הטבלה כדי לראות את הז'אנר החדש
                 }
                 else
                 {
-                    MessageBox.Show("Error adding genre.");
+                    MessageBox.Show("The server refused to add the genre. It might already exist.", "Database Error", MessageBoxButton.OK, MessageBoxImage.Warning);
                 }
+            }
+            catch (Exception ex)
+            {
+                // זה יתפוס שגיאות תקשורת או שגיאות ב-Internal Server
+                MessageBox.Show("Connection Error: " + ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
     }

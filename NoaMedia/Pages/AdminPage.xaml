@@ -21,11 +21,12 @@
             <TabItem Header="Users">
                 <StackPanel>
                     <Button Content="Add New User" Click="AddUser_Click" Width="120" HorizontalAlignment="Left" Margin="10,10,0,0" Background="#27AE60" Foreground="White" BorderThickness="0" Padding="5"/>
-                    <DataGrid x:Name="dgAllUsers" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" Margin="10" MouseDoubleClick="dgAllUsers_MouseDoubleClick">
+                    <DataGrid x:Name="dgAllUsers" 
+                                AutoGenerateColumns="False" CanUserAddRows="False" Margin="10" MouseDoubleClick="dgAllUsers_MouseDoubleClick"  CellEditEnding="dgAllUsers_CellEditEnding">
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="50"/>
+                            <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="50" IsReadOnly="True"/>
                             <DataGridTextColumn Header="User's Name" Binding="{Binding Name}" Width="*"/>
-                            <DataGridTextColumn Header="Date Of Birth" Binding="{Binding DateOfBirth}" Width="80"/>
+                            <DataGridTextColumn Header="Date Of Birth" Binding="{Binding DateOfBirth, StringFormat=\{0:dd/MM/yyyy\}}" Width="80"/>
                             <DataGridTextColumn Header="Email" Binding="{Binding Mail}" Width="*"/>
                             <DataGridTextColumn Header="Password" Binding="{Binding Pass}" Width="*"/>
                             <DataGridTextColumn Header="UserName" Binding="{Binding UserName}" Width="*"/>
@@ -58,16 +59,15 @@
             </TabItem>
 
             <TabItem Header="Users Premium">
-                <DataGrid x:Name="dgPremiumUsers" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" Margin="10">
+                <DataGrid x:Name="dgPremiumUsers" AutoGenerateColumns="False" CanUserAddRows="False" Margin="10">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="50"/>
                         <DataGridTextColumn Header="User's Name" Binding="{Binding Name}" Width="*"/>
-                        <DataGridTextColumn Header="Date Of Birth" Binding="{Binding DateOfBirth}" Width="80"/>
+                        <DataGridTextColumn Header="Date Of Birth"  Binding="{Binding DateOfBirth, StringFormat=\{0:dd/MM/yyyy\}}"   Width="80"/>
                         <DataGridTextColumn Header="Email" Binding="{Binding Mail}" Width="*"/>
                         <DataGridTextColumn Header="Password" Binding="{Binding Pass}" Width="*"/>
                         <DataGridTextColumn Header="UserName" Binding="{Binding UserName}" Width="*"/>
                         <DataGridCheckBoxColumn Header="Admin" Binding="{Binding IsAdmin}" Width="80"/>
-                        <DataGridTextColumn Header="Identity Number" Binding="{Binding IdentityCard}" Width="*"/>
                     </DataGrid.Columns>
                 </DataGrid>
             </TabItem>
@@ -79,7 +79,7 @@
 
                         <Button Content="Move Movies Between Genres" Click="MoveMovies_Click" Width="200" Background="#F39C12" Foreground="White" BorderThickness="0" Padding="5"/>
                     </WrapPanel>
-                    <DataGrid x:Name="dgGenres" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" Margin="10">
+                    <DataGrid x:Name="dgGenres" AutoGenerateColumns="False" CanUserAddRows="False" Margin="10">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="50"/>
                             <DataGridTextColumn Header="Genre Name" Binding="{Binding GenreDescription}" Width="*"/>
@@ -112,7 +112,7 @@
             <TabItem Header="Videos Management">
                 <StackPanel>
                     <Button Content="Add New Movie" Click="AddMovie_Click" Width="120" HorizontalAlignment="Left" Margin="10,10,0,0" Background="#27AE60" Foreground="White" BorderThickness="0" Padding="5"/>
-                    <DataGrid x:Name="dgMovies" AutoGenerateColumns="False" IsReadOnly="True" Margin="10" MouseDoubleClick="dgMovies_MouseDoubleClick">
+                    <DataGrid x:Name="dgMovies" AutoGenerateColumns="False" CanUserAddRows="False" Margin="10" MouseDoubleClick="dgMovies_MouseDoubleClick">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="25"/>
                             <DataGridTextColumn Header="Movie's Name" Binding="{Binding VideoName}" Width="*"/>
@@ -134,7 +134,7 @@
             </TabItem>
 
             <TabItem Header="Video Reviews">
-                <DataGrid x:Name="dgComments" AutoGenerateColumns="False" IsReadOnly="True" Margin="10">
+                <DataGrid x:Name="dgComments" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" Margin="10">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="User" Binding="{Binding WhoUpdatedTheReview.UserName}" Width="*"/>
                         <DataGridTextColumn Header="Movie" Binding="{Binding WhichVideoDidTheUserReview.VideoName}" Width="*"/>

@@ -47,18 +47,16 @@
                                     <TextBlock Text="Genre" Foreground="#7F8C8D" Margin="0,0,0,5"/>
                                     <ComboBox x:Name="cbGenre" DisplayMemberPath="GenreDescription" Padding="8"/>
                                 </StackPanel>
-
-                                <StackPanel Grid.Column="1">
-                                    <TextBlock Text="Age Rating" Foreground="#7F8C8D" Margin="0,0,0,5"/>
-                                    <ComboBox x:Name="cbAge" DisplayMemberPath="Description" Padding="8"/>
-                                </StackPanel>
                             </Grid>
 
                             <TextBlock Text="Duration (Minutes)" Foreground="#7F8C8D" Margin="0,15,0,5"/>
                             <TextBox x:Name="txtLength" Padding="10" PreviewTextInput="NumberValidationTextBox" BorderBrush="#DCDDE1"/>
 
+                            <TextBlock Text="Video File URL / Path" Foreground="#7F8C8D" Margin="0,15,0,5"/>
+                            <TextBox x:Name="txtVideoAddress" Padding="10" BorderBrush="#DCDDE1"/>
+
                             <TextBlock Text="Description" Foreground="#7F8C8D" Margin="0,15,0,5"/>
-                            <TextBox x:Name="txtDescription" Height="100" TextWrapping="Wrap" AcceptsReturn="True" Padding="10" BorderBrush="#DCDDE1"/>
+                            <TextBox x:Name="txtDescription" Height="80" TextWrapping="Wrap" AcceptsReturn="True" Padding="10" BorderBrush="#DCDDE1"/>
                         </StackPanel>
 
                         <StackPanel Grid.Column="1" VerticalAlignment="Top">

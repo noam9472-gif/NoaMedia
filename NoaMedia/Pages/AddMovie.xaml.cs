@@ -64,7 +64,6 @@ namespace NoaMedia.Pages
                 newVideo.VideoName = name;
                 newVideo.LengthInMinutes = duration;
                 newVideo.Genre = selectedGenre;
-                newVideo.AgeOfVideo = (AgeOfVideos)Enum.ToObject(typeof(AgeOfVideos), ageValue);
 
                 newVideo.VideoPic = base64Image;
 

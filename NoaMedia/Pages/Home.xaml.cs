@@ -9,7 +9,6 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-
 namespace NoaMedia.Pages
 {
     public partial class Home : Page
@@ -36,11 +35,7 @@ namespace NoaMedia.Pages
                     AddMovieButton.Visibility = Visibility.Collapsed;
                     UpgradeButton.Visibility = Visibility.Visible;
                 }
-            }
-
-            this.Loaded += (s, e) => LoadContent();
-        }
-
+            } this.Loaded += (s, e) => LoadContent(); }
         private void CheckUserPermissions()
         {
             var myApp = Application.Current as App;
@@ -50,11 +45,7 @@ namespace NoaMedia.Pages
                 if (myApp.LoggedInUser.IsAdmin)
                 {
                     BackToMenuButton.Visibility = Visibility.Visible;
-                    AddMovieButton.Visibility = Visibility.Visible;
-                }
-            }
-        }
-
+                    AddMovieButton.Visibility = Visibility.Visible;   }   }  }
         private async void LoadContent()
         {
             try
@@ -67,12 +58,8 @@ namespace NoaMedia.Pages
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"General Error: {ex.Message}");
-            }
-        }
-
-        // פונקציה שמציגה את הסרטים לפי רשימה (משמשת גם לטעינה רגילה וגם לחיפוש)
-        private async Task DisplayMovies(List<Video> moviesToDisplay)
+                System.Diagnostics.Debug.WriteLine($"General Error: {ex.Message}");   } }
+               private async Task DisplayMovies(List<Video> moviesToDisplay)  // פונקציה שמציגה את הסרטים לפי רשימה 
         {
             if (MainGenresContainer == null) return;
             MainGenresContainer.Children.Clear();
@@ -99,13 +86,8 @@ namespace NoaMedia.Pages
                     }
 
                     genreSection.Children.Add(moviesContainer);
-                    MainGenresContainer.Children.Add(genreSection);
-                }
-            }
-        }
-
-        // אירוע המתרחש בכל שינוי בטקסט של החיפוש
-        private async void SearchTextBox_TextChanged(object sender, TextChangedEventArgs e)
+                    MainGenresContainer.Children.Add(genreSection);   }  }  }
+        private async void SearchTextBox_TextChanged(object sender, TextChangedEventArgs e) // אירוע המתרחש בכל שינוי בטקסט של החיפוש
         {
             string searchText = SearchTextBox.Text.ToLower();
 
@@ -117,10 +99,7 @@ namespace NoaMedia.Pages
             {
                 // סינון סרטים לפי שם
                 var filteredMovies = _allVideos.Where(v => v.VideoName.ToLower().Contains(searchText)).ToList();
-                await DisplayMovies(filteredMovies);
-            }
-        }
-
+                await DisplayMovies(filteredMovies); } }
         private StackPanel CreateGenreSection(string title)
         {
             var section = new StackPanel { Margin = new Thickness(0, 0, 0, 30) };
@@ -131,10 +110,8 @@ namespace NoaMedia.Pages
                 FontSize = 22,
                 FontWeight = FontWeights.Bold,
                 Margin = new Thickness(0, 20, 0, 10)
-            });
-            return section;
-        }
-
+            });  return section;
+        } 
         private async Task<FrameworkElement> CreateVideoItemUI(Video v)
         {
             var container = new StackPanel { Margin = new Thickness(0, 0, 20, 30), Width = 180 };
@@ -146,19 +123,14 @@ namespace NoaMedia.Pages
                 ClipToBounds = true,
                 Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#222"))
             };
-
             var img = new Image { Stretch = Stretch.UniformToFill };
             RenderOptions.SetBitmapScalingMode(img, BitmapScalingMode.HighQuality);
-
             string base64 = v.VideoPic;
             if (string.IsNullOrEmpty(base64) || base64.StartsWith("File"))
             {
-                base64 = await api.GetVideoPicByte64(v.Id);
-            }
-
+                base64 = await api.GetVideoPicByte64(v.Id); }
             if (!string.IsNullOrEmpty(base64)) img.Source = Base64ToImage(base64);
             border.Child = img;
-
             var overlayButton = new Button
             {
                 Content = border,
@@ -168,7 +140,6 @@ namespace NoaMedia.Pages
                 Tag = v
             };
             overlayButton.Click += WatchMovie_Click;
-
             var titleText = new TextBlock
             {
                 Text = v.VideoName,
@@ -178,41 +149,43 @@ namespace NoaMedia.Pages
                 Margin = new Thickness(2, 10, 0, 0),
                 TextTrimming = TextTrimming.CharacterEllipsis
             };
-
             container.Children.Add(overlayButton);
             container.Children.Add(titleText);
-            return container;
-        }
-
+            return container; }
         public BitmapImage Base64ToImage(string base64String)
         {
             try
             {
-                if (string.IsNullOrEmpty(base64String) || base64String.StartsWith("File")) return null;
+                if (string.IsNullOrEmpty(base64String)) return null;
+
+                // הסרת תחיליות נפוצות אם קיימות
+                if (base64String.Contains(","))
+                {
+                    base64String = base64String.Split(',')[1];
+                }
                 byte[] imageBytes = Convert.FromBase64String(base64String);
                 using (System.IO.MemoryStream ms = new System.IO.MemoryStream(imageBytes))
                 {
                     BitmapImage image = new BitmapImage();
                     image.BeginInit();
                     image.StreamSource = ms;
-                    image.CacheOption = BitmapCacheOption.OnLoad;
+                    image.CacheOption = BitmapCacheOption.OnLoad; // חשוב מאוד ב-MemoryStream
                     image.EndInit();
-                    image.Freeze();
+                    image.Freeze(); // מאפשר שימוש ב-UI Thread אחר במידת הצורך
                     return image;
                 }
             }
-            catch { return null; }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error converting image: {ex.Message}");
+                return null;
+            }
         }
-
         private void WatchMovie_Click(object sender, RoutedEventArgs e)
         {
             if (sender is Button btn && btn.Tag is Video selectedVideo)
-                this.NavigationService.Navigate(new MovieDetails(selectedVideo));
-        }
-
+                this.NavigationService.Navigate(new MovieDetails(selectedVideo)); }
         private void UpgradeButton_Click(object sender, RoutedEventArgs e) => this.NavigationService.Navigate(new PremiumSalesPage());
         private void AddMovie_Click(object sender, RoutedEventArgs e) => this.NavigationService.Navigate(new AddMovie());
         private void BackToMenu_Click(object sender, RoutedEventArgs e) => this.NavigationService.Navigate(new TransitionOptionForManager(true));
-        private void Profile_Click(object sender, RoutedEventArgs e) => this.NavigationService.Navigate(new ProfilePage(_isPremium ? "Premium" : "User"));
-    }
-}
+        private void Profile_Click(object sender, RoutedEventArgs e) => this.NavigationService.Navigate(new ProfilePage(_isPremium ? "Premium" : "User")); }}

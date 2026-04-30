@@ -72,9 +72,7 @@ namespace NoaMedia.Pages
                     VideoUploadedDate = DateTime.Now,
                     VideoAddress = txtVideoAddress.Text,
 
-                    // שדות בוליאניים שנדרשו ב-Swagger
-                    IsAdmin = true,
-                    IsPremium = true,
+
 
                     // יצירת אובייקט משתמש מלא כדי למנוע דחייה מהשרת
                     WhoUploadedTheVideo = new User
@@ -88,7 +86,7 @@ namespace NoaMedia.Pages
                         IsAdmin = true,
                         IsPremium = true
                     }
-                };
+                }; 
 
                 int success = await api.InsertVideo(videoToInsert);
 

@@ -90,23 +90,33 @@ namespace NoaMedia.Pages
 
                     case "MyList":
                         SectionTitle.Text = "My List";
-                        if (!currentUser.IsAdmin)
+
+                        // בדיקה: אם המשתמש הוא מנהל או שיש לו מנוי פרימיום - פתח את התוכן
+                        if (currentUser.IsAdmin || currentUser.IsPremium)
                         {
-                            ContentScrollViewer.Visibility = Visibility.Collapsed;
-                            PremiumLockPanel.Visibility = Visibility.Visible;
-                        }
-                        else
-                        {
+                            // מוודא שהתוכן גלוי ומסך הנעילה מוסתר
+                            ContentScrollViewer.Visibility = Visibility.Visible;
+                            PremiumLockPanel.Visibility = Visibility.Collapsed;
+
                             MainDisplayPanel.Visibility = Visibility.Visible;
+
+                            // טעינת הסרטים מה-API
                             var allWatchList = (MyWatchListList)await api.GetAllMyWatchList();
                             var myPersonalList = allWatchList
                                 .Where(w => w.UserId?.Id == currentUser.Id)
                                 .Select(w => w.VideoId)
                                 .Where(v => v != null)
                                 .ToList();
+
                             FillVideoPanel(myPersonalList);
                         }
-                        break;
+                        else
+                        {
+                            // אם הוא לא אדמין ולא פרימיום - הצג את מסך הנעילה
+                            ContentScrollViewer.Visibility = Visibility.Collapsed;
+                            PremiumLockPanel.Visibility = Visibility.Visible;
+                        }
+                        break; ;
 
                     case "Comments":
                         SectionTitle.Text = "My Comments";

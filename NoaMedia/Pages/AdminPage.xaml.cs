@@ -1,7 +1,7 @@
 ﻿using ApiInterface;
 using Model;
 using System;
-using System.Linq; // הוספנו את זה בשביל הסינון (Where)
+using System.Linq; 
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -27,23 +27,23 @@ namespace NoaMedia.Pages
         {
             try
             {
-                // 1. טעינת כל המשתמשים מה-API פעם אחת
+                // טעינת כל המשתמשים מהAPI
                 var allUsers = await api.GetAllUsers();
                 dgAllUsers.ItemsSource = allUsers;
 
-                // 2. עדכון משתמשי פרימיום - סינון מתוך הרשימה הכללית לפי השדה IsPremium
+                // עדכון משתמשי פרימיום - סינון מתוך הרשימה הכללית לפי השדה IsPremium
                 if (allUsers != null)
                 {
                     dgPremiumUsers.ItemsSource = allUsers.Where(u => u.IsPremium).ToList();
                 }
 
-                // 3. טעינת סרטים
+                // טעינת סרטים
                 dgMovies.ItemsSource = await api.GetAllVideos();
 
-                // 4. טעינת ביקורות
+                //טעינת ביקורות
                 dgComments.ItemsSource = await api.GetAllVideoReviews();
 
-                // 5. טעינת ז'אנרים
+                // טעינת ז'אנרים
                 dgGenres.ItemsSource = await api.GetAllGenres();
             }
             catch (Exception ex)
@@ -52,11 +52,9 @@ namespace NoaMedia.Pages
             }
         }
 
-
-        // פונקציה שמופעלת ברגע שסיימת לשנות תא (למשל הורדת V מפרימיום)
+        // פונקציה שמטפלת בעדכון משתמש כאשר עורך תא בטבלת כל המשתמשים
         private async void dgAllUsers_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
         {
-            // אנחנו משתמשים ב-Dispatcher כדי לתת ל-WPF לסיים לעדכן את האובייקט בזיכרון לפני שנשלח אותו
             await Dispatcher.BeginInvoke(new Action(async () =>
             {
                 // שליפת המשתמש מהשורה שנערכה
@@ -64,13 +62,10 @@ namespace NoaMedia.Pages
                 {
                     try
                     {
-                        // 1. שליחת העדכון למסד הנתונים דרך ה-API
-                        // הערה: וודא שיש לך פונקציית UpdateUser ב-InterfaceAPI שמקבלת אובייקט User
                         int success = await api.UpdateUser(user);
 
                         if (success > 0)
                         {
-                            // 2. קריאה מחדש לנתונים - זה יגרום ל-dgPremiumUsers להסתנכרן מיד
                             LoadAllData();
                         }
                     }
@@ -88,8 +83,7 @@ namespace NoaMedia.Pages
         // כפתור חזרה לעמוד האפשרויות
         private void BackToMenu_Click(object sender, RoutedEventArgs e)
         {
-            // אנחנו שולחים true כי למנהל מגיעה גישה של פרימיום
-            this.NavigationService.Navigate(new TransitionOptionForManager(true));
+            this.NavigationService.Navigate(new TransitionOptionForManager(true)); // קיים true כי מנהל הוא משתמש פרימיום
         }
 
         // ניווט למשתמש
@@ -333,7 +327,7 @@ namespace NoaMedia.Pages
             // בדיקה שהמשתמש לא לחץ Cancel ולא השאיר ריק
             if (string.IsNullOrWhiteSpace(genreName))
             {
-                return; // פשוט יוצאים בלי לעשות כלום
+                return; // פשוט יוצא בלי לעשות כלום
             }
 
             try
@@ -356,8 +350,7 @@ namespace NoaMedia.Pages
             }
             catch (Exception ex)
             {
-                // זה יתפוס שגיאות תקשורת או שגיאות ב-Internal Server
-                MessageBox.Show("Connection Error: " + ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Connection Error: " + ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error); // טיפול בשגיאות תקשורת עם השרת
             }
         }
     }

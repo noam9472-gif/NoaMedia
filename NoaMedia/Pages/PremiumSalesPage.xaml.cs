@@ -1,5 +1,6 @@
 ﻿using ApiInterface;
 using Model;
+using System;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -16,41 +17,46 @@ namespace NoaMedia.Pages
 
         private async void ConfirmPremium_Click(object sender, RoutedEventArgs e)
         {
-            // 1. השגת המשתמש המחובר מה-App (כדי לקבל את ה-ID שלו)
             var myApp = Application.Current as App;
-            if (myApp?.LoggedInUser == null) return;
+            int userId = myApp.LoggedInUser.Id;
 
             try
             {
-                // 2. יצירת אובייקט פרימיום חדש (או פשוט שליחת ה-ID ל-Insert)
-                // הערה: לפי ה-InterfaceAPI שלך, הפונקציה מצפה לאובייקט UserPremium
-                UserPremium premiumEntry = new UserPremium
-                {
-                    Id = myApp.LoggedInUser.Id
-                };
+                int commentsCount = await api.GetCommentsCountByUser(userId);
+                int likesCount = await api.GetLikesCountByUser(userId);
 
-                int result = await api.InsertUserPremium(premiumEntry);
-
-                if (result == 1)
+                if (commentsCount >= 5 && likesCount >= 5)
                 {
-                    MessageBox.Show("Welcome to the VIP club! 👑");
-                    // 3. חזרה לדף הבית - הפעם כמשתמש פרימיום (true)
-                    this.NavigationService.Navigate(new Home(true));
+                    // קריאה לפעולת העדכון במקום להכנסה
+                    int result = await api.UpgradeUserToPremium(userId);
+
+                    if (result >= 1)
+                    {
+                        // עדכון האובייקט המקומי כדי שהאפליקציה תדע שהוא פרימיום
+                        myApp.LoggedInUser.IsPremium = true;
+
+                        MessageBox.Show("Success! Your account is now Premium. 👑");
+                        this.NavigationService.Navigate(new Home(true));
+                    }
+                    else
+                    {
+                        MessageBox.Show("Update failed. Please try again.");
+                    }
                 }
                 else
                 {
-                    MessageBox.Show("Failed to upgrade. Please try again.");
+                    MessageBox.Show("You need 5 likes and 5 comments to upgrade!");
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Error connecting to server: " + ex.Message);
+                MessageBox.Show("Error: " + ex.Message);
             }
         }
-
         private void Back_Click(object sender, RoutedEventArgs e)
         {
-            this.NavigationService.GoBack();
+            if (this.NavigationService.CanGoBack)
+                this.NavigationService.GoBack();
         }
     }
 }

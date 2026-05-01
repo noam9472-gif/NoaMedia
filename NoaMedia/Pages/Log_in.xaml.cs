@@ -20,12 +20,10 @@ namespace NoaMedia.Pages
             InitializeComponent();
         }
 
-        // פונקציה להצגה/הסתרה של הסיסמה
         private void ShowPasswordButton_Click(object sender, RoutedEventArgs e)
         {
             if (PasswordBox.Visibility == Visibility.Visible)
             {
-                // הצגת הסיסמה
                 PasswordTextBox.Text = PasswordBox.Password;
                 PasswordBox.Visibility = Visibility.Collapsed;
                 PasswordTextBox.Visibility = Visibility.Visible;
@@ -33,7 +31,6 @@ namespace NoaMedia.Pages
             }
             else
             {
-                // הסתרת הסיסמה
                 PasswordBox.Password = PasswordTextBox.Text;
                 PasswordBox.Visibility = Visibility.Visible;
                 PasswordTextBox.Visibility = Visibility.Collapsed;
@@ -44,8 +41,6 @@ namespace NoaMedia.Pages
         private async void LoginButton_Click(object sender, RoutedEventArgs e)
         {
             string username = UsernameTextBox.Text.Trim();
-
-            // משיכת הסיסמה בהתאם לתיבה שגלויה כרגע
             string password = (PasswordBox.Visibility == Visibility.Visible)
                 ? PasswordBox.Password
                 : PasswordTextBox.Text;
@@ -63,15 +58,12 @@ namespace NoaMedia.Pages
                 currentUser = uList?.FirstOrDefault(u =>
                     u.Name != null && u.Name.Trim().Equals(username, StringComparison.OrdinalIgnoreCase) &&
                     u.Pass == password);
-
-                if (currentUser == null)
-                {
-                    MessageBox.Show("שם משתמש או סיסמה שגויים.");
-                    return;
-                }
+                // בתוך LoginButton_Click, אחרי שקיבלת את ה-currentUser:
 
                 UserPremiumList pList = await api.GetAllUserPremiums();
-                bool isPremium = pList != null && pList.Any(p => p.Id == currentUser.Id);
+
+                // בדיקה משולבת: האם הוא ברשימת הפרימיום או שדה IsPremium שלו הוא אמת
+                bool isPremium = (pList != null && pList.Any(p => p.Id == currentUser.Id)) || currentUser.IsPremium;
 
                 if (isPremium && !currentUser.IsPremium)
                 {
@@ -79,12 +71,15 @@ namespace NoaMedia.Pages
                     await api.UpdateUser(currentUser);
                 }
 
+                // מעדכנים את האפליקציה לגבי המשתמש הנוכחי
                 var myApp = Application.Current as App;
                 if (myApp != null)
                 {
                     myApp.LoggedInUser = currentUser;
                 }
 
+
+               
                 if (this.NavigationService != null)
                 {
                     if (currentUser.IsAdmin)

@@ -291,6 +291,11 @@ namespace NoaMedia.Pages
             if (this.NavigationService.CanGoBack) this.NavigationService.GoBack();
         }
 
+        private void Upgrade_Click(object sender, RoutedEventArgs e)
+        {
+            this.NavigationService.Navigate(new PremiumSalesPage());
+        }
+
         public BitmapImage Base64ToImage(string base64String)
         {
             try

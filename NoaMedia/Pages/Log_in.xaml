@@ -5,65 +5,82 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:NoaMedia.Pages"
       mc:Ignorable="d" 
-      d:DesignHeight="450" d:DesignWidth="800"
+      d:DesignHeight="600" d:DesignWidth="1000"
       Title="Log_in">
 
-    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+    <Grid>
+        <Grid.Background>
+            <ImageBrush ImageSource="/MainPicture.jpeg" Stretch="UniformToFill" Opacity="0.4"/>
+        </Grid.Background>
 
-        <Image Source="/MainPicture.jpeg" Width="260"/>
+        <Rectangle Fill="Black" Opacity="0.6" Margin="0,0,-32,-13"/>
 
-        <Border Background="#1A1A1A" BorderBrush="White" Padding="10" BorderThickness="2" Width="350" Margin="0,5">
-            <StackPanel>
-                <TextBlock Text="Enter user name" Foreground="White" FontSize="14"/>
-                <TextBox x:Name="UsernameTextBox" Background="Transparent" Foreground="White" 
-                         BorderThickness="0" FontSize="16" CaretBrush="White"/>
-            </StackPanel>
-        </Border>
+        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
 
-        <Border Background="#1A1A1A" BorderBrush="White" BorderThickness="2" Padding="10" Width="350" Margin="0,5">
-            <StackPanel>
-                <TextBlock Text="Enter a password" Foreground="White" FontSize="14" Margin="0,0,0,8"/>
-                <Grid>
-                    <PasswordBox x:Name="PasswordBox" Background="Transparent" Foreground="White" 
-                                 BorderThickness="0" FontSize="16" CaretBrush="White" Visibility="Visible"/>
+            <Image Source="/MainPicture.jpeg" Width="221" Margin="0,0,0,30" Height="165"/>
 
-                    <TextBox x:Name="PasswordTextBox" Background="Transparent" Foreground="White" 
-                             BorderThickness="0" FontSize="16" CaretBrush="White" Visibility="Collapsed"/>
+            <Border Background="Black" Opacity="0.85" CornerRadius="8" Padding="40,50" Width="400" Height="431">
+                <StackPanel>
+                    <TextBlock Text="Sign In" Foreground="White" FontSize="32" FontWeight="Bold" Margin="0,0,0,25"/>
 
-                    <Button x:Name="ShowPasswordButton" Content="👁" HorizontalAlignment="Right" 
-                            VerticalAlignment="Center" Background="Transparent" BorderThickness="0" 
-                            Foreground="White" Cursor="Hand" Click="ShowPasswordButton_Click" FontSize="18"/>
-                </Grid>
-            </StackPanel>
-        </Border>
+                    <Border Background="#333333" CornerRadius="4" Padding="10,5" Margin="0,0,0,15">
+                        <StackPanel>
+                            <TextBlock Text="Email or username" Foreground="#8c8c8c" FontSize="11" Margin="5,0,0,2"/>
+                            <TextBox x:Name="UsernameTextBox" Background="Transparent" Foreground="White" 
+                                     BorderThickness="0" FontSize="16" CaretBrush="White" Padding="5"/>
+                        </StackPanel>
+                    </Border>
 
-        <Button x:Name="LoginButton" Content="Sign in" Click="LoginButton_Click" Width="350" 
-                Height="45" FontSize="18" FontWeight="Bold" Foreground="White" 
-                Margin="0,15,0,0" Cursor="Hand">
-            <Button.Style>
-                <Style TargetType="{x:Type Button}">
-                    <Setter Property="Background" Value="#E50914"/>
-                    <Setter Property="Template">
-                        <Setter.Value>
-                            <ControlTemplate TargetType="{x:Type Button}">
-                                <Border Background="{TemplateBinding Background}" CornerRadius="5">
-                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                </Border>
-                            </ControlTemplate>
-                        </Setter.Value>
-                    </Setter>
-                    <Style.Triggers>
-                        <Trigger Property="IsMouseOver" Value="True">
-                            <Setter Property="Background" Value="#F40612"/>
-                        </Trigger>
-                    </Style.Triggers>
-                </Style>
-            </Button.Style>
-        </Button>
+                    <Border Background="#333333" CornerRadius="4" Padding="10,5" Margin="0,0,0,25">
+                        <StackPanel>
+                            <TextBlock Text="Password" Foreground="#8c8c8c" FontSize="11" Margin="5,0,0,2"/>
+                            <Grid>
+                                <PasswordBox x:Name="PasswordBox" Background="Transparent" Foreground="White" 
+                                             BorderThickness="0" FontSize="16" CaretBrush="White" Padding="5"/>
 
-        <Button Content="Don't have an account? Sign up" Background="Transparent"      
-                BorderThickness="0" Foreground="LightGray" Cursor="Hand"         
-                Click="SignupButton_Click" Margin="0,20,0,0"/>
+                                <TextBox x:Name="PasswordTextBox" Background="Transparent" Foreground="White" 
+                                         BorderThickness="0" FontSize="16" CaretBrush="White" Visibility="Collapsed" Padding="5"/>
 
-    </StackPanel>
+                                <Button x:Name="ShowPasswordButton" Content="👁" HorizontalAlignment="Right" 
+                                        VerticalAlignment="Center" Background="Transparent" BorderThickness="0" 
+                                        Foreground="#8c8c8c" Cursor="Hand" Click="ShowPasswordButton_Click" FontSize="16"/>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+
+                    <Button x:Name="LoginButton" Content="Sign In" Click="LoginButton_Click" 
+                            Height="45" FontSize="16" FontWeight="Bold" Foreground="White" Cursor="Hand">
+                        <Button.Style>
+                            <Style TargetType="{x:Type Button}">
+                                <Setter Property="Background" Value="#E50914"/>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="{x:Type Button}">
+                                            <Border Background="{TemplateBinding Background}" CornerRadius="4">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="#F40612"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+
+
+
+                    <StackPanel Orientation="Horizontal" Margin="0,40,0,0">
+                        <TextBlock Text="New to NoaMedia?" Foreground="#737373" FontSize="16"/>
+                        <Button Content="Sign up now." Background="Transparent" BorderThickness="0" 
+                                Foreground="White" FontWeight="SemiBold" Cursor="Hand" 
+                                Click="SignupButton_Click" Margin="5,0,0,0"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </Grid>
 </Page>

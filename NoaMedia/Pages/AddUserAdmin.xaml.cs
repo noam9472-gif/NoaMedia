@@ -25,34 +25,32 @@ namespace NoaMedia.Pages
                     MessageBox.Show("Username and Password are required!");
                     return;
                 }
-
-                // 1. יצירת אובייקט משתמש - שים לב ש-IsAdmin תמיד false
+                // יצירת משתמש חדש עם התכונות מהטופס
                 User newUser = new User
                 {
-                    Name = txtUserName.Text,         // תיקנתי כאן לפי שמות השדות המקובלים
+                    Name = txtUserName.Text,         
                     UserName = txtName.Text,
                     Mail = txtEmail.Text,
                     Pass = txtPassword.Password,
-                    DateOfBirth = dpBirthDate.SelectedDate ?? DateTime.Now.AddYears(-18),
-                    IsAdmin = false // רק אתה המנהל, המשתמשים החדשים לעולם לא יהיו מנהלים
+                    DateOfBirth = dpBirthDate.SelectedDate ?? DateTime.Now.AddYears(-18), // אם לא נבחר תאריך, נניח שהמשתמש בן 18
+                    IsAdmin = false // תמיד ניצור משתמש רגיל, הפרימיום יתווסף בנפרד אם נבחר באופציה המתאימה
                 };
 
-                // 2. הכנסת המשתמש למסד הנתונים
+                //  הכנסת המשתמש למסד הנתונים
                 int result = await api.InsertUser(newUser);
 
                 if (result == 1)
                 {
-                    // 3. אם סימנו "Grant Premium", נוסיף אותו לטבלת הפרימיום
+                    // אם המנהל סימן "Grant Premium", נוסיף אותו לטבלת הפרימיום
                     if (chkIsAdmin.IsChecked == true)
                     {
-                        // קודם נשלוף את המשתמש שזה עתה יצרנו כדי לקבל את ה-ID שלו
                         UserList uList = await api.GetAllUsers();
-                        User createdUser = uList.FirstOrDefault(u => u.UserName == newUser.UserName);
+                        // נניח שהשם משתמש הוא ייחודי, נחפש את המשתמש החדש לפי שם המשתמש שלו
+                        User createdUser = uList.FirstOrDefault(u => u.UserName == newUser.UserName); 
 
                         if (createdUser != null)
                         {
-                            // יצירת אובייקט פרימיום וקישורו ל-ID של המשתמש
-                            UserPremium premiumEntry = new UserPremium { Id = createdUser.Id };
+                            UserPremium premiumEntry = new UserPremium { Id = createdUser.Id }; 
                             await api.InsertUserPremium(premiumEntry);
                         }
                     }

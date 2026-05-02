@@ -25,19 +25,18 @@ namespace NoaMedia.Pages
         {
             try
             {
-                // טעינת הנתונים מה-API
+                // טעינת כל הנתונים מהAPI
                 var allVideos = await api.GetAllVideos();
                 var allLikes = await api.GetAllLikes();
                 var allReviews = await api.GetAllVideoReviews();
 
-                // סינון בטוח (בודקים שהרשימות והאובייקטים לא null)
+                // סינון בטוח, בודקים שהכל לא null
                 if (allVideos != null)
                     lstUploadedVideos.ItemsSource = allVideos.Where(v => v.WhoUploadedTheVideo != null && v.WhoUploadedTheVideo.Id == selectedUser.Id).ToList();
-
+                // הוספת סינון בטוח ללייקים
                 if (allLikes != null)
                     lstLikedVideos.ItemsSource = allLikes.Where(l => l.UserId != null && l.UserId.Id == selectedUser.Id).ToList();
-
-                // תיקון: סינון לפי המשתמש שכתב את הביקורת ולא לפי ה-ID של הסרט
+                // הוספת סינון בטוח לביקורות
                 if (allReviews != null)
                 {
                     lstReviews.ItemsSource = allReviews.Where(r => r.WhoUpdatedTheReview != null && r.WhoUpdatedTheReview.Id == selectedUser.Id).ToList();
@@ -55,7 +54,7 @@ namespace NoaMedia.Pages
                 this.NavigationService.GoBack();
         }
 
-        private void VideoList_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        private void VideoList_MouseDoubleClick(object sender, MouseButtonEventArgs e) //  טיפול בלחיצה כפולה על פריט ברשימת הסרטים
         {
             var listBox = sender as ListBox;
             if (listBox?.SelectedItem == null) return;

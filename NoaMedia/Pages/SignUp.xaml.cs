@@ -4,7 +4,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Navigation;
 using ApiInterface;
-using System.Text.RegularExpressions; // חשוב לצורך בדיקת המייל
+using System.Text.RegularExpressions;
 
 namespace NoaMedia.Pages
 {

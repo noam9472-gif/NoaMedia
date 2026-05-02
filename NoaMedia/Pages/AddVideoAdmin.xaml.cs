@@ -37,17 +37,17 @@ namespace NoaMedia.Pages
         {
             OpenFileDialog op = new OpenFileDialog();
             op.Title = "Select Movie Poster";
-            op.Filter = "Image files (*.jpg, *.jpeg, *.png) | *.jpg; *.jpeg; *.png";
+            op.Filter = "Image files (*.jpg, *.jpeg, *.png) | *.jpg; *.jpeg; *.png"; // אפשר לסנן רק קבצי תמונה
 
-            if (op.ShowDialog() == true)
+            if (op.ShowDialog() == true) // אם המשתמש בחר קובץ
             {
-                imgPreview.Source = new BitmapImage(new Uri(op.FileName));
-                txtPlaceholder.Visibility = Visibility.Collapsed;
-                lblFileName.Text = Path.GetFileName(op.FileName);
+                imgPreview.Source = new BitmapImage(new Uri(op.FileName)); // הצגת התמונה שנבחרה
+                txtPlaceholder.Visibility = Visibility.Collapsed; // הסתרת הטקסט המכוון
+                lblFileName.Text = Path.GetFileName(op.FileName); // הצגת שם הקובץ
 
-                byte[] imageArray = File.ReadAllBytes(op.FileName);
-                base64Image = Convert.ToBase64String(imageArray);
-                picName = op.FileName;
+                byte[] imageArray = File.ReadAllBytes(op.FileName); // קריאת התמונה למערך בייטים
+                base64Image = Convert.ToBase64String(imageArray); // המרת התמונה למחרוזת Base64
+                picName = op.FileName; // שמירת שם הקובץ
             }
         }
 
@@ -55,13 +55,13 @@ namespace NoaMedia.Pages
         {
             try
             {
+                // בדיקה אם כל השדות מלאים, כולל כתובת הווידאו
                 if (string.IsNullOrEmpty(txtVideoName.Text) || cbGenre.SelectedItem == null || string.IsNullOrEmpty(txtVideoAddress.Text))
                 {
                     MessageBox.Show("Please fill all fields, including the video address.");
                     return;
                 }
-
-                // בניית אובייקט סרט שתואם בדיוק ל-Swagger
+                // יצירת אובייקט וידאו חדש עם כל המידע הדרוש
                 Video videoToInsert = new Video
                 {
                     VideoName = txtVideoName.Text,
@@ -105,12 +105,11 @@ namespace NoaMedia.Pages
                 MessageBox.Show("Error: " + ex.Message);
             }
         }
-
         private void Cancel_Click(object sender, RoutedEventArgs e)
         {
             this.NavigationService.GoBack();
         }
-
+        // פונקציה לאימות שהקלט הוא מספר בלבד
         private void NumberValidationTextBox(object sender, System.Windows.Input.TextCompositionEventArgs e)
         {
             e.Handled = !char.IsDigit(e.Text, 0);

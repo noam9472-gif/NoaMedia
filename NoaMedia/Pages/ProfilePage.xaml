@@ -93,7 +93,7 @@
                     <TextBlock Text="Premium Feature" Foreground="#FFD700" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center"/>
                     <TextBlock Text="To use 'My List', you need to upgrade your account to Premium. Enjoy ad-free watching, exclusive content, and more!" 
                                Foreground="#AAA" TextWrapping="Wrap" TextAlignment="Center" Margin="0,15" LineHeight="22"/>
-                    <Button Content="UPGRADE NOW" Background="#E50914" Foreground="White" FontWeight="Bold" Padding="30,12" BorderThickness="0" Cursor="Hand" Margin="0,10"/>
+                    <Button Content="UPGRADE NOW" Click="Upgrade_Click" Background="#E50914" Foreground="White" FontWeight="Bold" Padding="30,12" BorderThickness="0" Cursor="Hand" Margin="0,10"/>
                 </StackPanel>
             </Border>
         </Grid>

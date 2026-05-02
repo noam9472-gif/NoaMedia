@@ -1,8 +1,8 @@
 ﻿using ApiInterface;
-using Microsoft.Win32; // נוסף עבור בחירת קובץ
+using Microsoft.Win32;
 using Model;
 using System;
-using System.IO;       // נוסף עבור קריאת הקובץ
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
@@ -14,27 +14,25 @@ namespace NoaMedia.Pages
     public partial class AddMovie : Page
     {
         InterfaceAPI api = new InterfaceAPI();
-        private string base64Image = "";
+        private string picPath = "";
+        private User currentUser;
 
-        public AddMovie()
+        public AddMovie(User user)
         {
             InitializeComponent();
+            this.currentUser = user;
         }
 
-        // פונקציה חדשה: בחירת תמונה מהמחשב והמרתה לסטרינג
         private void BtnUploadPhoto_Click(object sender, RoutedEventArgs e)
         {
             OpenFileDialog openFile = new OpenFileDialog();
+            openFile.Title = "Select Movie Poster";
             openFile.Filter = "Image files (*.png;*.jpeg;*.jpg)|*.png;*.jpeg;*.jpg";
 
             if (openFile.ShowDialog() == true)
             {
-                // המרה ל-Base64 עבור מסד הנתונים
-                byte[] imageBytes = File.ReadAllBytes(openFile.FileName);
-                base64Image = Convert.ToBase64String(imageBytes);
-
-                // הצגת התמונה על המסך בשביל המשתמש
                 imgPreview.Source = new BitmapImage(new Uri(openFile.FileName));
+                picPath = openFile.FileName;
             }
         }
 
@@ -42,39 +40,53 @@ namespace NoaMedia.Pages
         {
             try
             {
-                string name = MovieNameTextBox.Text;
-                string genreName = GenreTextBox.Text;
-
-                if (!int.TryParse(DurationTextBox.Text, out int duration) ||
-                    !int.TryParse(AgeRatingTextBox.Text, out int ageValue))
+                if (string.IsNullOrEmpty(MovieNameTextBox.Text) || string.IsNullOrEmpty(picPath) || string.IsNullOrEmpty(MovieUrlTextBox.Text))
                 {
-                    MessageBox.Show("Please enter valid numbers.");
+                    MessageBox.Show("נא להזין שם, כתובת סרט ולהעלות תמונה.");
+                    return;
+                }
+
+                if (!int.TryParse(DurationTextBox.Text, out int duration))
+                {
+                    MessageBox.Show("נא להזין אורך סרט תקין.");
                     return;
                 }
 
                 GenreList allGenres = await api.GetAllGenres();
+                string genreName = GenreTextBox.Text;
                 Genre selectedGenre = allGenres.FirstOrDefault(g => g.GenreDescription.Equals(genreName, StringComparison.OrdinalIgnoreCase));
 
                 if (selectedGenre == null)
                 {
-                    MessageBox.Show("Genre not found.");
+                    MessageBox.Show("הז'אנר לא נמצא.");
                     return;
                 }
-                Video newVideo = new Video();
-                newVideo.VideoName = name;
-                newVideo.LengthInMinutes = duration;
-                newVideo.Genre = selectedGenre;
 
-                newVideo.VideoPic = base64Image;
+                // יצירת האובייקט עם התקציר מהתיבה החדשה
+                Video newVideo = new Video
+                {
+                    VideoName = MovieNameTextBox.Text,
+                    LengthInMinutes = duration,
+                    Genre = selectedGenre,
+                    VideoPic = picPath,
+                    VideoUploadedDate = DateTime.Now,
+                    // כאן אנחנו מכניסים את התקציר מה-TextBox
+                    VideoDescription = DescriptionTextBox.Text,
+                    VideoAddress = MovieUrlTextBox.Text,
+                    WhoUploadedTheVideo = currentUser
+                };
 
-                newVideo.VideoUploadedDate = DateTime.Now;
-                newVideo.VideoDescription = "No description";
-                newVideo.VideoAddress = "local";
+                int success = await api.InsertVideo(newVideo);
 
-               
-                System.Diagnostics.Debug.WriteLine("Image length: " + (newVideo.VideoPic?.Length ?? 0));
-
-                await api.InsertVideo(newVideo);
+                if (success == 1)
+                {
+                    MessageBox.Show("הסרט פורסם בהצלחה!");
+                    this.NavigationService.GoBack();
+                }
+                else
+                {
+                    MessageBox.Show("שגיאה בשמירה בשרת.");
+                }
             }
             catch (Exception ex)
             {
@@ -83,6 +95,5 @@ namespace NoaMedia.Pages
         }
 
         private void Back_Click(object sender, RoutedEventArgs e) => this.NavigationService.GoBack();
-        private void MovieNameTextBox_TextChanged(object sender, TextChangedEventArgs e) { }
     }
 }

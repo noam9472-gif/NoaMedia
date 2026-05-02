@@ -22,22 +22,22 @@ namespace NoaMedia.Pages
             LoadReviews();
         }
 
-        private void PopulateVideoDetails()
+        private void PopulateVideoDetails() // מילוי פרטי הסרט בעמוד
         {
             txtTitle.Text = currentVideo.VideoName;
-            txtGenre.Text = currentVideo.Genre?.GenreDescription ?? "General";
-            txtYear.Text = currentVideo.VideoUploadedDate.Year.ToString();
-            txtDuration.Text = $"{currentVideo.LengthInMinutes} min";
-            txtDescription.Text = currentVideo.VideoDescription ?? "No description available.";
-            btnUploader.Content = currentVideo.WhoUploadedTheVideo?.UserName ?? "Unknown";
+            txtGenre.Text = currentVideo.Genre?.GenreDescription ?? "General"; // אם אין ז'אנר, מציג ברירת מחדל
+            txtYear.Text = currentVideo.VideoUploadedDate.Year.ToString(); // מציג רק את השנה
+            txtDuration.Text = $"{currentVideo.LengthInMinutes} min"; // מציג את משך הסרט בדקות
+            txtDescription.Text = currentVideo.VideoDescription ?? "No description available."; // אם אין תיאור, מציג ברירת מחדל
+            btnUploader.Content = currentVideo.WhoUploadedTheVideo?.UserName ?? "Unknown"; // אם אין מידע על המעלה, מציג ברירת מחדל
 
-            if (!string.IsNullOrEmpty(currentVideo.VideoPic))
+            if (!string.IsNullOrEmpty(currentVideo.VideoPic)) // אם יש תמונה, מציג אותה
             {
-                imgPoster.Source = Base64ToImage(currentVideo.VideoPic);
+                imgPoster.Source = Base64ToImage(currentVideo.VideoPic); // המרה
             }
         }
 
-        private async void LoadReviews()
+        private async void LoadReviews() // טעינת הביקורות לסרט הנוכחי
         {
             try
             {
@@ -65,36 +65,35 @@ namespace NoaMedia.Pages
                 NavigationService.GoBack();
         }
 
-        private void ReviewUser_Click(object sender, RoutedEventArgs e)
+        private void ReviewUser_Click(object sender, RoutedEventArgs e) // לחיצה על שם המשתמש שכתב את הביקורת
         {
             var btn = sender as Button;
-            // תיקון: שימוש ב-WhoUpdatedTheReview כדי להתאים ל-Model
             if (btn?.DataContext is VideoReview review && review.WhoUpdatedTheReview != null)
             {
                 NavigationService.Navigate(new UserDetailsPage(review.WhoUpdatedTheReview));
             }
         }
 
-        private void btnUploader_Click(object sender, RoutedEventArgs e)
+        private void btnUploader_Click(object sender, RoutedEventArgs e) // לחיצה על שם המעלה של הסרט
         {
             if (currentVideo.WhoUploadedTheVideo != null)
                 NavigationService.Navigate(new UserDetailsPage(currentVideo.WhoUploadedTheVideo));
         }
 
-        private BitmapImage Base64ToImage(string base64String)
+        private BitmapImage Base64ToImage(string base64String) 
         {
             try
             {
-                byte[] imageBytes = Convert.FromBase64String(base64String);
-                using (System.IO.MemoryStream ms = new System.IO.MemoryStream(imageBytes))
+                byte[] imageBytes = Convert.FromBase64String(base64String); // המרה מבסיס64 לבייטים
+                using (System.IO.MemoryStream ms = new System.IO.MemoryStream(imageBytes)) 
                 {
-                    BitmapImage image = new BitmapImage();
-                    image.BeginInit();
-                    image.StreamSource = ms;
-                    image.CacheOption = BitmapCacheOption.OnLoad;
-                    image.EndInit();
-                    image.Freeze(); // חשוב לביצועים ושימוש ב-UI
-                    return image;
+                    BitmapImage image = new BitmapImage();  
+                    image.BeginInit(); // התחלת אתחול התמונה
+                    image.StreamSource = ms; 
+                    image.CacheOption = BitmapCacheOption.OnLoad; // טעינת התמונה כולה לזיכרון כדי לאפשר סגירת הזרם
+                    image.EndInit(); // סיום אתחול התמונה
+                    image.Freeze(); 
+                    return image; // החזרת התמונה כ- BitmapImage
                 }
             }
             catch { return null; }

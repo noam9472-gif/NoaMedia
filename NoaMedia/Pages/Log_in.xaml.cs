@@ -58,11 +58,14 @@ namespace NoaMedia.Pages
                 currentUser = uList?.FirstOrDefault(u =>
                     u.Name != null && u.Name.Trim().Equals(username, StringComparison.OrdinalIgnoreCase) &&
                     u.Pass == password);
-                // בתוך LoginButton_Click, אחרי שקיבלת את ה-currentUser:
+
+                if (currentUser == null)
+                {
+                    MessageBox.Show("שם משתמש או סיסמה שגויים.");
+                    return;
+                }
 
                 UserPremiumList pList = await api.GetAllUserPremiums();
-
-                // בדיקה משולבת: האם הוא ברשימת הפרימיום או שדה IsPremium שלו הוא אמת
                 bool isPremium = (pList != null && pList.Any(p => p.Id == currentUser.Id)) || currentUser.IsPremium;
 
                 if (isPremium && !currentUser.IsPremium)
@@ -71,30 +74,25 @@ namespace NoaMedia.Pages
                     await api.UpdateUser(currentUser);
                 }
 
-                // מעדכנים את האפליקציה לגבי המשתמש הנוכחי
+                // עדכון האפליקציה לגבי המשתמש המחובר
                 var myApp = Application.Current as App;
                 if (myApp != null)
                 {
                     myApp.LoggedInUser = currentUser;
                 }
 
-
-               
                 if (this.NavigationService != null)
                 {
                     if (currentUser.IsAdmin)
                     {
-                        MessageBox.Show("שלום מנהל! מעבר לדף אפשרויות...");
-                        this.NavigationService?.Navigate(new TransitionOptionForManager(isPremium));
-                    }
-                    else if (isPremium)
-                    {
-                        MessageBox.Show("ברוך הבא VIP! צפייה מהנה.");
-                        this.NavigationService.Navigate(new Home(true));
+                        MessageBox.Show("שלום מנהל! עובר לדף אפשרויות ניהול...");
+                        // תיקון: שליחה לדף המעבר במקום לדף הבית
+                        this.NavigationService.Navigate(new TransitionOptionForManager(isPremium));
                     }
                     else
                     {
-                        this.NavigationService.Navigate(new Home(false));
+                        if (isPremium) MessageBox.Show("ברוך הבא VIP! צפייה מהנה.");
+                        this.NavigationService.Navigate(new Home(currentUser));
                     }
                 }
             }

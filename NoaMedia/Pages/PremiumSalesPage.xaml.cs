@@ -18,6 +18,8 @@ namespace NoaMedia.Pages
         private async void ConfirmPremium_Click(object sender, RoutedEventArgs e)
         {
             var myApp = Application.Current as App;
+            if (myApp?.LoggedInUser == null) return;
+
             int userId = myApp.LoggedInUser.Id;
 
             try
@@ -27,16 +29,15 @@ namespace NoaMedia.Pages
 
                 if (commentsCount >= 5 && likesCount >= 5)
                 {
-                    // קריאה לפעולת העדכון במקום להכנסה
                     int result = await api.UpgradeUserToPremium(userId);
 
                     if (result >= 1)
                     {
-                        // עדכון האובייקט המקומי כדי שהאפליקציה תדע שהוא פרימיום
                         myApp.LoggedInUser.IsPremium = true;
-
                         MessageBox.Show("Success! Your account is now Premium. 👑");
-                        this.NavigationService.Navigate(new Home(true));
+
+                        // תיקון: שולחים את המשתמש עצמו במקום בוליאני
+                        this.NavigationService.Navigate(new Home(myApp.LoggedInUser));
                     }
                     else
                     {
@@ -53,6 +54,7 @@ namespace NoaMedia.Pages
                 MessageBox.Show("Error: " + ex.Message);
             }
         }
+
         private void Back_Click(object sender, RoutedEventArgs e)
         {
             if (this.NavigationService.CanGoBack)

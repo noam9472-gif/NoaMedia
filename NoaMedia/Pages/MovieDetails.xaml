@@ -5,6 +5,7 @@
       SnapsToDevicePixels="True">
 
     <Grid>
+        <!-- Background Section -->
         <Grid VerticalAlignment="Top" Height="700">
             <Image x:Name="BackgroundImage" Stretch="UniformToFill" Opacity="0.3"
                    RenderOptions.BitmapScalingMode="HighQuality"/>
@@ -18,6 +19,7 @@
             </Rectangle>
         </Grid>
 
+        <!-- Back Button -->
         <Button Click="Back_Click" VerticalAlignment="Top" HorizontalAlignment="Left" 
                 Margin="30" Background="#44000000" Foreground="White" BorderBrush="White"
                 Padding="15,8" Cursor="Hand" Panel.ZIndex="10">
@@ -27,13 +29,14 @@
                 </Style>
             </Button.Resources>
             <StackPanel Orientation="Horizontal">
-                <TextBlock Text="🗑️"  VerticalAlignment="Center" Margin="0,0,8,0"/>
+                <TextBlock Text="🔙"  VerticalAlignment="Center" Margin="0,0,8,0"/>
                 <TextBlock Text="BACK" FontWeight="SemiBold" VerticalAlignment="Center"/>
             </StackPanel>
         </Button>
 
         <ScrollViewer x:Name="MainScrollViewer" VerticalScrollBarVisibility="Hidden">
             <StackPanel>
+                <!-- Hero Section -->
                 <Grid x:Name="HeroSection" Height="700" Margin="60,100,60,0">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
@@ -110,6 +113,7 @@
                     </Button>
                 </Grid>
 
+                <!-- Information Section -->
                 <StackPanel Margin="60,40,60,60">
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -131,6 +135,7 @@
 
                     <Separator Background="#222" Margin="0,60"/>
 
+                    <!-- Reviews Section -->
                     <StackPanel>
                         <TextBlock Text="Member Reviews" Foreground="White" FontSize="32" FontWeight="Bold" Margin="0,0,0,30"/>
 
@@ -172,20 +177,20 @@
                                                 </Grid.ColumnDefinitions>
 
                                                 <TextBlock Text="{Binding WhoUpdatedTheReview.Name}" 
-                               Foreground="#E50914" FontWeight="Bold" FontSize="16"/>
+                                                           Foreground="#E50914" FontWeight="Bold" FontSize="16"/>
 
                                                 <TextBlock Grid.Column="1" 
-                               Text="{Binding ReviewDate, StringFormat='{}{0:dd/MM/yyyy }'}" 
-                               Foreground="#666" FontSize="12" VerticalAlignment="Center" Margin="10,0"/>
+                                                           Text="{Binding ReviewDate, StringFormat='{}{0:dd/MM/yyyy }'}" 
+                                                           Foreground="#666" FontSize="12" VerticalAlignment="Center" Margin="10,0"/>
 
                                                 <Button Grid.Column="2" x:Name="DeleteReviewBtn" Click="DeleteReviewBtn_Click"
-                            Content="" FontFamily="Segoe MDL2 Assets" Foreground="#666"
-                            Background="Transparent" BorderThickness="0" Cursor="Hand"
-                            VerticalAlignment="Center" ToolTip="Delete Review"/>
+                                                        Content="" FontFamily="Segoe MDL2 Assets" Foreground="#666"
+                                                        Background="Transparent" BorderThickness="0" Cursor="Hand"
+                                                        VerticalAlignment="Center" ToolTip="Delete Review"/>
                                             </Grid>
 
                                             <TextBlock Text="{Binding ReviewDescription}" 
-                           Foreground="#AAA" FontSize="15" Margin="0,10,0,0" TextWrapping="Wrap"/>
+                                                       Foreground="#AAA" FontSize="15" Margin="0,10,0,0" TextWrapping="Wrap"/>
                                         </StackPanel>
                                     </Border>
                                 </DataTemplate>
@@ -196,34 +201,58 @@
             </StackPanel>
         </ScrollViewer>
 
+        <!-- Video Player Overlay -->
         <Grid x:Name="VideoLayer" Visibility="Collapsed" Background="Black" Panel.ZIndex="100">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
-            <MediaElement x:Name="InlinePlayer" Grid.Row="0" LoadedBehavior="Manual" UnloadedBehavior="Stop" Stretch="Uniform" ScrubbingEnabled="True" MediaOpened="InlinePlayer_MediaOpened" BufferingStarted="InlinePlayer_BufferingStarted" BufferingEnded="InlinePlayer_BufferingEnded"/>
+
+            <MediaElement x:Name="InlinePlayer" Grid.Row="0" LoadedBehavior="Manual" UnloadedBehavior="Stop" 
+                          Stretch="Uniform" ScrubbingEnabled="True" 
+                          MediaOpened="InlinePlayer_MediaOpened" 
+                          BufferingStarted="InlinePlayer_BufferingStarted" 
+                          BufferingEnded="InlinePlayer_BufferingEnded"/>
 
             <StackPanel x:Name="LoadingStatus" Grid.Row="0" VerticalAlignment="Center" HorizontalAlignment="Center" Visibility="Collapsed">
                 <ProgressBar IsIndeterminate="True" Width="200" Height="10" Foreground="#E50914" Background="#333"/>
                 <TextBlock Text="Loading Movie..." Foreground="White" HorizontalAlignment="Center" Margin="0,10,0,0" FontSize="18"/>
             </StackPanel>
 
-            <Button Content="✕ Close" Click="CloseVideo_Click" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="20" Padding="15,5" Background="#CC000000" Foreground="White" BorderThickness="1" BorderBrush="White" Cursor="Hand" Panel.ZIndex="101"/>
+            <Button Content="✕ Close" Click="CloseVideo_Click" VerticalAlignment="Top" HorizontalAlignment="Left" 
+                    Margin="20" Padding="15,5" Background="#CC000000" Foreground="White" BorderThickness="1" 
+                    BorderBrush="White" Cursor="Hand" Panel.ZIndex="101"/>
 
-            <Border Grid.Row="1" Background="#AA000000" Padding="20,10">
+            <!-- Enhanced Video Controls -->
+            <Border Grid.Row="1" Background="#AA000000" Padding="20,15">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
+                        <!-- Time Status -->
                         <ColumnDefinition Width="Auto"/>
+                        <!-- Rewind -->
+                        <ColumnDefinition Width="Auto"/>
+                        <!-- Play/Pause -->
+                        <ColumnDefinition Width="Auto"/>
+                        <!-- Forward -->
                         <ColumnDefinition Width="*"/>
+                        <!-- Slider -->
                         <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="Auto"/>
+                        <!-- Total Time -->
                     </Grid.ColumnDefinitions>
-                    <TextBlock x:Name="TimeStatus" Grid.Column="0" Text="00:00" Foreground="White" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                    <Button Grid.Column="1" Content="-10s" Click="Rewind_Click" Background="Transparent" Foreground="White" BorderThickness="0" Cursor="Hand" Margin="0,0,10,0"/>
-                    <Slider x:Name="TimelineSlider" Grid.Column="2" Minimum="0" Maximum="100" VerticalAlignment="Center" PreviewMouseLeftButtonUp="TimelineSlider_MouseUp" Cursor="Hand"/>
-                    <Button Grid.Column="3" Content="+10s" Click="Forward_Click" Background="Transparent" Foreground="White" BorderThickness="0" Cursor="Hand" Margin="10,0,10,0"/>
-                    <TextBlock x:Name="TotalTime" Grid.Column="4" Text="00:00" Foreground="White" VerticalAlignment="Center"/>
+
+                    <TextBlock x:Name="TimeStatus" Grid.Column="0" Text="00:00" Foreground="White" VerticalAlignment="Center" Margin="0,0,15,0"/>
+
+                    <Button Grid.Column="1" Content="⏪" Click="Rewind_Click" Background="Transparent" Foreground="White" BorderThickness="0" Cursor="Hand" FontSize="18" Margin="0,0,10,0"/>
+
+                    <!-- NEW PLAY/PAUSE BUTTON -->
+                    <Button Grid.Column="2" x:Name="PauseButton" Content="⏸" Click="TogglePlayPause_Click" Background="Transparent" Foreground="White" BorderThickness="0" Cursor="Hand" FontSize="22" Margin="0,0,10,0"/>
+
+                    <Button Grid.Column="3" Content="⏩" Click="Forward_Click" Background="Transparent" Foreground="White" BorderThickness="0" Cursor="Hand" FontSize="18" Margin="0,0,15,0"/>
+
+                    <Slider x:Name="TimelineSlider" Grid.Column="4" Minimum="0" Maximum="100" VerticalAlignment="Center" PreviewMouseLeftButtonUp="TimelineSlider_MouseUp" Cursor="Hand"/>
+
+                    <TextBlock x:Name="TotalTime" Grid.Column="5" Text="00:00" Foreground="White" VerticalAlignment="Center" Margin="15,0,0,0"/>
                 </Grid>
             </Border>
         </Grid>

@@ -75,7 +75,7 @@
                     <WrapPanel x:Name="MainDisplayPanel" />
 
                     <Button x:Name="ShowAllHistoryButton" 
-                            Content="לצפייה בשאר הסרטים" 
+                            Content="To watch the other movies" 
                             Visibility="Collapsed" 
                             Click="ShowAllHistory_Click"
                             Background="#E50914" Foreground="White" 

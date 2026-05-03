@@ -290,6 +290,28 @@ namespace NoaMedia.Pages
         private void InlinePlayer_BufferingEnded(object sender, RoutedEventArgs e) => LoadingStatus.Visibility = Visibility.Collapsed;
         // פונקציה שמטפלת בלחיצה על כפתור החזרה ומבצעת את הפעולה של חזרה לעמוד הקודם בממשק
         private void Back_Click(object sender, RoutedEventArgs e) => this.NavigationService.GoBack();
+
+        // פונקציה שמטפלת בלחיצה על כפתור הניגון/הפסקה ומעדכנת את הממשק בהתאם כדי להחליף בין מצבי הניגון וההפסקה של הסרט
+        private void TogglePlayPause_Click(object sender, RoutedEventArgs e)
+        {
+            if (InlinePlayer.CanPause)
+            {
+                // בדיקה אם הסרטון כרגע רץ או בהפסקה
+                if (timer.IsEnabled)
+                {
+                    InlinePlayer.Pause();
+                    timer.Stop();
+                    // כאן אפשר לשנות את הטקסט של הכפתור ל- "▶"
+                }
+                else
+                {
+                    InlinePlayer.Play();
+                    timer.Start();
+                    // כאן אפשר לשנות את הטקסט של הכפתור ל- "⏸"
+                }
+            }
+        }
+
         // פונקציה שממירה מחרוזת Base64 לתמונה מסוג BitmapImage, משמשת לטעינת תמונות מהשרת או מהנתונים הקיימים של הסרט
         public BitmapImage Base64ToImage(string base64String)
         {

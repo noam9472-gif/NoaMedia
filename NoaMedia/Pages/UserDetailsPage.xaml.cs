@@ -54,7 +54,8 @@ namespace NoaMedia.Pages
                 this.NavigationService.GoBack();
         }
 
-        private void VideoList_MouseDoubleClick(object sender, MouseButtonEventArgs e) //  טיפול בלחיצה כפולה על פריט ברשימת הסרטים
+        //  טיפול בלחיצה כפולה על פריט ברשימת הסרטים
+        private void VideoList_MouseDoubleClick(object sender, MouseButtonEventArgs e) 
         {
             var listBox = sender as ListBox;
             if (listBox?.SelectedItem == null) return;

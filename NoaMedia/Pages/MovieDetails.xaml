@@ -27,7 +27,7 @@
                 </Style>
             </Button.Resources>
             <StackPanel Orientation="Horizontal">
-                <TextBlock Text="" FontFamily="Segoe MDL2 Assets" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                <TextBlock Text="🗑️"  VerticalAlignment="Center" Margin="0,0,8,0"/>
                 <TextBlock Text="BACK" FontWeight="SemiBold" VerticalAlignment="Center"/>
             </StackPanel>
         </Button>

@@ -20,7 +20,7 @@ namespace NoaMedia.Pages
             InitializeComponent();
         }
 
-        private void ShowPasswordButton_Click(object sender, RoutedEventArgs e)
+        private void ShowPasswordButton_Click(object sender, RoutedEventArgs e) // כפתור להראות/להסתיר סיסמה
         {
             if (PasswordBox.Visibility == Visibility.Visible)
             {
@@ -38,30 +38,30 @@ namespace NoaMedia.Pages
             }
         }
 
-        private async void LoginButton_Click(object sender, RoutedEventArgs e)
+        private async void LoginButton_Click(object sender, RoutedEventArgs e) // כפתור להתחברות
         {
             string username = UsernameTextBox.Text.Trim();
             string password = (PasswordBox.Visibility == Visibility.Visible)
                 ? PasswordBox.Password
                 : PasswordTextBox.Text;
 
-            if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
+            if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password)) // בדיקה אם השדות ריקים
             {
-                MessageBox.Show("נא להזין שם משתמש וסיסמה.");
+                MessageBox.Show("Please enter both username and password.");
                 return;
             }
 
             try
             {
-                UserList uList = await api.GetAllUsers();
+                UserList uList = await api.GetAllUsers(); // שליפת כל המשתמשים מהשרת
 
                 currentUser = uList?.FirstOrDefault(u =>
                     u.Name != null && u.Name.Trim().Equals(username, StringComparison.OrdinalIgnoreCase) &&
-                    u.Pass == password);
+                    u.Pass == password); // חיפוש משתמש תואם בשם וסיסמה, שם משתמש לא רגיש לרווחים או לאותיות גדולות/קטנות
 
                 if (currentUser == null)
                 {
-                    MessageBox.Show("שם משתמש או סיסמה שגויים.");
+                    MessageBox.Show("User Name or Password is incorrect.");
                     return;
                 }
 
@@ -85,20 +85,20 @@ namespace NoaMedia.Pages
                 {
                     if (currentUser.IsAdmin)
                     {
-                        MessageBox.Show("שלום מנהל! עובר לדף אפשרויות ניהול...");
-                        // תיקון: שליחה לדף המעבר במקום לדף הבית
+                        //  שליחה לדף המעבר במקום לדף הבית
                         this.NavigationService.Navigate(new TransitionOptionForManager(isPremium));
                     }
                     else
                     {
-                        if (isPremium) MessageBox.Show("ברוך הבא VIP! צפייה מהנה.");
-                        this.NavigationService.Navigate(new Home(currentUser));
+                        if (isPremium)  // שליחה לדף הבית עם פרמיום אם המשתמש פרימיום, אחרת לדף הבית רגיל
+                            this.NavigationService.Navigate(new Home(currentUser));
+                        else { this.NavigationService.Navigate(new Home(currentUser));  }
                     }
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show("שגיאה בתהליך ההתחברות: " + ex.Message);
+                MessageBox.Show("Error during login process: " + ex.Message);
             }
         }
 

@@ -22,7 +22,7 @@ namespace NoaMedia.Pages
             InitializeComponent();
             this.currentUser = user;
         }
-
+        // אירוע לחצן העלאת תמונה שמאפשר למשתמש לבחור תמונה מהמחשב שלו ולהציג אותה בתצוגה מקדימה
         private void BtnUploadPhoto_Click(object sender, RoutedEventArgs e)
         {
             OpenFileDialog openFile = new OpenFileDialog();
@@ -42,13 +42,13 @@ namespace NoaMedia.Pages
             {
                 if (string.IsNullOrEmpty(MovieNameTextBox.Text) || string.IsNullOrEmpty(picPath) || string.IsNullOrEmpty(MovieUrlTextBox.Text))
                 {
-                    MessageBox.Show("נא להזין שם, כתובת סרט ולהעלות תמונה.");
+                    MessageBox.Show("Enter all required fields."); // הודעה למשתמש אם הוא לא הזין את כל השדות ה
                     return;
                 }
 
                 if (!int.TryParse(DurationTextBox.Text, out int duration))
                 {
-                    MessageBox.Show("נא להזין אורך סרט תקין.");
+                    MessageBox.Show("Enter a valid movie duration."); // הודעה למשתמש אם הוא לא הזין אורך סרט תקין
                     return;
                 }
 
@@ -58,7 +58,7 @@ namespace NoaMedia.Pages
 
                 if (selectedGenre == null)
                 {
-                    MessageBox.Show("הז'אנר לא נמצא.");
+                    MessageBox.Show("Genre not found."); // הודעה למשתמש אם הז'אנר לא נמצא
                     return;
                 }
 
@@ -70,7 +70,6 @@ namespace NoaMedia.Pages
                     Genre = selectedGenre,
                     VideoPic = picPath,
                     VideoUploadedDate = DateTime.Now,
-                    // כאן אנחנו מכניסים את התקציר מה-TextBox
                     VideoDescription = DescriptionTextBox.Text,
                     VideoAddress = MovieUrlTextBox.Text,
                     WhoUploadedTheVideo = currentUser
@@ -80,17 +79,17 @@ namespace NoaMedia.Pages
 
                 if (success == 1)
                 {
-                    MessageBox.Show("הסרט פורסם בהצלחה!");
+                    MessageBox.Show("The movie was published successfully!"); // הודעה למשתמש אם הסרט פורסם בהצלחה
                     this.NavigationService.GoBack();
                 }
                 else
                 {
-                    MessageBox.Show("שגיאה בשמירה בשרת.");
+                    MessageBox.Show("Error saving the movie on the server."); // הודעה למשתמש אם יש שגיאה בשמירה בשרת
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Error: " + ex.Message);
+                MessageBox.Show("Error: " + ex.Message); // הודעה למשתמש אם יש שגיאה כללית
             }
         }
 

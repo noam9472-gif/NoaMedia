@@ -15,20 +15,21 @@ namespace NoaMedia.Pages
     public partial class Home : Page
     {
         private readonly InterfaceAPI api = new InterfaceAPI();
+        // משתנה שמציין האם המשתמש פרימיום או לא, נקבע בקונסטרקטור לפי פרטי המשתמש הנוכחי
         private bool _isPremium;
         private List<Video> _allVideos = new List<Video>();
-        private User _currentUser;
+        // משתנה לשמירת פרטי המשתמש הנוכחי, נקבע בקונסטרקטור ומאפשר גישה לפרטים בכל שאר הפונקציות בעמוד
+        private User _currentUser; 
 
         public Home(User user)
         {
             InitializeComponent();
-            this._currentUser = user;
-            this._isPremium = user.IsPremium;
+            this._currentUser = user; // שמירת פרטי המשתמש הנוכחי
+            this._isPremium = user.IsPremium; // בדיקה האם המשתמש פרימיום או לא
 
             CheckUserPermissions();
 
-            // שימוש ב-Loaded כדי להבטיח שהאלמנטים הגרפיים קיימים
-            this.Loaded += Home_Loaded;
+            this.Loaded += Home_Loaded; // טעינת התוכן לאחר שהעמוד נטען
         }
 
         private void Home_Loaded(object sender, RoutedEventArgs e)
@@ -54,7 +55,7 @@ namespace NoaMedia.Pages
         {
             try
             {
-                // קבלת כל הסרטים מה-API
+                // קבלת כל הסרטים מהAPI
                 var allVideosRaw = await api.GetAllVideos();
                 _allVideos = (allVideosRaw as IEnumerable<Video>)?.ToList() ?? new List<Video>();
 
@@ -76,7 +77,6 @@ namespace NoaMedia.Pages
 
             foreach (var g in genres)
             {
-                // סינון ז'אנרים למנויי פרימיום/מנהלים בלבד
                 if (g.GenreDescription == "Premium Only" && !_isPremium && !_currentUser.IsAdmin) continue;
 
                 var genreVideos = moviesToDisplay.Where(v => v != null && v.Genre?.Id == g.Id).ToList();
@@ -116,7 +116,7 @@ namespace NoaMedia.Pages
             // לוגיקת טעינת תמונה
             string base64 = v.VideoPic;
 
-            // אם ה-Base64 ריק באובייקט הסרט, ננסה למשוך אותו ספציפית לפי ID
+            // אם הבייס64 ריק באובייקט הסרט, ננסה למשוך אותו ספציפית לפי מזהה
             if (string.IsNullOrEmpty(base64))
             {
                 base64 = await api.GetVideoPicByte64(v.Id);
@@ -157,26 +157,26 @@ namespace NoaMedia.Pages
             return container;
         }
 
-        public BitmapImage Base64ToImage(string base64String)
+        public BitmapImage Base64ToImage(string base64String) // פונקציה שממירה מחרוזת Base64 לתמונה BitmapImage
         {
             if (string.IsNullOrWhiteSpace(base64String)) return null;
 
             try
             {
-                // 1. ניקוי רווחים ותווים לא חוקיים שיכולים להגיע מה-DB
+                // הסרת רווחים מיותרים
                 base64String = base64String.Trim();
 
-                // 2. טיפול בתחיליות (Data URI) אם קיימות
+                
                 if (base64String.Contains(","))
                 {
                     base64String = base64String.Split(',')[1];
                 }
 
-                // 3. בדיקה אם אורך המחרוזת חוקי ל-Base64 (חייב להיות כפולה של 4)
-                // אם חסר Padding (=), זה יכול להפיל את ההמרה
+                // בדיקה אם אורך המחרוזת תקין לבייס64, חייב להיות כפולה של 4
                 base64String = base64String.Replace("\r", "").Replace("\n", "");
                 if (base64String.Length % 4 != 0)
                 {
+                    // הוספת padding אם חסר
                     base64String = base64String.PadRight(base64String.Length + (4 - base64String.Length % 4) % 4, '=');
                 }
 
@@ -185,18 +185,16 @@ namespace NoaMedia.Pages
                 using (var ms = new System.IO.MemoryStream(imageBytes))
                 {
                     var image = new BitmapImage();
-                    image.BeginInit();
-                    // הגדרה קריטית כדי שהתמונה תישמר בזיכרון גם אחרי שה-Stream נסגר
-                    image.CacheOption = BitmapCacheOption.OnLoad;
-                    image.StreamSource = ms;
-                    image.EndInit();
-                    image.Freeze(); // הופך את האובייקט ל-Thread-safe (חשוב מאוד ב-WPF)
-                    return image;
+                    image.BeginInit(); // הכנה לטעינת התמונה
+                    image.CacheOption = BitmapCacheOption.OnLoad; // טוען את התמונה מיד ומאפשר לסגור את הסטרים
+                    image.StreamSource = ms; // הגדרת מקור התמונה לסטרים
+                    image.EndInit(); // סיום ההכנה
+                    image.Freeze(); 
+                    return image; 
                 }
             }
             catch (Exception ex)
             {
-                // הדפסה לחלון ה-Output ב-Visual Studio כדי שתראה מה השגיאה
                 System.Diagnostics.Debug.WriteLine($"CRITICAL IMAGE ERROR: {ex.Message}");
                 return null;
             }

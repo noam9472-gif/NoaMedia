@@ -21,18 +21,18 @@ namespace NoaMedia.Pages
 
         private void BtnUserMode_Click(object sender, RoutedEventArgs e)
         {
-            // תיקון: שולחים את אובייקט המשתמש לדף הבית
+            //  שולחים את אובייקט המשתמש לדף הבית
             if (_managerUser != null)
             {
                 this.NavigationService.Navigate(new Home(_managerUser));
             }
         }
-
+        // ניווט לדף הניהול
         private void BtnAdminMode_Click(object sender, RoutedEventArgs e)
         {
             this.NavigationService.Navigate(new AdminPage());
         }
-
+        // התנתקות והחזרה לדף הכניסה
         private void Logout_Click(object sender, RoutedEventArgs e)
         {
             var myApp = Application.Current as App;

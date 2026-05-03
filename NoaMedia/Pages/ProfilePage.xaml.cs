@@ -13,26 +13,27 @@ namespace NoaMedia.Pages
 {
     public partial class ProfilePage : Page
     {
+        
         private IInterfaceAPI api = new InterfaceAPI();
         private User currentUser;
         private List<Video> fullHistoryList = new List<Video>();
 
-        public ProfilePage(string currentName)
+        public ProfilePage(string currentName) // קונסטרקטור שמקבל את שם המשתמש הנוכחי
         {
             InitializeComponent();
-            currentUser = (Application.Current as App).LoggedInUser;
+            currentUser = (Application.Current as App).LoggedInUser; // משיכת אובייקט המשתמש הנוכחי מהאפליקציה
 
-            if (currentUser != null)
+            if (currentUser != null) // בדיקה אם המשתמש קיים
             {
-                UserNameHeading.Text = currentUser.UserName;
-                ProfileInitialText.Text = currentUser.UserName.Substring(0, 1).ToUpper();
+                UserNameHeading.Text = currentUser.UserName; // הצגת שם המשתמש בכותרת
+                ProfileInitialText.Text = currentUser.UserName.Substring(0, 1).ToUpper(); 
 
-                if (currentUser.IsAdmin)
+                if (currentUser.IsAdmin) // בדיקה אם המשתמש הוא מנהל
                     PremiumBadge.Visibility = Visibility.Visible;
             }
         }
 
-        private async void LoadContent(string category)
+        private async void LoadContent(string category) // טעינת תוכן לפי קטגוריה
         {
             MainDisplayPanel.Children.Clear();
             CommentsDisplayPanel.Children.Clear();
@@ -44,9 +45,9 @@ namespace NoaMedia.Pages
 
             try
             {
-                switch (category)
+                switch (category) // בחירת הקטגוריה לטעינה בהתאם לבחירת המשתמש בתפריט הצדדי
                 {
-                    case "MyVideos":
+                    case "MyVideos": // טעינת הסרטים שהמשתמש העלה
                         SectionTitle.Text = "My Videos";
                         MainDisplayPanel.Visibility = Visibility.Visible;
                         var allVideos = (VideoList)await api.GetAllVideos();
@@ -54,7 +55,7 @@ namespace NoaMedia.Pages
                         FillVideoPanel(myVideos);
                         break;
 
-                    case "Liked":
+                    case "Liked": // טעינת הסרטים שהמשתמש אהב
                         SectionTitle.Text = "Liked Videos";
                         MainDisplayPanel.Visibility = Visibility.Visible;
                         var allLikes = (MyLikesList)await api.GetAllLikes();
@@ -65,14 +66,15 @@ namespace NoaMedia.Pages
                         FillVideoPanel(myLikedVideos);
                         break;
 
-                    case "Watched":
+                    case "Watched": // טעינת היסטוריית הצפייה של המשתמש
                         SectionTitle.Text = "Watched History";
                         MainDisplayPanel.Visibility = Visibility.Visible;
                         var historyResponse = await api.GetAllMyHistory();
                         if (historyResponse == null) break;
 
                         List<MyHistory> allHistoryRecords = historyResponse.ToList();
-                        fullHistoryList = allHistoryRecords
+                        // סינון, מיון וקיבוץ לפי וידאו כדי לקבל רשימה ייחודית של סרטים מההיסטוריה
+                        fullHistoryList = allHistoryRecords 
                             .Where(h => h.UserId?.Id == currentUser.Id)
                             .OrderByDescending(h => h.Id)
                             .Select(h => h.VideoId)
@@ -88,7 +90,7 @@ namespace NoaMedia.Pages
                             ShowAllHistoryButton.Visibility = Visibility.Visible;
                         break;
 
-                    case "MyList":
+                    case "MyList": // טעינת רשימת הצפייה האישית של המשתמש
                         SectionTitle.Text = "My List";
 
                         // בדיקה: אם המשתמש הוא מנהל או שיש לו מנוי פרימיום - פתח את התוכן
@@ -97,10 +99,9 @@ namespace NoaMedia.Pages
                             // מוודא שהתוכן גלוי ומסך הנעילה מוסתר
                             ContentScrollViewer.Visibility = Visibility.Visible;
                             PremiumLockPanel.Visibility = Visibility.Collapsed;
-
+                            // הצגת הפאנל עם הסרטים
                             MainDisplayPanel.Visibility = Visibility.Visible;
 
-                            // טעינת הסרטים מה-API
                             var allWatchList = (MyWatchListList)await api.GetAllMyWatchList();
                             var myPersonalList = allWatchList
                                 .Where(w => w.UserId?.Id == currentUser.Id)
@@ -118,10 +119,11 @@ namespace NoaMedia.Pages
                         }
                         break; ;
 
-                    case "Comments":
+                    case "Comments": // טעינת התגובות שהמשתמש כתב
                         SectionTitle.Text = "My Comments";
                         CommentsDisplayPanel.Visibility = Visibility.Visible;
                         var allComments = await api.GetAllVideoReviews();
+                        // סינון התגובות כך שיוצגו רק אלו שהמשתמש הנוכחי כתב
                         var myComments = allComments.Where(c => c.WhoUpdatedTheReview.Id == currentUser.Id).ToList();
 
                         foreach (var comment in myComments)
@@ -152,7 +154,7 @@ namespace NoaMedia.Pages
                                 Margin = new Thickness(0, 5, 0, 0),
                                 TextWrapping = TextWrapping.Wrap
                             };
-
+                            // הוספת שם הסרטון ותוכן התגובה לסטקפאנל
                             textStack.Children.Add(videoTitle);
                             textStack.Children.Add(commentText);
                             textStack.Children.Add(new Separator { Background = Brushes.DimGray, Margin = new Thickness(0, 10, 0, 0) });
@@ -163,8 +165,7 @@ namespace NoaMedia.Pages
                             // הוספת כפתור המחיקה
                             Button deleteBtn = new Button
                             {
-                                Content = "", // אייקון פח אשפה
-                                FontFamily = new FontFamily("Segoe MDL2 Assets"),
+                                Content = "🗑️", 
                                 Background = Brushes.Transparent,
                                 Foreground = Brushes.Gray,
                                 BorderThickness = new Thickness(0),
@@ -174,7 +175,7 @@ namespace NoaMedia.Pages
                                 Tag = comment // שומרים את האובייקט של התגובה בתוך הכפתור
                             };
 
-                            // עיצוב קטן למעבר עכבר
+                            // עיצוב למעבר עכבר
                             deleteBtn.MouseEnter += (s, e) => (s as Button).Foreground = Brushes.Red;
                             deleteBtn.MouseLeave += (s, e) => (s as Button).Foreground = Brushes.Gray;
 
@@ -195,21 +196,20 @@ namespace NoaMedia.Pages
             }
         }
 
-        private async void DeleteComment_Click(object sender, RoutedEventArgs e)
+        private async void DeleteComment_Click(object sender, RoutedEventArgs e) // אירוע לחיצה על כפתור המחיקה של תגובה
         {
-            var button = sender as Button;
-            var comment = button?.Tag as VideoReview;
+            var button = sender as Button; // משיכת הכפתור שנלחץ
+            var comment = button?.Tag as VideoReview; 
 
             if (comment == null) return;
-
+            // הצגת תיבת אישור לפני המחיקה
             var result = MessageBox.Show("Are you sure you want to delete this comment?", "Confirm Delete", MessageBoxButton.YesNo, MessageBoxImage.Question);
 
             if (result == MessageBoxResult.Yes)
             {
                 try
                 {
-                    // קריאה ל-API שלך
-                    int affectedRows = await api.DeleteVideoReview(comment.Id);
+                    int affectedRows = await api.DeleteVideoReview(comment.Id); // קריאה למחיקת התגובה מהשרת
 
                     if (affectedRows > 0)
                     {
@@ -229,14 +229,14 @@ namespace NoaMedia.Pages
         }
 
 
-
-        private void ShowAllHistory_Click(object sender, RoutedEventArgs e)
+        // אירוע לחיצה על כפתור "Show All History" שמציג את כל היסטוריית הצפייה של המשתמש
+        private void ShowAllHistory_Click(object sender, RoutedEventArgs e) 
         {
             MainDisplayPanel.Children.Clear();
             FillVideoPanel(fullHistoryList);
             ShowAllHistoryButton.Visibility = Visibility.Collapsed;
         }
-
+        // פונקציה שממלאת את הפאנל הראשי עם תמונות הסרטים בהתאם לרשימת הסרטים שנשלחה לה
         private async void FillVideoPanel(IEnumerable<Video> videos)
         {
             foreach (var v in videos)
@@ -247,13 +247,13 @@ namespace NoaMedia.Pages
                 MainDisplayPanel.Children.Add(CreateMovieThumbnail(v));
             }
         }
-
+        // אירוע שינוי הבחירה בתפריט הצדדי שמטעין את התוכן המתאים בהתאם לקטגוריה שנבחרה
         private void MenuListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (MenuListBox.SelectedItem is TextBlock selectedItem)
                 LoadContent(selectedItem.Tag.ToString());
         }
-
+        // פונקציה שמייצרת כפתור עם תמונת הסרטון שמוביל לדף הפרטים של הסרטון בעת לחיצה
         private Button CreateMovieThumbnail(Video v)
         {
             Button btn = new Button
@@ -265,6 +265,7 @@ namespace NoaMedia.Pages
                 BorderThickness = new Thickness(0),
                 Cursor = Cursors.Hand
             };
+            // יצירת תמונה עם עיצוב של מסגרת עגולה
             Image movieImg = new Image { Stretch = Stretch.UniformToFill, Width = 150, Height = 220 };
             try { if (v != null && !string.IsNullOrEmpty(v.VideoPic)) movieImg.Source = Base64ToImage(v.VideoPic); }
             catch { }
@@ -273,29 +274,32 @@ namespace NoaMedia.Pages
             btn.Click += (s, e) => this.NavigationService.Navigate(new MovieDetails(v));
             return btn;
         }
-
+        // אירוע טעינת הדף שמוודא שטעינת התוכן מתבצעת רק לאחר שהדף נטען במלואו
         private void Page_Loaded(object sender, RoutedEventArgs e)
         {
             if (MenuListBox.SelectedItem is TextBlock selectedItem) LoadContent(selectedItem.Tag.ToString());
             else MenuListBox.SelectedIndex = 0;
         }
-
+        // אירוע לחיצה על כפתור היציאה שמבצע התנתקות של המשתמש ומחזיר לדף הכניסה
         private void Logout_Click(object sender, RoutedEventArgs e)
         {
             if (Application.Current is App myApp) myApp.LoggedInUser = null;
             this.NavigationService.Navigate(new NoaMedia.Pages.Log_in());
         }
-
+        
+        // אירוע לחיצה על כפתור החזרה שמחזיר לדף הקודם אם קיים
         private void Back_Click(object sender, RoutedEventArgs e)
         {
             if (this.NavigationService.CanGoBack) this.NavigationService.GoBack();
         }
-
+        
+        // אירוע לחיצה על כפתור השדרוג שמוביל לדף רכישת פרימיום
         private void Upgrade_Click(object sender, RoutedEventArgs e)
         {
             this.NavigationService.Navigate(new PremiumSalesPage());
         }
-
+        
+        // פונקציה שממירה מחרוזת בייס64 לתמונה
         public BitmapImage Base64ToImage(string base64String)
         {
             try

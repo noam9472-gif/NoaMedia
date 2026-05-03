@@ -15,23 +15,23 @@ namespace NoaMedia.Pages
             InitializeComponent();
         }
 
-        private async void ConfirmPremium_Click(object sender, RoutedEventArgs e)
+        private async void ConfirmPremium_Click(object sender, RoutedEventArgs e) 
         {
-            var myApp = Application.Current as App;
-            if (myApp?.LoggedInUser == null) return;
+            var myApp = Application.Current as App; //  קבלת האפליקציה הנוכחית כדי לגשת למשתמש המחובר
+            if (myApp?.LoggedInUser == null) return; 
 
-            int userId = myApp.LoggedInUser.Id;
+            int userId = myApp.LoggedInUser.Id; 
 
             try
             {
-                int commentsCount = await api.GetCommentsCountByUser(userId);
-                int likesCount = await api.GetLikesCountByUser(userId);
+                int commentsCount = await api.GetCommentsCountByUser(userId); // קבלת מספר התגובות של המשתמש
+                int likesCount = await api.GetLikesCountByUser(userId); // קבלת מספר הלייקים של המשתמש
 
-                if (commentsCount >= 5 && likesCount >= 5)
+                if (commentsCount >= 5 && likesCount >= 5) // בדיקה אם המשתמש עומד בתנאי השדרוג
                 {
-                    int result = await api.UpgradeUserToPremium(userId);
+                    int result = await api.UpgradeUserToPremium(userId); // ניסיון לשדרג את המשתמש ל-Premium
 
-                    if (result >= 1)
+                    if (result >= 1) // אם השדרוג הצליח, מעדכנים את המשתמש ומנווטים לדף הבית
                     {
                         myApp.LoggedInUser.IsPremium = true;
                         MessageBox.Show("Success! Your account is now Premium. 👑");
@@ -41,21 +41,21 @@ namespace NoaMedia.Pages
                     }
                     else
                     {
-                        MessageBox.Show("Update failed. Please try again.");
+                        MessageBox.Show("Update failed. Please try again."); // הודעה אם השדרוג נכשל
                     }
                 }
                 else
                 {
-                    MessageBox.Show("You need 5 likes and 5 comments to upgrade!");
+                    MessageBox.Show("You need 5 likes and 5 comments to upgrade!"); // הודעה למשתמש אם הוא לא עומד בתנאי השדרוג
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Error: " + ex.Message);
+                MessageBox.Show("Error: " + ex.Message); // טיפול בשגיאות אפשריות במהלך התהליך
             }
         }
 
-        private void Back_Click(object sender, RoutedEventArgs e)
+        private void Back_Click(object sender, RoutedEventArgs e) // טיפול בלחצן חזרה
         {
             if (this.NavigationService.CanGoBack)
                 this.NavigationService.GoBack();

@@ -12,8 +12,8 @@ namespace NoaMedia.Pages
     public partial class AddVideoAdmin : Page
     {
         InterfaceAPI api = new InterfaceAPI();
-        string base64Image = "";
-        string picName = "";
+        string base64Image = ""; // משתנה לשמירת התמונה כמחרוזת Base64
+        string picName = ""; // משתנה לשמירת שם הקובץ של התמונה
 
         public AddVideoAdmin()
         {
@@ -74,7 +74,7 @@ namespace NoaMedia.Pages
 
 
 
-                    // יצירת אובייקט משתמש מלא כדי למנוע דחייה מהשרת
+                    // יצירת אובייקט משתמש מלא כדי למנוע דחייה מהשרת, מזהה הוא 5 כי זה המשתמש האדמין שלנו
                     WhoUploadedTheVideo = new User
                     {
                         Id = 5,
